@@ -50,7 +50,9 @@ jobs:
           printf 'ANDROID_NDK_ROOT=%s\n' "$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
 
       - name: Build arm64 release APK
-        run: ./gradlew --no-daemon --stacktrace :app:assembleArm64V8aRelease
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace :app:assembleArm64V8aRelease
 
       - name: Verify APK payload
         run: |
