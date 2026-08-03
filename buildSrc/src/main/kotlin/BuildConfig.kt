@@ -19,7 +19,8 @@ object ProjectConfig {
     // API 37 is not available from the public SDK repository used by GitHub Actions.
     const val TARGET_SDK = 36
     const val MIN_SDK = 24
-    val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+    // This project targets rooted arm64-v8a Android devices only.
+    val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a")
 }
 
 fun org.gradle.api.Project.getGitVersionCode(): Int {
