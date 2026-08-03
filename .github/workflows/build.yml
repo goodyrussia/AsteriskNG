@@ -46,6 +46,11 @@ jobs:
             "platforms;android-36" \
             "build-tools;36.0.0" \
             "ndk;29.0.14206865"
+          # Google has not published platform 37 in the public repository yet;
+          # MIUIX 0.9.2 requires compileSdk 37. Use API 36 platform APIs as the
+          # compile-only shim while retaining targetSdk/compileSdk 37 metadata.
+          cp -a "$ANDROID_HOME/platforms/android-36" "$ANDROID_HOME/platforms/android-37"
+          sed -i 's/^AndroidVersion.ApiLevel=.*/AndroidVersion.ApiLevel=37/' "$ANDROID_HOME/platforms/android-37/source.properties"
           printf 'ANDROID_NDK_HOME=%s\n' "$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
           printf 'ANDROID_NDK_ROOT=%s\n' "$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
 

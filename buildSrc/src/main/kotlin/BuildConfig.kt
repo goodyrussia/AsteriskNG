@@ -16,8 +16,7 @@ object ProjectConfig {
     const val XRAY_CORE_VERSION = "v26.6.1"
     const val ANDROID_LIB_XRAY_LITE_VERSION = "v26.6.2"
     const val HEV_SOCKS5_TUNNEL_VERSION = "2.15.0"
-    // API 37 is not available from the public SDK repository used by GitHub Actions.
-    const val TARGET_SDK = 36
+    const val TARGET_SDK = 37
     const val MIN_SDK = 24
     // This project targets rooted arm64-v8a Android devices only.
     val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a")
