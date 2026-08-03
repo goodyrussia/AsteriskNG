@@ -32,7 +32,6 @@ import app.modes.ColorModeThemeDark
 import app.modes.ColorModeThemeSystem
 import app.navigation.Route
 import engine.proxy.withResolvedDynamicLocalProxyPort
-import features.settings.locale.AppLocale
 import features.settings.sheets.externalInterfacesSummary
 import features.settings.sheets.fragmentSettingsSummary
 import features.settings.sheets.ignoredInterfacesSummary

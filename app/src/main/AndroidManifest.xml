@@ -121,14 +121,6 @@
             android:name="features.resources.runtime.AndroidResourceFileDownloadCancelReceiver"
             android:exported="false" />
 
-        <receiver
-            android:name="app.LegacyRootRuntimeMigrationReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-            </intent-filter>
-        </receiver>
-
         <service
             android:name="features.quicksettings.ProxyQuickSettingsTileService"
             android:exported="true"
