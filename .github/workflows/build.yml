@@ -38,6 +38,31 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Set up Go 1.24.5 for Eichgee Xray
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.5"
+          cache: false
+
+      - name: Build pinned Eichgee Xray core
+        env:
+          EICHGEE_XRAY_COMMIT: 725e55ddabe8431a6e66286823d97d71c1b0947b
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/eichgee/Xray-core.git /tmp/eichgee-xray
+          git -C /tmp/eichgee-xray checkout --detach "$EICHGEE_XRAY_COMMIT"
+          test "$(git -C /tmp/eichgee-xray rev-parse HEAD)" = "$EICHGEE_XRAY_COMMIT"
+          mkdir -p app/build/generated/xrayCoreJniLibs/arm64-v8a
+          (
+            cd /tmp/eichgee-xray
+            go build -mod=readonly -trimpath -ldflags='-s -w -buildid=' -o /tmp/xray-linux ./main
+            /tmp/xray-linux version | grep -F 'Xray 25.5.16 (Xray, Penetrates Everything.) Custom ('
+            CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build \
+              -mod=readonly -trimpath -ldflags='-s -w -buildid=' \
+              -o "$GITHUB_WORKSPACE/app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so" ./main
+          )
+          file app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so | grep -E 'ARM aarch64|AArch64'
+          sha256sum app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so
+
       - name: Install Android build requirements
         run: |
           yes | sdkmanager --licenses >/dev/null
