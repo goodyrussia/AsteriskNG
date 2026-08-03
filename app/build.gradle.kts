@@ -44,12 +44,29 @@ android {
         }
     }
 
+    signingConfigs {
+        val keystorePath = System.getenv("ASTERISK_SIGNING_KEYSTORE")
+        if (!keystorePath.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("ASTERISK_SIGNING_STORE_PASSWORD")
+                keyAlias = System.getenv("ASTERISK_SIGNING_KEY_ALIAS")
+                keyPassword = System.getenv("ASTERISK_SIGNING_KEY_PASSWORD")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
         }
 
         release {
+            signingConfig = signingConfigs.findByName("release")
             isDebuggable = false
             isJniDebuggable = false
             isPseudoLocalesEnabled = false

@@ -79,7 +79,20 @@ jobs:
           printf 'ANDROID_NDK_HOME=%s\n' "$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
           printf 'ANDROID_NDK_ROOT=%s\n' "$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
 
+      - name: Prepare release signing key
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.ASTERISK_SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$SIGNING_KEYSTORE_BASE64"
+          printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > /tmp/asteriskng-release.jks
+          test -s /tmp/asteriskng-release.jks
+
       - name: Build arm64 release APK
+        env:
+          ASTERISK_SIGNING_KEYSTORE: /tmp/asteriskng-release.jks
+          ASTERISK_SIGNING_STORE_PASSWORD: ${{ secrets.ASTERISK_SIGNING_STORE_PASSWORD }}
+          ASTERISK_SIGNING_KEY_ALIAS: ${{ secrets.ASTERISK_SIGNING_KEY_ALIAS }}
+          ASTERISK_SIGNING_KEY_PASSWORD: ${{ secrets.ASTERISK_SIGNING_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon --stacktrace :app:assembleRelease
@@ -96,6 +109,8 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libxray.so'
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libsetuidgid.so'
           ! unzip -Z1 "$APK" | grep -F 'libhev-socks5-tunnel.so'
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" | tee apk-signing.txt
+          grep -F 'Signer #1 certificate SHA-256 digest: 05a46696f793f9a49138e471c57746b82a1475a9ada62db93a3a55a300e68df7' apk-signing.txt
           sha256sum "$APK" | tee apk-sha256.txt
 
       - name: Upload build artifact
@@ -105,6 +120,7 @@ jobs:
           path: |
             dist/AsteriskNG-arm64-v8a.apk
             apk-sha256.txt
+            apk-signing.txt
           if-no-files-found: error
           retention-days: 14
 
@@ -116,3 +132,8 @@ jobs:
           files: |
             dist/AsteriskNG-arm64-v8a.apk
             apk-sha256.txt
+            apk-signing.txt
+
+      - name: Remove signing key
+        if: always()
+        run: rm -f /tmp/asteriskng-release.jks
