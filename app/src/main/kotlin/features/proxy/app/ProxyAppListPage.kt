@@ -9,7 +9,7 @@ import app.LocalAppStateStore
 import app.LocalAppServices
 import app.LocalIsWideScreen
 import app.LocalUpdateAppState
-import app.modes.RunModeVpnService
+
 import app.collectAppState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,14 +68,8 @@ fun ProxyAppListPage(
 
     val proxyAppListModes = proxyAppListModeLabels()
     val modeIndex = appState.proxyAppListMode.coerceIn(proxyAppListModes.indices)
-    val isVpnServiceMode = appState.runMode == RunModeVpnService
     val selectedAppKeys = remember(appState.proxyAppListSelectedApps) {
         appState.proxyAppListSelectedApps.toSet()
-    }
-    val vpnServiceUserId = if (isVpnServiceMode) {
-        pageState.userSpaces.firstOrNull()?.id
-    } else {
-        null
     }
     val userTabIds = remember(pageState.userTabs) {
         pageState.userTabs.map { tab -> tab.id }
@@ -104,8 +98,6 @@ fun ProxyAppListPage(
     ProxyAppListPageEffects(
         pageState = pageState,
         selectedAppKeys = selectedAppKeys,
-        isVpnServiceMode = isVpnServiceMode,
-        vpnServiceUserId = vpnServiceUserId,
         selfPackageName = selfPackageName,
         selectedUserIndex = selectedUserIndex,
         userTabIds = userTabIds,

@@ -14,8 +14,6 @@ object ProjectConfig {
     const val VERSION_NAME = "1.2.4"
     const val PACKAGE_NAME = "org.asterisk.zcc.ang"
     const val XRAY_CORE_VERSION = "v1.250516.0-patch.20"
-    const val ANDROID_LIB_XRAY_LITE_VERSION = "v26.6.2"
-    const val HEV_SOCKS5_TUNNEL_VERSION = "2.15.0"
     const val TARGET_SDK = 37
     const val MIN_SDK = 24
     // This project targets rooted arm64-v8a Android devices only.
@@ -44,12 +42,6 @@ abstract class GenerateProjectInfoTask : DefaultTask() {
     @get:Input
     abstract val xrayCoreVersion: Property<String>
 
-    @get:Input
-    abstract val androidLibXrayLiteVersion: Property<String>
-
-    @get:Input
-    abstract val hevSocks5TunnelVersion: Property<String>
-
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
@@ -67,8 +59,6 @@ abstract class GenerateProjectInfoTask : DefaultTask() {
                 const val VERSION_NAME = "${versionName.get()}"
                 const val VERSION_CODE = ${versionCode.get()}
                 const val XRAY_CORE_VERSION = "${xrayCoreVersion.get()}"
-                const val ANDROID_LIB_XRAY_LITE_VERSION = "${androidLibXrayLiteVersion.get()}"
-                const val HEV_SOCKS5_TUNNEL_VERSION = "${hevSocks5TunnelVersion.get()}"
             }
             """.trimIndent(),
         )

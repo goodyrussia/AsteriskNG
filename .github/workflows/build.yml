@@ -95,6 +95,7 @@ jobs:
           unzip -tq "$APK"
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libxray.so'
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libsetuidgid.so'
+          ! unzip -Z1 "$APK" | grep -F 'libhev-socks5-tunnel.so'
           sha256sum "$APK" | tee apk-sha256.txt
 
       - name: Upload build artifact

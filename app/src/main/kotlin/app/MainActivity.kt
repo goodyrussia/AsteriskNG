@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.union
 import com.journeyapps.barcodescanner.ScanContract
 import data.AndroidAppStateStore
 import data.AppSettingsPreferences
-import engine.vpn.AndroidVpnPermissionRequester
+
 import features.logs.AndroidLogFileCreator
 import features.proxy.server.qr.AndroidQrCodeScanRequester
 import features.resources.runtime.AndroidResourceFilePicker
@@ -35,10 +35,6 @@ import kotlinx.coroutines.launch
 import ui.feedback.AndroidToastTipNotifier
 
 class MainActivity : ComponentActivity() {
-    private val vpnPermissionRequester = AndroidVpnPermissionRequester {
-        getString(R.string.error_vpn_permission_launcher_missing)
-    }
-
     private val qrCodeScanRequester = AndroidQrCodeScanRequester(
         hasCameraPermission = {
             checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -75,11 +71,6 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission(),
     ) {}
 
-    private val vpnPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        vpnPermissionRequester.complete(result.resultCode == RESULT_OK)
-    }
 
     private val qrCodePermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -110,9 +101,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        vpnPermissionRequester.registerLauncher { intent ->
-            vpnPermissionLauncher.launch(intent)
-        }
         qrCodeScanRequester.registerPermissionLauncher { permission ->
             qrCodePermissionLauncher.launch(permission)
         }
@@ -139,8 +127,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        vpnPermissionRequester.complete(false)
-        vpnPermissionRequester.registerLauncher(null)
         qrCodeScanRequester.completeCameraPermission(false)
         qrCodeScanRequester.completeScan(null)
         qrCodeScanRequester.registerPermissionLauncher(null)
@@ -169,7 +155,6 @@ class MainActivity : ComponentActivity() {
                 qrCodeScanner = qrCodeScanRequester::scan,
                 resourceFilePicker = resourceFilePicker::pick,
                 logFileCreator = logFileCreator::create,
-                requestVpnPermission = vpnPermissionRequester::request,
             )
         }
     }

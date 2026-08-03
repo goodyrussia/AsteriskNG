@@ -11,7 +11,6 @@ import java.io.File
 internal data class RootRuntimeLayout(
     val configPath: String,
     val xrayCorePath: String,
-    val hevSocks5TunnelPath: String,
     val dataDir: String,
     val pidPath: String,
 )
@@ -26,7 +25,6 @@ internal fun XrayResourceFilePaths.toRootRuntimeLayout(): RootRuntimeLayout {
     return RootRuntimeLayout(
         configPath = File(dir, RootConfigFileName).absolutePath,
         xrayCorePath = xrayCorePath,
-        hevSocks5TunnelPath = hevSocks5TunnelPath,
         dataDir = dataDir,
         pidPath = File(dir, RootPidFileName).absolutePath,
     )

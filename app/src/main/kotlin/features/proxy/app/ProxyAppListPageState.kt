@@ -5,23 +5,20 @@
 
 package features.proxy.app
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
-import app.R
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
-import system.AndroidPackageProvider
-import system.AndroidUserSpaceProvider
-import ui.feedback.AndroidToastTipNotifier
-import system.user.AndroidUserSpace
 import androidx.compose.ui.res.stringResource
+import app.R
 import features.proxy.app.model.AppPackageEntry
 import features.proxy.app.model.ProxyAppListItem
 import features.proxy.app.model.ProxyAppListPreparedData
@@ -31,9 +28,12 @@ import features.proxy.app.model.prepareProxyAppListData
 import features.proxy.app.model.sortedForProxyAppListRefresh
 import features.proxy.app.model.toAndroidUserSpace
 import features.proxy.app.model.toUserSpaceTabs
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.foundation.ExperimentalFoundationApi
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import system.AndroidPackageProvider
+import system.AndroidUserSpaceProvider
+import system.user.AndroidUserSpace
+import ui.feedback.AndroidToastTipNotifier
 
 @Composable
 internal fun rememberProxyAppListPageState(): ProxyAppListPageState {
@@ -46,7 +46,7 @@ internal class ProxyAppListPageState {
     var selectedUserId by mutableStateOf<Int?>(null)
     var appPackages by mutableStateOf<List<AppPackageEntry>>(emptyList())
     var loadingApps by mutableStateOf(false)
-    var loadedPackageFilterKey by mutableStateOf<Pair<Boolean, Boolean>?>(null)
+    var loadedPackageFilterKey by mutableStateOf<Boolean?>(null)
     var refreshSeed by mutableIntStateOf(0)
     var preparedAppListData by mutableStateOf(ProxyAppListPreparedData.Empty)
     var userTabs by mutableStateOf(emptyList<ProxyAppListUserSpaceTabUi>())
@@ -66,8 +66,6 @@ internal class ProxyAppListPageState {
 internal fun ProxyAppListPageEffects(
     pageState: ProxyAppListPageState,
     selectedAppKeys: Set<String>,
-    isVpnServiceMode: Boolean,
-    vpnServiceUserId: Int?,
     selfPackageName: String,
     selectedUserIndex: Int,
     userTabIds: List<Int>,
@@ -80,8 +78,6 @@ internal fun ProxyAppListPageEffects(
     ProxyAppListPreparedDataEffect(
         pageState = pageState,
         selectedAppKeys = selectedAppKeys,
-        isVpnServiceMode = isVpnServiceMode,
-        vpnServiceUserId = vpnServiceUserId,
     )
     ProxyAppListPagerEffect(
         pageState = pageState,
@@ -91,13 +87,11 @@ internal fun ProxyAppListPageEffects(
     )
     ProxyAppListUserSpaceEffect(
         pageState = pageState,
-        isVpnServiceMode = isVpnServiceMode,
         userSpaces = userSpaces,
     )
     ProxyAppListPackageEffect(
         pageState = pageState,
         selectedAppKeys = selectedAppKeys,
-        isVpnServiceMode = isVpnServiceMode,
         selfPackageName = selfPackageName,
         packageCatalog = packageCatalog,
         tipNotifier = tipNotifier,
@@ -132,21 +126,17 @@ private fun ProxyAppListSearchEffect(
 private fun ProxyAppListPreparedDataEffect(
     pageState: ProxyAppListPageState,
     selectedAppKeys: Set<String>,
-    isVpnServiceMode: Boolean,
-    vpnServiceUserId: Int?,
 ) {
     LaunchedEffect(
         pageState.userSpaces,
         pageState.appPackages,
         pageState.debouncedSearchValue,
-        isVpnServiceMode,
-        vpnServiceUserId,
     ) {
         pageState.preparedAppListData = prepareProxyAppListData(
             userSpaces = pageState.userSpaces,
             appPackages = pageState.appPackages,
             searchValue = pageState.debouncedSearchValue,
-            fixedUserId = if (isVpnServiceMode) vpnServiceUserId else null,
+            fixedUserId = null,
         )
     }
 
@@ -194,18 +184,10 @@ private fun ProxyAppListPagerEffect(
 @Composable
 private fun ProxyAppListUserSpaceEffect(
     pageState: ProxyAppListPageState,
-    isVpnServiceMode: Boolean,
     userSpaces: AndroidUserSpaceProvider,
 ) {
-    LaunchedEffect(isVpnServiceMode) {
+    LaunchedEffect(userSpaces) {
         val fallbackCurrentUser = userSpaces.fallbackCurrentUserSpace()
-
-        if (isVpnServiceMode) {
-            pageState.userSpaces = listOf(fallbackCurrentUser)
-            pageState.selectedUserId = fallbackCurrentUser.id
-            return@LaunchedEffect
-        }
-
         val loadedUsers = loadProxyAppListUserSpaces(
             userSpaces = userSpaces,
             fallbackCurrentUser = fallbackCurrentUser,
@@ -222,15 +204,14 @@ private fun ProxyAppListUserSpaceEffect(
 private fun ProxyAppListPackageEffect(
     pageState: ProxyAppListPageState,
     selectedAppKeys: Set<String>,
-    isVpnServiceMode: Boolean,
     selfPackageName: String,
     packageCatalog: AndroidPackageProvider,
     tipNotifier: AndroidToastTipNotifier,
 ) {
     val loadFailedMessage = stringResource(R.string.proxy_app_list_load_failed)
 
-    LaunchedEffect(pageState.showSystemApps, pageState.refreshSeed, isVpnServiceMode, selfPackageName) {
-        val packageFilterKey = pageState.showSystemApps to isVpnServiceMode
+    LaunchedEffect(pageState.showSystemApps, pageState.refreshSeed, selfPackageName) {
+        val packageFilterKey = pageState.showSystemApps
         val replacingAppList = pageState.loadedPackageFilterKey != packageFilterKey
         val selectedAppKeysOnRefresh = selectedAppKeys
 
@@ -244,13 +225,13 @@ private fun ProxyAppListPackageEffect(
             withFrameNanos { }
             pageState.appPackages = packageCatalog.loadProxyAppListPackages(
                 showSystemApps = pageState.showSystemApps,
-                currentUserOnly = isVpnServiceMode,
+                currentUserOnly = false,
                 excludedPackageName = selfPackageName,
             ).sortedForProxyAppListRefresh(selectedAppKeysOnRefresh)
             pageState.loadedPackageFilterKey = packageFilterKey
         } catch (error: CancellationException) {
             throw error
-        } catch (error: Throwable) {
+        } catch (_: Throwable) {
             tipNotifier.show(loadFailedMessage)
             pageState.appPackages = emptyList()
         } finally {

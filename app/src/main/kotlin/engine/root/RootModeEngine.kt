@@ -7,7 +7,6 @@ import android.content.Context
 import engine.proxy.LocalProxyRuntime
 import engine.proxy.ProxyEngineStartRequest
 import engine.proxy.ProxyEngineStatus
-import engine.proxy.mode.AndroidModeProxyEngine
 import engine.xray.clearCoreLogs
 import engine.xray.startCoreLogTailers
 import features.logs.AndroidAppLogger
@@ -19,16 +18,15 @@ internal class RootModeEngine<Config : RootModeStartConfig>(
     private val context: Context,
     private val rootAccess: AndroidRootShellGateway,
     private val runner: RootModeRunner<Config>,
-    override val runMode: Int,
     private val rootRequiredErrorResId: Int,
     private val startFailedErrorResId: Int,
     private val modeName: String,
     private val logTag: String,
     private val buildConfig: (RootConfigBuildContext) -> Config,
-) : AndroidModeProxyEngine {
+) {
     private var logFileTailers: List<CoreLogFileTailer> = emptyList()
 
-    override suspend fun start(request: ProxyEngineStartRequest): ProxyEngineStatus {
+    suspend fun start(request: ProxyEngineStartRequest): ProxyEngineStatus {
         if (!rootAccess.hasRootAccess()) {
             error(context.getString(rootRequiredErrorResId))
         }
@@ -55,7 +53,7 @@ internal class RootModeEngine<Config : RootModeStartConfig>(
             LocalProxyRuntime.clear()
             logFileTailers.forEach { tailer -> tailer.stop() }
             logFileTailers = emptyList()
-            AndroidAppLogger.error(logTag, "Failed to start $modeName mode", error)
+            AndroidAppLogger.error(logTag, "Failed to start $modeName", error)
             throw IllegalStateException(
                 context.getString(startFailedErrorResId, error.message.orEmpty()),
                 error,
@@ -64,24 +62,19 @@ internal class RootModeEngine<Config : RootModeStartConfig>(
         return status()
     }
 
-    override suspend fun stop(): ProxyEngineStatus {
+    suspend fun stop(): ProxyEngineStatus {
         logFileTailers.forEach { tailer -> tailer.stop() }
         logFileTailers = emptyList()
         runCatching {
             runner.stop(context.prepareRootRuntimeLayout())
         }.onFailure { error ->
-            AndroidAppLogger.warn(logTag, "Failed to stop $modeName mode", error)
+            AndroidAppLogger.warn(logTag, "Failed to stop $modeName", error)
         }
         LocalProxyRuntime.clear()
         return status()
     }
 
-    suspend fun ownsRuntime(): Boolean {
-        return runner.ownsRuntime(context.prepareRootRuntimeLayout())
-    }
-
-    override suspend fun status(): ProxyEngineStatus {
-        val running = runner.isRunning(context.prepareRootRuntimeLayout())
-        return ProxyEngineStatus(running = running, runMode = runMode)
+    suspend fun status(): ProxyEngineStatus {
+        return ProxyEngineStatus(running = runner.isRunning(context.prepareRootRuntimeLayout()))
     }
 }

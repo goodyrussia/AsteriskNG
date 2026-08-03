@@ -6,8 +6,6 @@ package engine.xray
 import app.AppState
 import app.effectiveFakeDnsEnabled
 import engine.network.isIpAddress
-import engine.network.isIpv4Address
-import engine.vpn.VpnDefaults
 import features.proxy.server.model.normalizedServerHost
 import features.proxy.server.model.serverHost
 import kotlinx.serialization.json.JsonArray
@@ -120,11 +118,7 @@ internal fun AppState.xrayProxyDnsServers(
     val hasDirectDns = directDnsServers.toTrimmedNonEmptyDistinctList().isNotEmpty() &&
         (directDnsDomains == null || directDnsDomains.isNotEmpty())
     return if (!hasDirectDns) {
-        listOf(
-            tunVpnDns.trim()
-                .takeIf(::isIpv4Address)
-                ?: VpnDefaults.IPV4_DNS,
-        )
+        listOf(DefaultFallbackDnsServer)
     } else {
         emptyList()
     }

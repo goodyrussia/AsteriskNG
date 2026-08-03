@@ -6,8 +6,6 @@ package app.effects
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import app.AppState
-import app.modes.RunModeTproxy
-import app.modes.RunModeTun2Socks
 import data.AndroidAppStateStore
 import engine.proxy.withResolvedDynamicLocalProxyPort
 import features.logs.AndroidAppLogger
@@ -37,7 +35,7 @@ internal fun RootBootScriptSynchronizer(
                     }
                     return@collect
                 }
-                if (!state.enableRootBootScript || (state.runMode != RunModeTproxy && state.runMode != RunModeTun2Socks)) {
+                if (!state.enableRootBootScript) {
                     return@collect
                 }
                 when (val result = rootBootScriptUseCase.refresh(state)) {
@@ -67,7 +65,6 @@ private data class RootBootScriptRefresh(
 
 private data class RootBootScriptSignature(
     val enabled: Boolean,
-    val runMode: Int,
     val selectedProxyServerId: Int,
     val proxyServers: List<RootBootScriptProxyServerState>,
     val enableResolveProxyServerDomain: Boolean,
@@ -100,7 +97,6 @@ private data class RootBootScriptSignature(
     val localProxyUsername: String,
     val localProxyPassword: String,
     val transparentProxyPort: String,
-    val socks5ProxyPort: String,
     val enableHttpProxy: Boolean,
     val httpProxyPort: String,
     val externalInterfaces: List<String>,
@@ -121,7 +117,6 @@ private fun AppState.toRootBootScriptRefresh(): RootBootScriptRefresh {
         appState = this,
         signature = RootBootScriptSignature(
             enabled = enableRootBootScript,
-            runMode = runMode,
             selectedProxyServerId = selectedProxyServerId,
             proxyServers = proxyServers.map { proxyServer ->
                 RootBootScriptProxyServerState(
@@ -160,7 +155,6 @@ private fun AppState.toRootBootScriptRefresh(): RootBootScriptRefresh {
             localProxyUsername = localProxyUsername,
             localProxyPassword = localProxyPassword,
             transparentProxyPort = transparentProxyPort,
-            socks5ProxyPort = socks5ProxyPort,
             enableHttpProxy = enableHttpProxy,
             httpProxyPort = httpProxyPort,
             externalInterfaces = externalInterfaces,

@@ -168,7 +168,6 @@ internal class AndroidResourceFileStore(
             dataDir = dataDir.absolutePath,
             setuidgidPath = File(appContext.applicationInfo.nativeLibraryDir, SetuidgidLibraryName).absolutePath,
             xrayCorePath = file(ResourceFileKind.XrayCore).absolutePath,
-            hevSocks5TunnelPath = File(appContext.applicationInfo.nativeLibraryDir, HevSocks5TunnelLibraryName).absolutePath,
         )
     }
 }
@@ -182,7 +181,6 @@ internal data class XrayResourceFilePaths(
     val dataDir: String,
     val setuidgidPath: String,
     val xrayCorePath: String,
-    val hevSocks5TunnelPath: String,
 )
 
 internal fun Context.xrayResourceFilesDir(): File {
@@ -223,9 +221,8 @@ private fun Context.packageUpdatedAtMillis(): Long {
 private const val Arm64Abi = "arm64-v8a"
 private const val SetuidgidLibraryName = "libsetuidgid.so"
 private const val XrayCoreLibraryName = "libxray.so"
-private const val HevSocks5TunnelLibraryName = "libhev-socks5-tunnel.so"
 
-private val SupportedAndroidAbis = setOf(Arm64Abi, "armeabi-v7a", "x86", "x86_64")
+private val SupportedAndroidAbis = setOf(Arm64Abi)
 
 private fun File.toStatus(): ResourceFileStatus {
     return ResourceFileStatus(

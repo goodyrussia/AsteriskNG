@@ -5,13 +5,9 @@ package engine.proxy
 
 import app.AppState
 import app.effectiveFakeDnsEnabled
-import app.modes.RunModeTun2Socks
-import app.modes.RunModeTproxy
 import engine.network.NetworkDefaults
 import engine.network.toPortOrNull
 import engine.tproxy.DefaultTproxyPort
-import engine.tun2socks.DefaultTun2SocksProxyPort
-import engine.vpn.VpnDefaults
 import engine.xray.XrayProtocols
 import engine.xray.toJsonStringArray
 import engine.xray.xraySniffingDestOverrides
@@ -64,7 +60,7 @@ internal fun AppState.withResolvedDynamicLocalProxyPort(): AppState {
             )
     val resolvedPort = when {
         canKeepConfiguredPort -> configuredPort
-        else -> availablePort(listenAddress, excludedPorts) ?: configuredPort ?: VpnDefaults.LOCAL_PROXY_PORT
+        else -> availablePort(listenAddress, excludedPorts) ?: configuredPort ?: DefaultLocalProxyPort
     }
     val resolvedPortText = resolvedPort.toString()
     return if (localProxyPort == resolvedPortText) this else copy(localProxyPort = resolvedPortText)
@@ -73,7 +69,7 @@ internal fun AppState.withResolvedDynamicLocalProxyPort(): AppState {
 internal fun AppState.toLocalProxyOptions(): LocalProxyOptions {
     return LocalProxyOptions(
         listenAddress = localProxyListenAddress(),
-        port = localProxyPort.toPortOrNull() ?: VpnDefaults.LOCAL_PROXY_PORT,
+        port = localProxyPort.toPortOrNull() ?: DefaultLocalProxyPort,
         username = localProxyUsername.trim(),
         password = localProxyPassword,
     )
@@ -111,12 +107,7 @@ private fun AppState.localProxyListenAddress(): String {
 
 private fun AppState.localProxyExcludedPorts(): Set<Int> {
     return buildSet {
-        if (runMode == RunModeTproxy) {
-            add(transparentProxyPort.toPortOrNull() ?: DefaultTproxyPort)
-        }
-        if (runMode == RunModeTun2Socks) {
-            add(socks5ProxyPort.toPortOrNull() ?: DefaultTun2SocksProxyPort)
-        }
+        add(transparentProxyPort.toPortOrNull() ?: DefaultTproxyPort)
         if (enableHttpProxy) {
             httpProxyPort.toPortOrNull()?.let(::add)
         }

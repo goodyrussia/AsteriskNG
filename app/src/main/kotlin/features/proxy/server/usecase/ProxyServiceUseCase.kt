@@ -16,7 +16,7 @@ internal class ProxyServiceUseCase(
         selectedServer: ProxyServerState?,
     ): ProxyServiceResult {
         return if (state.proxyRunning) {
-            stop(state.runMode)
+            stop()
         } else {
             start(state, selectedServer)
         }
@@ -48,8 +48,8 @@ internal class ProxyServiceUseCase(
         )
     }
 
-    suspend fun stop(runMode: Int): ProxyServiceResult {
-        return runCatching { proxyEngine.stop(runMode) }.fold(
+    suspend fun stop(): ProxyServiceResult {
+        return runCatching { proxyEngine.stop() }.fold(
             onSuccess = { status -> ProxyServiceResult.Success(proxyRunning = status.running, appState = status.appState) },
             onFailure = { error -> ProxyServiceResult.Failed(error) },
         )

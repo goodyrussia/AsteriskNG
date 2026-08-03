@@ -4,17 +4,17 @@
 package features.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import app.AppState
 import features.settings.sheets.orderedBy
 import features.settings.sheets.outletInterfaceOptions
 import features.settings.sheets.sanitizeExternalInterfaces
 import features.settings.sheets.sanitizePrivateAddressCidrs
-import system.AndroidNetworkInterfaceProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CancellationException
+import system.AndroidNetworkInterfaceProvider
 
 internal class SettingsSheetState(
     private val updateAppState: ((AppState) -> AppState) -> Unit,
@@ -24,9 +24,6 @@ internal class SettingsSheetState(
 
     var showLocalProxySettings by mutableStateOf(false)
     var localProxySettingsDraft by mutableStateOf(LocalProxySettingsDraft())
-
-    var showTunSettings by mutableStateOf(false)
-    var tunSettingsDraft by mutableStateOf(TunSettingsDraft())
 
     var showDnsSettings by mutableStateOf(false)
     var dnsSettingsDraft by mutableStateOf(DnsSettingsDraft())
@@ -57,11 +54,6 @@ internal class SettingsSheetState(
     fun openLocalProxySettings(appState: AppState) {
         localProxySettingsDraft = appState.toLocalProxySettingsDraft()
         showLocalProxySettings = true
-    }
-
-    fun openTunSettings(appState: AppState) {
-        tunSettingsDraft = appState.toTunSettingsDraft()
-        showTunSettings = true
     }
 
     fun openDnsSettings(appState: AppState) {

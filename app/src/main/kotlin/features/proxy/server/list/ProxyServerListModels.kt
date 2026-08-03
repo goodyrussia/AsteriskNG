@@ -23,7 +23,6 @@ internal enum class ProxyServerListAddAction {
 internal enum class ProxyServerListToolAction {
     RestartService,
     TestLatency,
-    TestRealConnection,
     SortByTestResult,
     UpdateSubscriptions,
     CopyAllUrls,

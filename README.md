@@ -2,7 +2,7 @@ English | [简体中文](README_zh_CN.md)
 
 # AsteriskNG
 
-An Xray client for Android, powered by [Xray-core](https://github.com/XTLS/Xray-core), [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite), and [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel).
+A rooted Android Xray client powered by [Xray-core](https://github.com/XTLS/Xray-core).
 
 ## Telegram Channel
 
@@ -10,9 +10,10 @@ An Xray client for Android, powered by [Xray-core](https://github.com/XTLS/Xray-
 
 ## Features
 
-- VPN Service, TPROXY(ROOT), and TUN2SOCKS(ROOT) run modes support
+- Rooted TPROXY transparent-proxy runtime using Xray-core, iptables, and policy routing
+- Per-app Global, Blacklist, and Whitelist proxy policy
 - VMess, VLESS, Trojan, Shadowsocks, Socks, HTTP, Hysteria2, WireGuard, strategy group, and chain proxy support
-- v2rayNG, mihomo subscription format support
+- v2rayNG and mihomo subscription format support
 - Resource file management for `geoip.dat`, `geosite.dat`, `geoip-only-cn-private.dat`, and the Xray executable
 - ROOT start-on-boot script generation through Magisk `service.d`
 - MIUIX Compose UI
@@ -26,28 +27,12 @@ An Xray client for Android, powered by [Xray-core](https://github.com/XTLS/Xray-
   <img src="image/screenshot/8.jpg" width="24%" alt="Screenshot 4" />
 </p>
 
-## Run Modes
-
-### VPN Service
-
-- Works without root permission.
-- Uses Android `VpnService`.
-- Suitable for normal Android app-level VPN usage.
-
-### TPROXY(ROOT)
+## TPROXY (ROOT)
 
 - Requires root permission.
 - Runs the local Xray executable directly with libsu.
 - Uses iptables and policy routing for transparent proxy traffic.
 - Uses the configured transparent proxy port as the Xray inbound.
-
-### TUN2SOCKS(ROOT)
-
-- Requires root permission.
-- Runs the local Xray executable directly with libsu.
-- Uses `hev-socks5-tunnel` to create the fixed TUN device `asterisk0`.
-- Uses Xray's local SOCKS5 inbound as the tunnel target.
-- Shares most ROOT routing and app proxy behavior with TPROXY, but routes traffic through the TUN device instead of Xray's TPROXY inbound.
 
 ## Resource Files
 
@@ -73,19 +58,11 @@ On macOS or Linux:
 The build:
 
 - uses the Android SDK and NDK
-- downloads or prepares the bundled Xray-core asset
+- prepares the bundled Xray-core asset
 - builds the native `setuidgid` helper
-- packages native runtime components for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`
+- packages native runtime components for `arm64-v8a`
 
 If Gradle cannot find Android NDK, set `ndk.dir` in `local.properties`, set `ANDROID_NDK_HOME`, or install an NDK under the Android SDK.
-
-## WSA
-
-For WSA, VPN permission can be granted with:
-
-```bash
-appops set org.asterisk.zcc.ang ACTIVATE_VPN allow
-```
 
 ## License
 
@@ -94,8 +71,6 @@ appops set org.asterisk.zcc.ang ACTIVATE_VPN allow
 ## Credits
 
 - [@XTLS/Xray-core](https://github.com/XTLS/Xray-core)
-- [@2dust/AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite)
-- [@heiher/hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 - [@topjohnwu/libsu](https://github.com/topjohnwu/libsu)
 - [@compose-miuix-ui/miuix](https://github.com/compose-miuix-ui/miuix)
 - [@2dust/v2rayNG](https://github.com/2dust/v2rayNG)

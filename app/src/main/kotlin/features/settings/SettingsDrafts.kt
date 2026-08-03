@@ -9,7 +9,6 @@ import features.settings.sheets.sanitizeMuxUdp443Index
 
 internal data class ProxySettingsDraft(
     val transparentProxyPort: String = "",
-    val socks5ProxyPort: String = "",
     val enableHttpProxy: Boolean = false,
     val httpProxyPort: String = "",
 )
@@ -17,25 +16,8 @@ internal data class ProxySettingsDraft(
 internal fun AppState.toProxySettingsDraft(): ProxySettingsDraft {
     return ProxySettingsDraft(
         transparentProxyPort = transparentProxyPort,
-        socks5ProxyPort = socks5ProxyPort,
         enableHttpProxy = enableHttpProxy,
         httpProxyPort = httpProxyPort,
-    )
-}
-
-internal data class TunSettingsDraft(
-    val mtu: String = "",
-    val vpnDns: String = "",
-    val ipv4Cidr: String = "",
-    val ipv6Cidr: String = "",
-)
-
-internal fun AppState.toTunSettingsDraft(): TunSettingsDraft {
-    return TunSettingsDraft(
-        mtu = tunMtu,
-        vpnDns = tunVpnDns,
-        ipv4Cidr = tunIpv4Cidr,
-        ipv6Cidr = tunIpv6Cidr,
     )
 }
 
@@ -58,7 +40,6 @@ internal fun AppState.toLocalProxySettingsDraft(): LocalProxySettingsDraft {
 }
 
 internal data class DnsSettingsDraft(
-    val enableVpnLocalDns: Boolean = true,
     val enableFakeDns: Boolean = false,
     val enableResolveProxyServerDomain: Boolean = false,
     val proxyDns: List<String> = emptyList(),
@@ -70,7 +51,6 @@ internal data class DnsSettingsDraft(
 
 internal fun AppState.toDnsSettingsDraft(): DnsSettingsDraft {
     return DnsSettingsDraft(
-        enableVpnLocalDns = enableVpnLocalDns,
         enableFakeDns = effectiveFakeDnsEnabled,
         enableResolveProxyServerDomain = enableResolveProxyServerDomain,
         proxyDns = proxyDns,

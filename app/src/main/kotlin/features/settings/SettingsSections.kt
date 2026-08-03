@@ -3,20 +3,16 @@
 
 package features.settings
 
-import app.modes.RunModeTproxy
-import app.modes.RunModeTun2Socks
-import app.modes.RunModeVpnService
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.R
-import androidx.compose.ui.res.stringResource
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
@@ -161,11 +157,8 @@ internal fun SettingsCoreSection(
 internal fun SettingsAdvancedSection(
     enableIpv6: Boolean,
     enableIpv6Prefer: Boolean,
-    runModeOptions: List<String>,
-    runMode: Int,
     onEnableIpv6Change: (Boolean) -> Unit,
     onEnableIpv6PreferChange: (Boolean) -> Unit,
-    onRunModeChange: (Int) -> Unit,
 ) {
     SmallTitle(text = stringResource(R.string.settings_advanced))
     SettingsSectionCard {
@@ -187,123 +180,58 @@ internal fun SettingsAdvancedSection(
                 onCheckedChange = onEnableIpv6PreferChange,
             )
         }
-        OverlayDropdownPreference(
-            title = stringResource(R.string.settings_run_mode),
-            items = runModeOptions,
-            selectedIndex = runMode.coerceIn(runModeOptions.indices),
-            onSelectedIndexChange = onRunModeChange,
-        )
     }
 }
 
 @Composable
-internal fun SettingsProxyModeSections(
-    runMode: Int,
+internal fun SettingsTproxySection(
     localProxySettingsSummary: String,
-    enableVpnAppendHttpProxy: Boolean,
-    tunSettingsSummary: String,
     inboundProxySummary: String,
     enableRootBootScript: Boolean,
     externalInterfacesSummary: String,
     ignoredInterfacesSummary: String,
     privateAddressCidrsSummary: String,
     onOpenLocalProxySettings: () -> Unit,
-    onEnableVpnAppendHttpProxyChange: (Boolean) -> Unit,
-    onOpenTunSettings: () -> Unit,
     onOpenProxySettings: () -> Unit,
     onEnableRootBootScriptChange: (Boolean) -> Unit,
     onOpenExternalInterfaces: () -> Unit,
     onOpenIgnoredInterfaces: () -> Unit,
     onOpenPrivateAddresses: () -> Unit,
 ) {
-    AnimatedVisibility(
-        visible = runMode == RunModeVpnService,
-        enter = fadeIn() + expandVertically(),
-        exit = ExitTransition.None,
-    ) {
-        Column {
-            SmallTitle(text = stringResource(R.string.settings_proxy_vpn_service))
-            SettingsSectionCard {
-                ArrowPreference(
-                    title = stringResource(R.string.settings_local_proxy),
-                    summary = localProxySettingsSummary,
-                    onClick = onOpenLocalProxySettings,
-                )
-                SwitchPreference(
-                    title = stringResource(R.string.settings_vpn_append_http_proxy),
-                    summary = stringResource(R.string.settings_vpn_append_http_proxy_summary),
-                    checked = enableVpnAppendHttpProxy,
-                    onCheckedChange = onEnableVpnAppendHttpProxyChange,
-                )
-                ArrowPreference(
-                    title = stringResource(R.string.settings_tun),
-                    summary = tunSettingsSummary,
-                    onClick = onOpenTunSettings,
-                )
-            }
-        }
-    }
-    AnimatedVisibility(
-        visible = runMode == RunModeTproxy || runMode == RunModeTun2Socks,
-        enter = fadeIn() + expandVertically(),
-        exit = ExitTransition.None,
-    ) {
-        Column {
-            SmallTitle(
-                text = stringResource(
-                    if (runMode == RunModeTun2Socks) R.string.settings_proxy_tun2socks else R.string.settings_proxy_tproxy,
-                ),
+    Column {
+        SmallTitle(text = stringResource(R.string.settings_proxy_tproxy))
+        SettingsSectionCard {
+            SwitchPreference(
+                title = stringResource(R.string.settings_root_boot_script),
+                summary = stringResource(R.string.settings_root_boot_script_summary),
+                checked = enableRootBootScript,
+                onCheckedChange = onEnableRootBootScriptChange,
             )
-            SettingsSectionCard {
-                AnimatedVisibility(
-                    visible = runMode == RunModeTproxy || runMode == RunModeTun2Socks,
-                    enter = fadeIn() + expandVertically(),
-                    exit = shrinkVertically() + fadeOut(),
-                ) {
-                    SwitchPreference(
-                        title = stringResource(R.string.settings_root_boot_script),
-                        summary = stringResource(R.string.settings_root_boot_script_summary),
-                        checked = enableRootBootScript,
-                        onCheckedChange = onEnableRootBootScriptChange,
-                    )
-                }
-                ArrowPreference(
-                    title = stringResource(R.string.settings_local_proxy),
-                    summary = localProxySettingsSummary,
-                    onClick = onOpenLocalProxySettings,
-                )
-                ArrowPreference(
-                    title = stringResource(R.string.settings_inbound),
-                    summary = inboundProxySummary,
-                    onClick = onOpenProxySettings,
-                )
-                AnimatedVisibility(
-                    visible = runMode == RunModeTun2Socks,
-                    enter = fadeIn() + expandVertically(),
-                    exit = shrinkVertically() + fadeOut(),
-                ) {
-                    ArrowPreference(
-                        title = stringResource(R.string.settings_tun),
-                        summary = tunSettingsSummary,
-                        onClick = onOpenTunSettings,
-                    )
-                }
-                ArrowPreference(
-                    title = stringResource(R.string.settings_external_interfaces),
-                    summary = externalInterfacesSummary,
-                    onClick = onOpenExternalInterfaces,
-                )
-                ArrowPreference(
-                    title = stringResource(R.string.settings_ignored_interfaces),
-                    summary = ignoredInterfacesSummary,
-                    onClick = onOpenIgnoredInterfaces,
-                )
-                ArrowPreference(
-                    title = stringResource(R.string.settings_private_addresses),
-                    summary = privateAddressCidrsSummary,
-                    onClick = onOpenPrivateAddresses,
-                )
-            }
+            ArrowPreference(
+                title = stringResource(R.string.settings_local_proxy),
+                summary = localProxySettingsSummary,
+                onClick = onOpenLocalProxySettings,
+            )
+            ArrowPreference(
+                title = stringResource(R.string.settings_inbound),
+                summary = inboundProxySummary,
+                onClick = onOpenProxySettings,
+            )
+            ArrowPreference(
+                title = stringResource(R.string.settings_external_interfaces),
+                summary = externalInterfacesSummary,
+                onClick = onOpenExternalInterfaces,
+            )
+            ArrowPreference(
+                title = stringResource(R.string.settings_ignored_interfaces),
+                summary = ignoredInterfacesSummary,
+                onClick = onOpenIgnoredInterfaces,
+            )
+            ArrowPreference(
+                title = stringResource(R.string.settings_private_addresses),
+                summary = privateAddressCidrsSummary,
+                onClick = onOpenPrivateAddresses,
+            )
         }
     }
 }

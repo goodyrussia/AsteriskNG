@@ -380,15 +380,6 @@ private fun handleProxyServerListToolAction(
             )
         }
 
-        ProxyServerListToolAction.TestRealConnection -> {
-            onTestProxyServerLatency(
-                groupState.currentFilteredServers,
-                ProxyServerLatencyTestMode.RealConnection,
-                messages.realConnectionDoneTemplate,
-                false,
-            )
-        }
-
         ProxyServerListToolAction.SortByTestResult -> {
             sortCurrentGroupByTestResult(
                 servers = groupState.currentGroupServers,

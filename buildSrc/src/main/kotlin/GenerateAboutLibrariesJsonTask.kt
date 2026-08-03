@@ -49,18 +49,6 @@ abstract class GenerateAboutLibrariesJsonTask : DefaultTask() {
         }
         val dependencyBucketSuffixes = listOf("api", "implementation", "compileonly", "runtimeonly")
         val libraryOverrides = mapOf(
-            "com.github.2dust:libv2ray" to
-                { version: String ->
-                    library(
-                        "github:2dust/AndroidLibXrayLite",
-                        version,
-                        "AndroidLibXrayLite",
-                        "Android AAR wrapper for Xray-core, built with gomobile.",
-                        "https://github.com/2dust/AndroidLibXrayLite",
-                        "https://github.com/2dust/AndroidLibXrayLite",
-                        listOf("LGPL-3.0"),
-                    )
-                },
             "com.github.topjohnwu.libsu:core" to
                 { version: String ->
                     library(
@@ -83,15 +71,6 @@ abstract class GenerateAboutLibrariesJsonTask : DefaultTask() {
                 "https://github.com/XTLS/Xray-core",
                 "https://github.com/XTLS/Xray-core",
                 listOf("MPL-2.0"),
-            ),
-            library(
-                "github:heiher/hev-socks5-tunnel",
-                ProjectConfig.HEV_SOCKS5_TUNNEL_VERSION,
-                "hev-socks5-tunnel",
-                "A tun2socks tunnel that forwards TUN traffic to a SOCKS5 server.",
-                "https://github.com/heiher/hev-socks5-tunnel",
-                "https://github.com/heiher/hev-socks5-tunnel",
-                listOf("MIT"),
             ),
         )
 

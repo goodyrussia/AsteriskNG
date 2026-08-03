@@ -3,20 +3,16 @@
 
 package features.quicksettings
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import app.AppState
 import app.MainActivity
 import app.R
-import app.modes.RunModeVpnService
 import data.AndroidAppStateStore
 import data.AppSettingsPreferences
 import engine.proxy.AndroidProxyEngine
@@ -43,10 +39,6 @@ class ProxyQuickSettingsTileService : TileService() {
         AndroidProxyEngine(
             context = applicationContext,
             rootAccess = rootAccess,
-            requestVpnPermission = { intent ->
-                launchActivityAndCollapse(intent)
-                false
-            },
         )
     }
     private val proxyServiceUseCase by lazy { ProxyServiceUseCase(proxyEngine) }
@@ -123,13 +115,6 @@ class ProxyQuickSettingsTileService : TileService() {
     private suspend fun toggleProxy(): Boolean {
         val running = syncProxyRunningState()
         val state = stateStore.state.value.copy(proxyRunning = running)
-        if (!running && state.requiresVpnPermission()) {
-            showToast(getString(R.string.quick_settings_tile_vpn_permission_required))
-            launchActivityAndCollapse(VpnService.prepare(this))
-            stateStore.update { currentState -> currentState.copy(proxyRunning = false) }
-            return false
-        }
-
         val selectedServer = state.proxyServers.firstOrNull { server -> server.id == state.selectedProxyServerId }
         when (val result = proxyServiceUseCase.toggle(state, selectedServer)) {
             is ProxyServiceResult.Success -> {
@@ -164,7 +149,7 @@ class ProxyQuickSettingsTileService : TileService() {
 
     private suspend fun syncProxyRunningState(): Boolean {
         val currentState = stateStore.state.value
-        val running = runCatching { proxyEngine.status(currentState.runMode).running }
+        val running = runCatching { proxyEngine.status().running }
             .onFailure { error ->
                 AndroidAppLogger.warn(LogTag, "Failed to read proxy status from quick settings tile", error)
             }
@@ -173,10 +158,6 @@ class ProxyQuickSettingsTileService : TileService() {
             stateStore.update { state -> state.copy(proxyRunning = running) }
         }
         return running
-    }
-
-    private fun AppState.requiresVpnPermission(): Boolean {
-        return runMode == RunModeVpnService && VpnService.prepare(this@ProxyQuickSettingsTileService) != null
     }
 
     private fun updateTile(
@@ -204,25 +185,6 @@ class ProxyQuickSettingsTileService : TileService() {
             ?.getInfo()
             ?.remarks
             ?.takeIf(String::isNotBlank)
-    }
-
-    @SuppressLint("StartActivityAndCollapseDeprecated")
-    private fun launchActivityAndCollapse(intent: Intent?) {
-        val targetIntent = (intent ?: Intent(this, MainActivity::class.java)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val pendingIntent = PendingIntent.getActivity(
-                this,
-                0,
-                targetIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-            startActivityAndCollapse(pendingIntent)
-        } else {
-            @Suppress("DEPRECATION")
-            startActivityAndCollapse(targetIntent)
-        }
     }
 
     private fun showToast(message: String) {

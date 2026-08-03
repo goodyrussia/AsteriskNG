@@ -3,11 +3,6 @@
 
 package features.settings.sheets
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,11 +13,10 @@ import androidx.compose.ui.unit.dp
 import app.R
 import engine.network.isIpAddress
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.preference.SwitchPreference
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import ui.components.StringListEditor
 import utils.toTrimmedNonEmptyDistinctList
-
 
 private const val DnsHostSeparator = ':'
 private val XrayDnsUrlSchemes = setOf(
@@ -35,15 +29,11 @@ private val XrayDnsUrlSchemes = setOf(
     "tcp+local",
 )
 
-
 @Composable
 internal fun DnsSettingsBottomSheet(
     show: Boolean,
-    enableVpnLocalDns: Boolean,
-    forceEnableLocalDns: Boolean,
     enableFakeDns: Boolean,
     enableResolveProxyServerDomain: Boolean,
-    onEnableVpnLocalDnsChange: (Boolean) -> Unit,
     proxyDns: List<String>,
     directDns: List<String>,
     directDnsDomains: List<String>,
@@ -57,7 +47,7 @@ internal fun DnsSettingsBottomSheet(
     onEnableDirectDnsForProxyServerDomainsChange: (Boolean) -> Unit,
     onDnsHostsChange: (List<String>) -> Unit,
     onDismissRequest: () -> Unit,
-    onSave: (Boolean, Boolean, Boolean, List<String>, List<String>, List<String>, Boolean, List<String>) -> Unit,
+    onSave: (Boolean, Boolean, List<String>, List<String>, List<String>, Boolean, List<String>) -> Unit,
 ) {
     val proxyDnsEntries = proxyDns.toTrimmedNonEmptyDistinctList()
     val directDnsEntries = directDns.toTrimmedNonEmptyDistinctList()
@@ -66,8 +56,6 @@ internal fun DnsSettingsBottomSheet(
     val dnsHostEntries = dnsHosts.toTrimmedNonEmptyDistinctList()
     val dnsServerInvalidMessage = stringResource(R.string.settings_dns_server_invalid)
     val dnsDomainInvalidMessage = stringResource(R.string.settings_dns_domain_invalid)
-    val effectiveLocalDnsEnabled = forceEnableLocalDns || enableVpnLocalDns
-    val effectiveFakeDnsEnabled = effectiveLocalDnsEnabled && enableFakeDns
     WindowBottomSheet(
         show = show,
         title = stringResource(R.string.settings_dns),
@@ -82,8 +70,7 @@ internal fun DnsSettingsBottomSheet(
                 text = stringResource(R.string.common_save),
                 onClick = {
                     onSave(
-                        enableVpnLocalDns,
-                        effectiveFakeDnsEnabled,
+                        enableFakeDns,
                         enableResolveProxyServerDomain,
                         proxyDnsEntries,
                         directDnsEntries,
@@ -98,27 +85,11 @@ internal fun DnsSettingsBottomSheet(
     ) {
         SettingsSheetContent {
             SwitchPreference(
-                title = stringResource(R.string.settings_vpn_local_dns),
-                summary = stringResource(R.string.settings_vpn_local_dns_summary),
-                checked = effectiveLocalDnsEnabled,
-                onCheckedChange = { enabled ->
-                    if (!forceEnableLocalDns) {
-                        onEnableVpnLocalDnsChange(enabled)
-                    }
-                },
+                title = "FakeDNS",
+                summary = stringResource(R.string.settings_fake_dns_summary),
+                checked = enableFakeDns,
+                onCheckedChange = onEnableFakeDnsChange,
             )
-            AnimatedVisibility(
-                visible = effectiveLocalDnsEnabled,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
-            ) {
-                SwitchPreference(
-                    title = "FakeDNS",
-                    summary = stringResource(R.string.settings_fake_dns_summary),
-                    checked = effectiveFakeDnsEnabled,
-                    onCheckedChange = onEnableFakeDnsChange,
-                )
-            }
             SwitchPreference(
                 title = stringResource(R.string.settings_resolve_proxy_server_domain),
                 summary = stringResource(R.string.settings_resolve_proxy_server_domain_summary),

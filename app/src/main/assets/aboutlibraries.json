@@ -14,19 +14,6 @@
             ]
         },
         {
-            "uniqueId": "github:2dust/AndroidLibXrayLite",
-            "artifactVersion": "v26.6.2",
-            "name": "AndroidLibXrayLite",
-            "description": "Android AAR wrapper for Xray-core, built with gomobile.",
-            "website": "https://github.com/2dust/AndroidLibXrayLite",
-            "scm": {
-                "url": "https://github.com/2dust/AndroidLibXrayLite"
-            },
-            "licenses": [
-                "LGPL-3.0"
-            ]
-        },
-        {
             "uniqueId": "androidx.navigation3:navigation3-runtime",
             "artifactVersion": "1.1.2",
             "name": "Androidx Navigation 3 Runtime",
@@ -89,19 +76,6 @@
             },
             "licenses": [
                 "Apache-2.0"
-            ]
-        },
-        {
-            "uniqueId": "github:heiher/hev-socks5-tunnel",
-            "artifactVersion": "2.15.0",
-            "name": "hev-socks5-tunnel",
-            "description": "A tun2socks tunnel that forwards TUN traffic to a SOCKS5 server.",
-            "website": "https://github.com/heiher/hev-socks5-tunnel",
-            "scm": {
-                "url": "https://github.com/heiher/hev-socks5-tunnel"
-            },
-            "licenses": [
-                "MIT"
             ]
         },
         {

@@ -291,7 +291,6 @@ internal fun ProxyServerListFloatingToolbar(
     serviceOperationInProgress: Boolean,
     bottomPadding: Dp,
     onToggleRunning: () -> Unit,
-    onRealConnectionTest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -309,25 +308,6 @@ internal fun ProxyServerListFloatingToolbar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AnimatedVisibility(
-                    visible = running,
-                    enter = slideInHorizontally(initialOffsetX = { width -> width }) +
-                        expandHorizontally(expandFrom = Alignment.End),
-                    exit = slideOutHorizontally(targetOffsetX = { width -> width }) +
-                        shrinkHorizontally(shrinkTowards = Alignment.End),
-                ) {
-                    IconButton(
-                        modifier = Modifier.size(ProxyServerListFloatingToolbarButtonSize),
-                        onClick = onRealConnectionTest,
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(26.dp),
-                            imageVector = MiuixIcons.Stopwatch,
-                            contentDescription = stringResource(R.string.proxy_server_list_real_connection_test),
-                            tint = MiuixTheme.colorScheme.onPrimary,
-                        )
-                    }
-                }
                 IconButton(
                     modifier = Modifier.size(ProxyServerListFloatingToolbarButtonSize),
                     onClick = {
@@ -445,7 +425,6 @@ private fun proxyServerListAddMenuEntries() = listOf(
 private fun proxyServerListToolMenuEntries() = listOf(
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_restart_service), ProxyServerListToolAction.RestartService),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_latency_test), ProxyServerListToolAction.TestLatency),
-    ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_real_connection_test), ProxyServerListToolAction.TestRealConnection),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_sort_by_test_result), ProxyServerListToolAction.SortByTestResult),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_update_subscriptions), ProxyServerListToolAction.UpdateSubscriptions),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_copy_all_urls), ProxyServerListToolAction.CopyAllUrls),

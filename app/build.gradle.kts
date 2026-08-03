@@ -8,7 +8,6 @@ plugins {
 
 val generatedSrcDir: Provider<Directory> = layout.buildDirectory.dir("generated/projectInfo")
 val generatedXrayCoreJniLibsDir: Provider<Directory> = layout.buildDirectory.dir("generated/xrayCoreJniLibs")
-val generatedHevSocks5TunnelJniLibsDir: Provider<Directory> = layout.buildDirectory.dir("generated/hevSocks5TunnelJniLibs")
 
 android {
     namespace = "app"
@@ -41,7 +40,7 @@ android {
             isEnable = true
             reset()
             include(*ProjectConfig.SUPPORTED_ANDROID_ABIS.toTypedArray())
-            isUniversalApk = true
+            isUniversalApk = false
         }
     }
 
@@ -92,10 +91,6 @@ android {
     }
 }
 
-tasks.named("preBuild") {
-    dependsOn(rootProject.tasks.named("updateResourceFileAssets"))
-}
-
 dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
@@ -105,8 +100,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.coil)
     implementation(libs.coil.compose)
-    //noinspection UseTomlInstead
-    implementation("com.github.2dust:libv2ray:${ProjectConfig.ANDROID_LIB_XRAY_LITE_VERSION}@aar")
     implementation(project(":setuidgid"))
     implementation(libs.ktor.http)
     implementation(libs.kotlinx.serialization.json)
@@ -132,8 +125,6 @@ val generateProjectInfo by tasks.registering(GenerateProjectInfoTask::class) {
     versionName.set(ProjectConfig.VERSION_NAME)
     versionCode.set(getGitVersionCode())
     xrayCoreVersion.set(ProjectConfig.XRAY_CORE_VERSION)
-    androidLibXrayLiteVersion.set(ProjectConfig.ANDROID_LIB_XRAY_LITE_VERSION)
-    hevSocks5TunnelVersion.set(ProjectConfig.HEV_SOCKS5_TUNNEL_VERSION)
     outputDirectory.set(generatedSrcDir.map { it.dir("kotlin") })
 }
 
@@ -143,7 +134,6 @@ androidComponents {
             task.outputDirectory
         }
         variant.sources.jniLibs?.addStaticSourceDirectory("build/generated/xrayCoreJniLibs")
-        variant.sources.jniLibs?.addStaticSourceDirectory("build/generated/hevSocks5TunnelJniLibs")
     }
 }
 

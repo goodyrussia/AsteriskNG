@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.R
-import androidx.compose.ui.res.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import ui.text.formatTemplate
 
@@ -34,18 +34,11 @@ internal fun SettingsSectionCard(
 
 @Composable
 internal fun inboundProxySummary(
-    useTun2SocksProxyPort: Boolean,
     transparentProxyPort: String,
-    socks5ProxyPort: String,
     enableHttpProxy: Boolean,
 ): String {
-    val primaryInbound = if (useTun2SocksProxyPort) {
-        stringResource(R.string.settings_inbound_socks5_port)
-            .formatTemplate("port" to socks5ProxyPort)
-    } else {
-        stringResource(R.string.settings_inbound_tproxy_port)
-            .formatTemplate("port" to transparentProxyPort)
-    }
+    val primaryInbound = stringResource(R.string.settings_inbound_tproxy_port)
+        .formatTemplate("port" to transparentProxyPort)
     val enabledInbounds = mutableListOf<String>()
     if (enableHttpProxy) {
         enabledInbounds += stringResource(R.string.settings_http_proxy)

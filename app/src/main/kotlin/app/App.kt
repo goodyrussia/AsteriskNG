@@ -3,7 +3,6 @@
 
 package app
 
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -12,24 +11,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import app.effects.ProxyStatusSynchronizer
 import app.effects.LauncherIconSynchronizer
+import app.effects.ProxyStatusSynchronizer
 import app.effects.ResourceFileSynchronizer
-import app.effects.SubscriptionAutoUpdater
 import app.effects.RootBootScriptSynchronizer
-import app.effects.Tun2SocksRuntimeFileSynchronizer
-import features.logs.AndroidAccessLogRepository
-import features.logs.AndroidCoreLogRepository
-import features.logs.AndroidLogcatRepository
+import app.effects.SubscriptionAutoUpdater
 import data.AndroidAppStateStore
 import engine.proxy.AndroidProxyEngine
 import engine.proxy.latency.AndroidProxyLatencyTester
+import features.logs.AndroidAccessLogRepository
+import features.logs.AndroidCoreLogRepository
+import features.logs.AndroidLogcatRepository
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
 import features.resources.ResourceFileUseCase
 import features.settings.locale.ProvideAppLanguage
 import features.settings.locale.RecreateActivityOnAppLanguageChange
-import features.settings.usecase.SwitchRunModeUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.subscription.runtime.AndroidSubscriptionFetcher
 import system.AndroidNetworkInterfaceProvider
@@ -46,7 +43,6 @@ fun App(
     qrCodeScanner: suspend () -> String?,
     resourceFilePicker: suspend () -> Uri?,
     logFileCreator: suspend (String) -> Uri?,
-    requestVpnPermission: suspend (Intent) -> Boolean,
 ) {
     val appContext = LocalContext.current.applicationContext
     val appScope = (appContext as AsteriskApplication).appScope
@@ -81,28 +77,17 @@ fun App(
             filePicker = resourceFilePicker,
         )
     }
-    val proxyLatencyTester = remember(appContext) {
-        AndroidProxyLatencyTester(appContext)
-    }
+    val proxyLatencyTester = remember { AndroidProxyLatencyTester() }
     val proxyEngine = remember(appContext, rootAccess) {
         AndroidProxyEngine(
             context = appContext,
             rootAccess = rootAccess,
-            requestVpnPermission = requestVpnPermission,
         )
     }
     val rootBootScriptUseCase = remember(appContext, rootAccess) {
         RootBootScriptUseCase(
             context = appContext,
             rootAccess = rootAccess,
-        )
-    }
-    val switchRunModeUseCase = remember(proxyEngine, rootAccess, rootBootScriptUseCase) {
-        SwitchRunModeUseCase(
-            context = appContext,
-            proxyEngine = proxyEngine,
-            rootAccess = rootAccess,
-            rootBootScriptUseCase = rootBootScriptUseCase,
         )
     }
     val proxyServiceUseCase = remember(proxyEngine) {
@@ -123,7 +108,6 @@ fun App(
         proxyServerImportFileUseCase,
         proxyLatencyTester,
         proxyServiceUseCase,
-        switchRunModeUseCase,
         rootBootScriptUseCase,
         tipNotifier,
         logFileCreator,
@@ -141,7 +125,6 @@ fun App(
             proxyServerImportFileUseCase = proxyServerImportFileUseCase,
             proxyLatencyTester = proxyLatencyTester,
             proxyServiceUseCase = proxyServiceUseCase,
-            switchRunModeUseCase = switchRunModeUseCase,
             rootBootScriptUseCase = rootBootScriptUseCase,
             tipNotifier = tipNotifier,
             logFileCreator = logFileCreator,
@@ -176,10 +159,6 @@ fun App(
     RootBootScriptSynchronizer(
         stateStore = stateStore,
         rootBootScriptUseCase = rootBootScriptUseCase,
-    )
-    Tun2SocksRuntimeFileSynchronizer(
-        context = appContext,
-        stateStore = stateStore,
     )
 
     ProvideAppLanguage(languageMode = chromeState.languageMode) {

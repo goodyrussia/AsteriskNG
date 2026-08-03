@@ -1,14 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">AsteriskNG</string>
-    <string name="error_vpn_permission_denied">VPN permission was not granted. VPN Service cannot be started</string>
-    <string name="error_vpn_start_config_missing">VPN Service start configuration is missing</string>
-    <string name="error_vpn_tun_fd_unavailable">VPN TUN file descriptor is unavailable</string>
-    <string name="error_vpn_tunnel_establish_failed">Unable to establish VPN tunnel</string>
     <string name="error_tproxy_root_required">ROOT access is required for TPROXY mode</string>
     <string name="error_tproxy_start_failed">Failed to start TPROXY mode: %1$s</string>
-    <string name="error_tun2socks_root_required">ROOT access is required for TUN2SOCKS mode</string>
-    <string name="error_tun2socks_start_failed">Failed to start TUN2SOCKS mode: %1$s</string>
-    <string name="error_vpn_permission_launcher_missing">VPN permission launcher is not registered</string>
     <string name="error_qr_camera_permission_denied">Camera permission was not granted. QR code scanning cannot start</string>
     <string name="error_qr_scan_launcher_missing">QR code scanner launcher is not registered</string>
     <string name="error_qr_image_decode_failed">No QR code was found in this image</string>
@@ -16,8 +9,7 @@
     <string name="error_log_export_launcher_missing">Log export launcher is not registered</string>
     <string name="qr_scan_album_button">Album</string>
     <string name="qr_scan_choose_image">Choose from album</string>
-    <string name="error_android_lib_xray_lite_start_failed">Failed to start AndroidLibXrayLite: %1$s</string>
-    <string name="error_android_lib_xray_lite_data_dir_missing">AndroidLibXrayLite data directory is missing</string>
+
     <string name="resource_file_download_notification_channel">Resource file updates</string>
     <string name="resource_file_download_notification_title">Updating resource files</string>
     <string name="resource_file_download_notification_progress">Downloading %1$s</string>
@@ -29,7 +21,7 @@
     <string name="quick_settings_tile_running">Proxy running</string>
     <string name="quick_settings_tile_stopped">Proxy stopped</string>
     <string name="quick_settings_tile_processing">Processing…</string>
-    <string name="quick_settings_tile_vpn_permission_required">Grant VPN permission, then tap again to start</string>
+
     <string name="quick_settings_tile_toggle_failed">Failed to toggle proxy</string>
 <!-- Common -->
     <string name="common_cancel">Cancel</string>
@@ -64,21 +56,16 @@
     <string name="settings_enable_all_proxy_group">Enable "All" group</string>
     <string name="settings_enable_all_proxy_group_summary">Show the "All" group when multiple groups are enabled</string>
     <string name="settings_advanced">Advanced settings</string>
-    <string name="settings_run_mode">Run mode</string>
-    <string name="settings_run_mode_vpn_service">VPN Service</string>
-    <string name="settings_run_mode_tproxy">TPROXY (ROOT)</string>
-    <string name="settings_run_mode_tun2socks">TUN2SOCKS (ROOT)</string>
+
     <string name="settings_resolve_proxy_server_domain">Resolve proxy server domains</string>
     <string name="settings_resolve_proxy_server_domain_summary">Write proxy server IPs to DNS hosts</string>
     <string name="settings_root_required">No ROOT access detected!</string>
     <string name="settings_proxy_tproxy">Proxy settings (TPROXY)</string>
-    <string name="settings_proxy_tun2socks">Proxy settings (TUN2SOCKS)</string>
-    <string name="settings_proxy_vpn_service">Proxy settings (VPN Service)</string>
+
     <string name="settings_root_boot_script">Start on boot</string>
     <string name="settings_root_boot_script_summary">Generate service.d startup script</string>
     <string name="settings_root_boot_script_failed">Failed to update start on boot</string>
-    <string name="settings_vpn_local_dns">Enable local DNS</string>
-    <string name="settings_vpn_local_dns_summary">Use the core to handle DNS requests</string>
+
     <string name="settings_local_proxy">Local proxy settings</string>
     <string name="settings_local_proxy_port">Local proxy port</string>
     <string name="settings_local_proxy_dynamic_port">Dynamic local proxy port</string>
@@ -90,22 +77,10 @@
     <string name="settings_local_proxy_port_invalid">Port must be 1–65535</string>
     <string name="settings_local_proxy_summary_fixed">127.0.0.1:{port}</string>
     <string name="settings_local_proxy_summary_all_interfaces">0.0.0.0:{port}</string>
-    <string name="settings_vpn_append_http_proxy">Append HTTP proxy</string>
-    <string name="settings_vpn_append_http_proxy_summary">Supported apps use HTTP proxy directly</string>
-    <string name="settings_tun">TUN settings</string>
-    <string name="settings_tun_summary">MTU {mtu}, VPN DNS {vpnDns}, IPv4 {ipv4}, IPv6 {ipv6}</string>
-    <string name="settings_tun_summary_without_dns">MTU {mtu}, IPv4 {ipv4}, IPv6 {ipv6}</string>
-    <string name="settings_tun_mtu">MTU</string>
-    <string name="settings_tun_vpn_dns">VPN DNS</string>
-    <string name="settings_tun_ipv4_cidr">IPv4 CIDR</string>
-    <string name="settings_tun_ipv6_cidr">IPv6 CIDR</string>
-    <string name="settings_tun_mtu_invalid">MTU must be 1280–65535</string>
-    <string name="settings_tun_dns_invalid">VPN DNS must be an IPv4 address</string>
-    <string name="settings_tun_ipv4_cidr_invalid">Invalid IPv4 CIDR</string>
-    <string name="settings_tun_ipv6_cidr_invalid">Invalid IPv6 CIDR</string>
+
     <string name="settings_inbound">Inbound proxy settings</string>
     <string name="settings_inbound_tproxy_port">Transparent proxy port: {port}</string>
-    <string name="settings_inbound_socks5_port">TUN2SOCKS SOCKS5 port: {port}</string>
+
     <string name="settings_inbound_selected">Enabled: {inbounds}</string>
     <string name="settings_external_interfaces">Tethering sharing</string>
     <string name="settings_external_interfaces_summary">Select which tethering types accept external inbound traffic</string>
@@ -205,7 +180,7 @@
     <string name="settings_about_project">About project</string>
     <string name="settings_open_source_licenses">Open source licenses</string>
     <string name="settings_transparent_proxy_port">Transparent proxy port</string>
-    <string name="settings_tun2socks_socks5_port">TUN2SOCKS SOCKS5 port</string>
+
     <string name="settings_http_proxy">HTTP proxy</string>
     <string name="settings_http_proxy_summary">Enable HTTP proxy inbound</string>
     <string name="settings_http_proxy_port">HTTP proxy port</string>
@@ -294,7 +269,7 @@
     <string name="proxy_server_list_add">Add server</string>
     <string name="proxy_server_list_more">More actions</string>
     <string name="proxy_server_list_latency_test">Latency test</string>
-    <string name="proxy_server_list_real_connection_test">Real connection test</string>
+
     <string name="proxy_server_list_sort_by_test_result">Sort by test result</string>
     <string name="proxy_server_list_copy_all_urls">Copy all server URLs</string>
     <string name="proxy_server_list_delete_duplicates">Delete duplicate proxy servers</string>
@@ -322,7 +297,7 @@
     <string name="proxy_server_list_service_restarted">Proxy service restarted</string>
     <string name="proxy_server_list_no_testable">No proxy servers to test</string>
     <string name="proxy_server_list_latency_done">Completed latency test for {count} servers</string>
-    <string name="proxy_server_list_real_connection_done">Completed real connection test for {count} servers</string>
+
     <string name="proxy_server_list_subscription_update_result">Updated {groupCount} subscription groups, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">Updated {groupCount} subscription groups, {failedCount} failed, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_strategy_group_summary">{strategy} · {group}</string>

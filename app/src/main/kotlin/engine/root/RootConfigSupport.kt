@@ -6,16 +6,14 @@ package engine.root
 import android.content.Context
 import app.AppState
 import app.ProxyServerState
-import engine.network.toPortOrNull
 import engine.proxy.ProxyEngineStartRequest
-import engine.tun2socks.DefaultTun2SocksProxyPort
-import engine.vpn.xrayDnsHosts
 import engine.xray.XrayConfigFactory
 import engine.xray.XrayConfigRequest
 import engine.xray.XrayCoreLogPaths
 import engine.xray.XrayProtocols
 import engine.xray.buildXrayOutboundPlan
 import engine.xray.prepareXrayCoreLogPaths
+import engine.xray.xrayDnsHosts
 import features.resources.runtime.XrayResourceFilePaths
 import features.resources.runtime.prepareXrayResourceFilePaths
 import kotlinx.serialization.json.JsonObject
@@ -62,7 +60,6 @@ internal class RootConfigBuildContext(
             ignoredLocalInterfaceNames = ignoredLocalInterfaceNames,
         )
     }
-
 }
 
 internal fun Context.prepareRootConfigBuildContext(request: ProxyEngineStartRequest): RootConfigBuildContext {
@@ -100,14 +97,11 @@ internal fun AppState.buildRootSharedProxyInbounds(
     httpInboundTag: String,
 ): List<JsonObject> {
     return buildList {
-        httpProxyPort.toPortOrNull()
-            ?.takeIf { enableHttpProxy }
+        httpProxyPort
+            .toIntOrNull()
+            ?.takeIf { enableHttpProxy && it in 1..65_535 }
             ?.let { port -> add(buildRootHttpProxyInbound(httpInboundTag, port)) }
     }
-}
-
-internal fun AppState.tun2SocksInternalProxyPortValue(): Int {
-    return socks5ProxyPort.toPortOrNull() ?: DefaultTun2SocksProxyPort
 }
 
 private fun buildRootHttpProxyInbound(

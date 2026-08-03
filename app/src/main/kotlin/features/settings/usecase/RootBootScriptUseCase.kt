@@ -5,17 +5,13 @@ package features.settings.usecase
 
 import android.content.Context
 import app.AppState
-import app.modes.RunModeTproxy
-import app.modes.RunModeTun2Socks
 import engine.proxy.ProxyEngineStartRequest
 import engine.root.prepareRootConfigBuildContext
 import engine.root.prepareRootRuntimeLayout
 import engine.root.removeRootBootScript
-import engine.xray.prepareXrayCoreLogPaths
 import engine.tproxy.TproxyRootRunner
 import engine.tproxy.buildTproxyStartConfig
-import engine.tun2socks.Tun2SocksRootRunner
-import engine.tun2socks.buildTun2SocksStartConfig
+import engine.xray.prepareXrayCoreLogPaths
 import kotlinx.coroutines.CancellationException
 import system.AndroidRootShellGateway
 
@@ -25,7 +21,6 @@ internal class RootBootScriptUseCase(
 ) {
     private val appContext = context.applicationContext
     private val tproxyRootRunner = TproxyRootRunner(rootAccess)
-    private val tun2SocksRootRunner = Tun2SocksRootRunner(rootAccess)
 
     suspend fun setEnabled(
         state: AppState,
@@ -72,27 +67,12 @@ internal class RootBootScriptUseCase(
             ?: return RootBootScriptResult.MissingServer
         return runCatching {
             val request = ProxyEngineStartRequest(state, selectedServer)
-            when (state.runMode) {
-                RunModeTproxy,
-                RunModeTun2Socks -> installRootBootScript(state.runMode, request)
-
-                else -> Unit
-            }
+            val rootContext = appContext.prepareRootConfigBuildContext(request)
+            tproxyRootRunner.installBootScript(rootContext.buildTproxyStartConfig())
         }.fold(
             onSuccess = { RootBootScriptResult.Success },
             onFailure = Throwable::toRootBootScriptResult,
         )
-    }
-
-    private suspend fun installRootBootScript(
-        runMode: Int,
-        request: ProxyEngineStartRequest,
-    ) {
-        val rootContext = appContext.prepareRootConfigBuildContext(request)
-        when (runMode) {
-            RunModeTproxy -> tproxyRootRunner.installBootScript(rootContext.buildTproxyStartConfig())
-            RunModeTun2Socks -> tun2SocksRootRunner.installBootScript(rootContext.buildTun2SocksStartConfig())
-        }
     }
 }
 

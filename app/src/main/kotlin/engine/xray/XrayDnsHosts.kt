@@ -1,12 +1,12 @@
 // Copyright 2026, AsteriskNG contributors
 // SPDX-License-Identifier: GPL-3.0
 
-package engine.vpn
+package engine.xray
 
 import app.AppState
-import features.logs.AndroidAppLogger
 import engine.network.isIpv4Address
 import engine.network.isIpv6Address
+import features.logs.AndroidAppLogger
 import features.proxy.server.model.normalizedServerHost
 import java.net.InetAddress
 
@@ -37,4 +37,4 @@ private fun String.resolveHostAddresses(): List<String> {
     }.getOrDefault(emptyList())
 }
 
-private const val LogTag = "VpnDnsHosts"
+private const val LogTag = "XrayDnsHosts"

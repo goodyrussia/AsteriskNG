@@ -3,15 +3,14 @@
 
 package app
 
-import androidx.compose.runtime.staticCompositionLocalOf
 import android.net.Uri
+import androidx.compose.runtime.staticCompositionLocalOf
 import engine.proxy.AndroidProxyEngine
 import engine.proxy.latency.AndroidProxyLatencyTester
 import features.logs.CoreLogRepository
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
 import features.resources.ResourceFileUseCase
-import features.settings.usecase.SwitchRunModeUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.subscription.runtime.AndroidSubscriptionFetcher
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +33,6 @@ internal data class AppServices(
     val proxyServerImportFileUseCase: ProxyServerImportFileUseCase,
     val proxyLatencyTester: AndroidProxyLatencyTester,
     val proxyServiceUseCase: ProxyServiceUseCase,
-    val switchRunModeUseCase: SwitchRunModeUseCase,
     val rootBootScriptUseCase: RootBootScriptUseCase,
     val tipNotifier: AndroidToastTipNotifier,
     val logFileCreator: suspend (String) -> Uri?,

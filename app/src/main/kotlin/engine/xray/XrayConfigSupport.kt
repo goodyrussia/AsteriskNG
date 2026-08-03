@@ -43,14 +43,10 @@ internal object XrayTags {
     const val PROXY_DNS = "dns-proxy"
     const val DIRECT_DNS = "dns-direct"
     const val LOCAL_SOCKS_INBOUND = "socks-in"
-    const val VPN_APPEND_HTTP_INBOUND = "vpn-http-in"
     const val TPROXY_INBOUND = "tproxy-in"
     const val TPROXY_SOCKS_INBOUND = "tproxy-socks-in"
     const val TPROXY_HTTP_INBOUND = "tproxy-http-in"
     const val FRAGMENT = "fragment"
-    const val VPN_TUN_INBOUND = "vpn-tun-in"
-    const val TUN2SOCKS_INBOUND = "tun2socks-in"
-    const val TUN2SOCKS_HTTP_INBOUND = "tun2socks-http-in"
 
     val FIXED_OUTBOUND_TAGS = setOf(
         PROXY,

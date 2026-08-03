@@ -1,14 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">AsteriskNG</string>
-    <string name="error_vpn_permission_denied">VPN 权限未授予，无法启动 VPN Service</string>
-    <string name="error_vpn_start_config_missing">VPN Service 启动配置缺失</string>
-    <string name="error_vpn_tun_fd_unavailable">VPN TUN 文件描述符不可用</string>
-    <string name="error_vpn_tunnel_establish_failed">无法建立 VPN 隧道</string>
     <string name="error_tproxy_root_required">ROOT 权限不可用，无法启动 TPROXY 模式</string>
     <string name="error_tproxy_start_failed">TPROXY 模式启动失败：%1$s</string>
-    <string name="error_tun2socks_root_required">ROOT 权限不可用，无法启动 TUN2SOCKS 模式</string>
-    <string name="error_tun2socks_start_failed">TUN2SOCKS 模式启动失败：%1$s</string>
-    <string name="error_vpn_permission_launcher_missing">VPN 权限请求器未注册</string>
     <string name="error_qr_camera_permission_denied">相机权限未授予，无法扫描二维码</string>
     <string name="error_qr_scan_launcher_missing">二维码扫描请求器未注册</string>
     <string name="error_qr_image_decode_failed">未在图片中识别到二维码</string>
@@ -16,8 +9,7 @@
     <string name="error_log_export_launcher_missing">日志导出请求器未注册</string>
     <string name="qr_scan_album_button">相册</string>
     <string name="qr_scan_choose_image">从相册选择</string>
-    <string name="error_android_lib_xray_lite_start_failed">AndroidLibXrayLite 启动失败：%1$s</string>
-    <string name="error_android_lib_xray_lite_data_dir_missing">AndroidLibXrayLite 数据目录缺失</string>
+
     <string name="resource_file_download_notification_channel">资源文件更新</string>
     <string name="resource_file_download_notification_title">正在更新资源文件</string>
     <string name="resource_file_download_notification_progress">正在下载 %1$s</string>
@@ -29,7 +21,7 @@
     <string name="quick_settings_tile_running">代理运行中</string>
     <string name="quick_settings_tile_stopped">代理已停止</string>
     <string name="quick_settings_tile_processing">正在处理…</string>
-    <string name="quick_settings_tile_vpn_permission_required">授予 VPN 权限后，再次点击即可启动</string>
+
     <string name="quick_settings_tile_toggle_failed">代理切换失败</string>
 <!-- Common -->
     <string name="common_cancel">取消</string>
@@ -64,21 +56,16 @@
     <string name="settings_enable_all_proxy_group">启用“全部”分组</string>
     <string name="settings_enable_all_proxy_group_summary">多分组时显示“全部”分组</string>
     <string name="settings_advanced">高级设置</string>
-    <string name="settings_run_mode">运行模式</string>
-    <string name="settings_run_mode_vpn_service">VPN Service</string>
-    <string name="settings_run_mode_tproxy">TPROXY（ROOT）</string>
-    <string name="settings_run_mode_tun2socks">TUN2SOCKS（ROOT）</string>
+
     <string name="settings_resolve_proxy_server_domain">解析节点域名</string>
     <string name="settings_resolve_proxy_server_domain_summary">将代理节点 IP 写入 DNS hosts</string>
     <string name="settings_root_required">获取ROOT权限失败！</string>
     <string name="settings_proxy_tproxy">代理设置（TPROXY）</string>
-    <string name="settings_proxy_tun2socks">代理设置（TUN2SOCKS）</string>
-    <string name="settings_proxy_vpn_service">代理设置（VPN Service）</string>
+
     <string name="settings_root_boot_script">开机自启</string>
     <string name="settings_root_boot_script_summary">生成 service.d 启动脚本</string>
     <string name="settings_root_boot_script_failed">开机自启设置失败</string>
-    <string name="settings_vpn_local_dns">启用本地 DNS</string>
-    <string name="settings_vpn_local_dns_summary">使用核心处理 DNS 请求</string>
+
     <string name="settings_local_proxy">本地代理设置</string>
     <string name="settings_local_proxy_port">本地代理端口</string>
     <string name="settings_local_proxy_dynamic_port">动态本地代理端口</string>
@@ -90,22 +77,10 @@
     <string name="settings_local_proxy_port_invalid">端口范围应为 1–65535</string>
     <string name="settings_local_proxy_summary_fixed">127.0.0.1:{port}</string>
     <string name="settings_local_proxy_summary_all_interfaces">0.0.0.0:{port}</string>
-    <string name="settings_vpn_append_http_proxy">追加 HTTP 代理</string>
-    <string name="settings_vpn_append_http_proxy_summary">让受支持的应用直接使用 HTTP 代理</string>
-    <string name="settings_tun">TUN 设置</string>
-    <string name="settings_tun_summary">MTU {mtu}，VPN DNS {vpnDns}，IPv4 {ipv4}，IPv6 {ipv6}</string>
-    <string name="settings_tun_summary_without_dns">MTU {mtu}，IPv4 {ipv4}，IPv6 {ipv6}</string>
-    <string name="settings_tun_mtu">MTU</string>
-    <string name="settings_tun_vpn_dns">VPN DNS</string>
-    <string name="settings_tun_ipv4_cidr">IPv4 CIDR</string>
-    <string name="settings_tun_ipv6_cidr">IPv6 CIDR</string>
-    <string name="settings_tun_mtu_invalid">MTU 范围应为 1280–65535</string>
-    <string name="settings_tun_dns_invalid">VPN DNS 必须为 IPv4 地址</string>
-    <string name="settings_tun_ipv4_cidr_invalid">无效 IPv4 CIDR</string>
-    <string name="settings_tun_ipv6_cidr_invalid">无效 IPv6 CIDR</string>
+
     <string name="settings_inbound">入站代理设置</string>
     <string name="settings_inbound_tproxy_port">透明代理端口：{port}</string>
-    <string name="settings_inbound_socks5_port">TUN2SOCKS SOCKS5 端口：{port}</string>
+
     <string name="settings_inbound_selected">已启用：{inbounds}</string>
     <string name="settings_external_interfaces">热点共享设置</string>
     <string name="settings_external_interfaces_summary">选择允许外部入站流量进入的热点共享类型</string>
@@ -205,7 +180,7 @@
     <string name="settings_about_project">关于项目</string>
     <string name="settings_open_source_licenses">开源许可</string>
     <string name="settings_transparent_proxy_port">透明代理端口</string>
-    <string name="settings_tun2socks_socks5_port">TUN2SOCKS SOCKS5 端口</string>
+
     <string name="settings_http_proxy">HTTP 代理</string>
     <string name="settings_http_proxy_summary">启用 HTTP 代理入站</string>
     <string name="settings_http_proxy_port">HTTP 代理端口</string>
@@ -294,7 +269,7 @@
     <string name="proxy_server_list_add">添加节点</string>
     <string name="proxy_server_list_more">更多功能</string>
     <string name="proxy_server_list_latency_test">延迟测试</string>
-    <string name="proxy_server_list_real_connection_test">测试真连接</string>
+
     <string name="proxy_server_list_sort_by_test_result">按测试结果排序</string>
     <string name="proxy_server_list_copy_all_urls">复制所有节点URL</string>
     <string name="proxy_server_list_delete_duplicates">删除重复代理节点</string>
@@ -322,7 +297,7 @@
     <string name="proxy_server_list_service_restarted">代理服务已重启</string>
     <string name="proxy_server_list_no_testable">没有可测试的代理节点</string>
     <string name="proxy_server_list_latency_done">已完成 {count} 个节点的延迟测试</string>
-    <string name="proxy_server_list_real_connection_done">已完成 {count} 个节点的真连接测试</string>
+
     <string name="proxy_server_list_subscription_update_result">已更新 {groupCount} 个订阅分组，导入 {serverCount} 个节点</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">已更新 {groupCount} 个订阅分组，{failedCount} 个失败，导入 {serverCount} 个节点</string>
     <string name="proxy_server_list_strategy_group_summary">{strategy} · {group}</string>

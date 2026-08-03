@@ -195,7 +195,7 @@ fun ProxyServerListPage(
         }
 
         runProxyServiceOperation {
-            when (val stopResult = proxyServiceUseCase.stop(stateStore.state.value.runMode)) {
+            when (val stopResult = proxyServiceUseCase.stop()) {
                 is ProxyServiceResult.Success -> {
                     if (removeServer(stopResult)) {
                         tipNotifier.show(messages.deletedTemplate.formatTemplate("name" to remarks))
@@ -377,21 +377,6 @@ fun ProxyServerListPage(
                                 tipNotifier.showError(result.error, messages.serviceStopped)
                             }
                         }
-                    }
-                },
-                onRealConnectionTest = {
-                    val server = servers.firstOrNull { it.id == selectedServerId }
-                    if (server == null) {
-                        scope.launch {
-                            tipNotifier.show(messages.selectServerFirst)
-                        }
-                    } else {
-                        testProxyServerLatency(
-                            targetServers = listOf(server),
-                            mode = ProxyServerLatencyTestMode.RealConnection,
-                            doneTemplate = messages.realConnectionDoneTemplate,
-                            showSingleResult = true,
-                        )
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd),

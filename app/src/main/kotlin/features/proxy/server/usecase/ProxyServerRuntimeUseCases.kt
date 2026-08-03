@@ -5,6 +5,12 @@ package features.proxy.server.usecase
 
 import app.AppState
 import app.ProxyServerState
+import data.AndroidAppStateStore
+import engine.proxy.AndroidProxyEngine
+import engine.proxy.ProxyEngineStartRequest
+import engine.proxy.latency.AndroidProxyLatencyTester
+import engine.proxy.latency.ProxyServerLatencyTestMode
+import engine.proxy.latency.ProxyServerLatencyTestResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -14,18 +20,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
-import engine.proxy.latency.AndroidProxyLatencyTester
-import engine.proxy.latency.ProxyServerLatencyTestMode
-import engine.proxy.latency.ProxyServerLatencyTestResult
-import engine.proxy.AndroidProxyEngine
-import engine.proxy.ProxyEngineStartRequest
-import data.AndroidAppStateStore
 import ui.feedback.AndroidToastTipNotifier
 import ui.text.formatTemplate
 import kotlin.coroutines.cancellation.CancellationException
 
 private const val TcpLatencyTestConcurrency = 16
-private const val RealConnectionLatencyTestConcurrency = 8
 
 internal fun restartProxyServiceAfterSelection(
     serverId: Int,
@@ -42,7 +41,7 @@ internal fun restartProxyServiceAfterSelection(
                 return@withLock
             }
             val status = try {
-                proxyEngine.status(stateSnapshot.runMode)
+                proxyEngine.status()
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Throwable) {
@@ -70,7 +69,7 @@ internal fun restartProxyServiceAfterSelection(
                 }
             } catch (error: CancellationException) {
                 throw error
-            } catch (error: Throwable) {
+            } catch (_: Throwable) {
                 updateAppState { state ->
                     if (state.selectedProxyServerId == serverId) {
                         state.copy(proxyRunning = false)
@@ -105,7 +104,6 @@ internal fun runProxyServerLatencyTest(
     }
 
     scope.launch {
-        val stateSnapshot = stateStore.state.value
         val targetIds = targetServers.map { server -> server.id }.toSet()
         updateAppState { state ->
             state.copy(
@@ -115,22 +113,13 @@ internal fun runProxyServerLatencyTest(
             )
         }
 
-        val concurrency = when (mode) {
-            ProxyServerLatencyTestMode.TcpConnect -> TcpLatencyTestConcurrency
-            ProxyServerLatencyTestMode.RealConnection -> RealConnectionLatencyTestConcurrency
-        }
-        val semaphore = Semaphore(concurrency)
-
+        val semaphore = Semaphore(TcpLatencyTestConcurrency)
         supervisorScope {
             targetServers.map { server ->
                 async {
                     val latency = semaphore.withPermit {
                         runCatching {
-                            proxyLatencyTester.test(
-                                appState = stateSnapshot,
-                                server = server,
-                                mode = mode,
-                            )
+                            proxyLatencyTester.test(server)
                         }.getOrElse {
                             ProxyServerLatencyTestResult.Failed
                         }.toLatencyText(latencyFailedMessage)

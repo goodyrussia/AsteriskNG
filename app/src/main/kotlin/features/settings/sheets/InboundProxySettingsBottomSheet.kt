@@ -23,18 +23,15 @@ import top.yukonga.miuix.kmp.window.WindowBottomSheet
 @Composable
 internal fun ProxySettingsBottomSheet(
     show: Boolean,
-    useTun2SocksProxyPort: Boolean,
     lockInboundSettings: Boolean,
     transparentProxyPort: String,
-    socks5ProxyPort: String,
     enableHttpProxy: Boolean,
     httpProxyPort: String,
     onTransparentProxyPortChange: (String) -> Unit,
-    onSocks5ProxyPortChange: (String) -> Unit,
     onEnableHttpProxyChange: (Boolean) -> Unit,
     onHttpProxyPortChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    onSave: (String, String, Boolean, String) -> Unit,
+    onSave: (String, Boolean, String) -> Unit,
 ) {
     WindowBottomSheet(
         show = show,
@@ -51,7 +48,6 @@ internal fun ProxySettingsBottomSheet(
                 onClick = {
                     onSave(
                         transparentProxyPort,
-                        socks5ProxyPort,
                         enableHttpProxy,
                         httpProxyPort,
                     )
@@ -60,37 +56,21 @@ internal fun ProxySettingsBottomSheet(
         },
         onDismissRequest = onDismissRequest,
     ) {
-        key(show, useTun2SocksProxyPort) {
+        key(show) {
             SettingsSheetContent {
-                if (useTun2SocksProxyPort) {
-                    ProxyPortTextField(
-                        value = socks5ProxyPort,
-                        onValueChange = if (lockInboundSettings) {
-                            {}
-                        } else {
-                            onSocks5ProxyPortChange
-                        },
-                        label = stringResource(R.string.settings_tun2socks_socks5_port),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        enabled = !lockInboundSettings,
-                    )
-                } else {
-                    ProxyPortTextField(
-                        value = transparentProxyPort,
-                        onValueChange = if (lockInboundSettings) {
-                            {}
-                        } else {
-                            onTransparentProxyPortChange
-                        },
-                        label = stringResource(R.string.settings_transparent_proxy_port),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        enabled = !lockInboundSettings,
-                    )
-                }
+                ProxyPortTextField(
+                    value = transparentProxyPort,
+                    onValueChange = if (lockInboundSettings) {
+                        {}
+                    } else {
+                        onTransparentProxyPortChange
+                    },
+                    label = stringResource(R.string.settings_transparent_proxy_port),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    enabled = !lockInboundSettings,
+                )
                 SwitchPreference(
                     title = stringResource(R.string.settings_http_proxy),
                     summary = stringResource(R.string.settings_http_proxy_summary),

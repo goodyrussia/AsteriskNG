@@ -3,18 +3,10 @@
 
 package engine.proxy.latency
 
-import android.content.Context
 import android.os.SystemClock
-import app.AppState
 import app.ProxyServerState
-import features.logs.AndroidAppLogger
-import engine.xray.XrayConfigRequest
-import engine.xray.XraySpeedTestConfigFactory
-import engine.xray.initializeAndroidXrayCoreEnvironment
-import engine.xray.prepareXrayCoreLogPaths
-import features.resources.runtime.prepareXrayResourceFilePaths
-import engine.network.NetworkDefaults
 import engine.network.toPortOrNull
+import features.logs.AndroidAppLogger
 import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.Hysteria2
@@ -30,27 +22,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import libv2ray.Libv2ray
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.UnknownHostException
 
-internal class AndroidProxyLatencyTester(
-    context: Context,
-) {
-    private val appContext = context.applicationContext
-
-    suspend fun test(
-        appState: AppState,
-        server: ProxyServerState,
-        mode: ProxyServerLatencyTestMode,
-    ): ProxyServerLatencyTestResult = withContext(Dispatchers.IO) {
-        val elapsedMillis = when (mode) {
-            ProxyServerLatencyTestMode.TcpConnect -> tcpConnectLatency(server)
-            ProxyServerLatencyTestMode.RealConnection -> realConnectionLatency(appState, server)
-        }
-        ProxyServerLatencyTestResult(elapsedMillis)
+internal class AndroidProxyLatencyTester {
+    suspend fun test(server: ProxyServerState): ProxyServerLatencyTestResult = withContext(Dispatchers.IO) {
+        ProxyServerLatencyTestResult(tcpConnectLatency(server))
     }
 
     private suspend fun tcpConnectLatency(server: ProxyServerState): Long {
@@ -65,27 +44,6 @@ internal class AndroidProxyLatencyTester(
         }
         AndroidAppLogger.debug(LogTag, "TCP latency test serverId=${server.id} result=${bestMillis}ms")
         return bestMillis
-    }
-
-    private fun realConnectionLatency(appState: AppState, server: ProxyServerState): Long {
-        return runCatching {
-            server.server.check()
-            val resourceFilePaths = appContext.prepareXrayResourceFilePaths()
-            appContext.initializeAndroidXrayCoreEnvironment(resourceFilePaths.dataDir)
-            val configJson = XraySpeedTestConfigFactory.buildXraySpeedTestConfig(
-                XrayConfigRequest(
-                    appState = appState,
-                    selectedServer = server,
-                    inbounds = emptyList(),
-                    coreLogPaths = appContext.prepareXrayCoreLogPaths(),
-                ),
-            )
-            Libv2ray.measureOutboundDelay(configJson, DelayTestUrl)
-        }.onSuccess { millis ->
-            AndroidAppLogger.debug(LogTag, "Real connection latency test serverId=${server.id} result=${millis}ms")
-        }.onFailure { error ->
-            AndroidAppLogger.warn(LogTag, "Real connection latency test failed serverId=${server.id}", error)
-        }.getOrDefault(FailedDelayMillis)
     }
 
     private fun socketConnectTime(host: String, port: Int): Long {
@@ -107,7 +65,6 @@ internal class AndroidProxyLatencyTester(
 
 enum class ProxyServerLatencyTestMode {
     TcpConnect,
-    RealConnection,
 }
 
 data class ProxyServerLatencyTestResult(
@@ -147,7 +104,6 @@ private fun endpoint(host: String, port: String): ProxyServerEndpoint? {
 }
 
 private const val LogTag = "ProxyLatencyTest"
-private const val DelayTestUrl = NetworkDefaults.CONNECTIVITY_CHECK_URL
 private const val FailedDelayMillis = -1L
 private const val TcpConnectAttempts = 2
 private const val TcpConnectTimeoutMillis = 3_000

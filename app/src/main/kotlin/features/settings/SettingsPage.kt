@@ -5,58 +5,54 @@
 
 package features.settings
 
-import app.LocalAppChromeState
-import app.LocalAppStateStore
-import app.LocalAppServices
-import app.LocalIsWideScreen
-import app.LocalNavigator
-import app.LocalUpdateAppState
-import app.modes.ColorModeThemeDark
-import app.modes.ColorModeThemeSystem
-import app.collectAppState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import app.modes.RunModeTun2Socks
-import app.modes.RunModeVpnService
+import androidx.compose.ui.res.stringResource
+import app.LocalAppChromeState
+import app.LocalAppServices
+import app.LocalAppStateStore
+import app.LocalIsWideScreen
+import app.LocalNavigator
+import app.LocalUpdateAppState
 import app.ProjectInfo
 import app.R
+import app.collectAppState
+import app.modes.ColorModeThemeDark
+import app.modes.ColorModeThemeSystem
+import app.navigation.Route
 import engine.proxy.withResolvedDynamicLocalProxyPort
+import features.settings.locale.AppLocale
 import features.settings.sheets.externalInterfacesSummary
 import features.settings.sheets.fragmentSettingsSummary
 import features.settings.sheets.ignoredInterfacesSummary
 import features.settings.sheets.muxSettingsSummary
 import features.settings.sheets.privateAddressCidrsSummary
-import features.settings.sheets.tunSettingsSummary
-import features.settings.usecase.SwitchRunModeResult
 import features.settings.usecase.RootBootScriptResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import app.navigation.Route
-import androidx.compose.ui.res.stringResource
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
-import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.VerticalScrollBar
 import top.yukonga.miuix.kmp.basic.rememberScrollBarAdapter
+import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
+import ui.KeyColors
 import ui.layout.AdaptiveTopAppBar
 import ui.layout.pageContentPaddingWithCutout
 import ui.layout.pageListPadding
 import ui.layout.pageScrollModifiers
-import ui.KeyColors
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
 
 @Composable
 fun SettingsPage(
@@ -98,13 +94,11 @@ private fun SettingsContent(
     val navigator = LocalNavigator.current
     val services = LocalAppServices.current
     val networkInterfaces = services.networkInterfaces
-    val switchRunModeUseCase = services.switchRunModeUseCase
     val rootBootScriptUseCase = services.rootBootScriptUseCase
     val tipNotifier = services.tipNotifier
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-    var runModeSwitchInProgress by rememberSaveable { mutableStateOf(false) }
-    var rootBootScriptSwitchInProgress by rememberSaveable { mutableStateOf(false) }
+    var rootBootScriptSwitchInProgress by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val contentPadding = pageContentPaddingWithCutout(
         innerPadding = innerPadding,
         outerPadding = outerPadding,
@@ -126,11 +120,6 @@ private fun SettingsContent(
         stringResource(R.string.option_english),
         stringResource(R.string.option_simplified_chinese),
     )
-    val runModeOptions = listOf(
-        stringResource(R.string.settings_run_mode_vpn_service),
-        stringResource(R.string.settings_run_mode_tproxy),
-        stringResource(R.string.settings_run_mode_tun2socks),
-    )
     val keyColorOptions = listOf(
         stringResource(R.string.theme_color_default),
         stringResource(R.string.theme_color_blue),
@@ -143,13 +132,10 @@ private fun SettingsContent(
     ).take(KeyColors.size + 1)
     val rootRequiredMessage = stringResource(R.string.settings_root_required)
     val rootBootScriptFailedMessage = stringResource(R.string.settings_root_boot_script_failed)
-    val serviceStoppedMessage = stringResource(R.string.proxy_server_list_service_stopped)
     val selectServerFirstMessage = stringResource(R.string.proxy_server_list_select_first)
     val ignoredInterfacesErrorDetail = stringResource(R.string.settings_ignored_interfaces_error_detail)
     val inboundProxySummary = inboundProxySummary(
-        useTun2SocksProxyPort = appState.runMode == RunModeTun2Socks,
         transparentProxyPort = appState.transparentProxyPort,
-        socks5ProxyPort = appState.socks5ProxyPort,
         enableHttpProxy = appState.enableHttpProxy,
     )
     val localProxySettingsSummary = localProxySettingsSummary(
@@ -159,13 +145,6 @@ private fun SettingsContent(
     val externalInterfacesSummary = externalInterfacesSummary(appState.externalInterfaces)
     val ignoredInterfacesSummary = ignoredInterfacesSummary(appState.ignoredInterfaces)
     val privateAddressCidrsSummary = privateAddressCidrsSummary(appState.privateAddressCidrs)
-    val tunSettingsSummary = tunSettingsSummary(
-        mtu = appState.tunMtu,
-        vpnDns = appState.tunVpnDns,
-        ipv4Cidr = appState.tunIpv4Cidr,
-        ipv6Cidr = appState.tunIpv6Cidr,
-        showVpnDns = appState.runMode == RunModeVpnService,
-    )
     val muxSettingsSummary = muxSettingsSummary(
         enabled = appState.enableMux,
         concurrency = appState.muxConcurrency,
@@ -235,70 +214,27 @@ private fun SettingsContent(
                     },
                 )
             }
-            item(key = "settings_run_mode") {
+            item(key = "settings_advanced") {
                 SettingsAdvancedSection(
                     enableIpv6 = appState.enableIpv6,
                     enableIpv6Prefer = appState.enableIpv6Prefer,
-                    runModeOptions = runModeOptions,
-                    runMode = appState.runMode,
                     onEnableIpv6Change = { enabled ->
                         updateAppState { state -> state.copy(enableIpv6 = enabled) }
                     },
                     onEnableIpv6PreferChange = { enabled ->
                         updateAppState { state -> state.copy(enableIpv6Prefer = enabled) }
                     },
-                    onRunModeChange = { index ->
-                        if (index != appState.runMode && !runModeSwitchInProgress) {
-                            val currentState = appState
-                            runModeSwitchInProgress = true
-                            services.appScope.launch {
-                                try {
-                                    when (val result = switchRunModeUseCase.switchRunMode(currentState, index)) {
-                                        is SwitchRunModeResult.Success -> {
-                                            updateAppState { state ->
-                                                state.copy(
-                                                    runMode = result.runMode,
-                                                    proxyRunning = result.proxyRunning,
-                                                    enableRootBootScript = false,
-                                                )
-                                            }
-                                        }
-
-                                        is SwitchRunModeResult.RootUnavailable -> {
-                                            updateAppState { state -> state.copy(proxyRunning = result.proxyRunning) }
-                                            tipNotifier.show(rootRequiredMessage)
-                                        }
-
-                                        is SwitchRunModeResult.StopFailed -> {
-                                            tipNotifier.showError(result.error, serviceStoppedMessage)
-                                        }
-                                    }
-                                } finally {
-                                    withContext(Dispatchers.Main.immediate) {
-                                        runModeSwitchInProgress = false
-                                    }
-                                }
-                            }
-                        }
-                    },
                 )
             }
-            item(key = "settings_proxy") {
-                SettingsProxyModeSections(
-                    runMode = appState.runMode,
+            item(key = "settings_tproxy") {
+                SettingsTproxySection(
                     localProxySettingsSummary = localProxySettingsSummary,
-                    enableVpnAppendHttpProxy = appState.enableVpnAppendHttpProxy,
-                    tunSettingsSummary = tunSettingsSummary,
                     inboundProxySummary = inboundProxySummary,
                     enableRootBootScript = appState.enableRootBootScript,
                     externalInterfacesSummary = externalInterfacesSummary,
                     ignoredInterfacesSummary = ignoredInterfacesSummary,
                     privateAddressCidrsSummary = privateAddressCidrsSummary,
                     onOpenLocalProxySettings = { sheetState.openLocalProxySettings(appState) },
-                    onEnableVpnAppendHttpProxyChange = { enabled ->
-                        updateAppState { state -> state.copy(enableVpnAppendHttpProxy = enabled) }
-                    },
-                    onOpenTunSettings = { sheetState.openTunSettings(appState) },
                     onOpenProxySettings = { sheetState.openProxySettings(appState) },
                     onEnableRootBootScriptChange = { enabled ->
                         if (!rootBootScriptSwitchInProgress) {
