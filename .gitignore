@@ -20,3 +20,5 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 app/libs/*.aar
 app/src/main/assets/xray/
+__pycache__/
+*.py[cod]
