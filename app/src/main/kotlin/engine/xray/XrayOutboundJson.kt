@@ -83,6 +83,14 @@ internal fun AppState.xrayDirectOutboundDomainStrategy(): String {
     }
 }
 
+private fun AppState.xrayProxyOutboundDomainStrategy(): String {
+    return when {
+        enableIpv6 && enableIpv6Prefer -> "ForceIPv6v4"
+        enableIpv6 -> "ForceIP"
+        else -> "ForceIPv4"
+    }
+}
+
 private fun buildProxyOutbound(appState: AppState, outboundServer: XrayProxyOutboundServer): JsonObject {
     val tag = outboundServer.tag
     val server = outboundServer.server
@@ -126,7 +134,7 @@ private fun JsonObject.applyProxyOutboundDomainStrategy(appState: AppState): Jso
     }
 
     return withSockopt {
-        put("domainStrategy", appState.xrayDirectOutboundDomainStrategy())
+        put("domainStrategy", appState.xrayProxyOutboundDomainStrategy())
     }
 }
 

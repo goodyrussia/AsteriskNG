@@ -11,7 +11,6 @@ import features.proxy.server.model.normalizedServerHost
 import java.net.InetAddress
 
 internal fun AppState.xrayDnsHosts(proxyServerHosts: List<String>): List<String> {
-    if (!enableResolveProxyServerDomain) return dnsHosts
     return (dnsHosts + proxyServerHosts.mapNotNull { host -> host.toResolvedDnsHostEntry() }).distinct()
 }
 

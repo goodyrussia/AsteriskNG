@@ -27,7 +27,7 @@ internal fun RootIptablesConfig.buildSetupRulesCommand(
         if (enableIpv6) {
             appendIpv6VariantSetupRules(this@buildSetupRulesCommand, port)
         } else {
-            appendIpv6DnsRejectRule()
+            appendIpv6KillSwitchRules()
         }
     }
 }
@@ -36,6 +36,8 @@ internal fun RootIptablesConfig.buildCleanupRulesCommand(): String {
     return buildString {
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv4IptablesVariant())
         appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-p udp --dport 53 -j REJECT", table = "filter")
+        appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-j REJECT", table = "filter")
+        appendDeleteRuleLoop(RootIp6tablesCommand, "FORWARD", "-j REJECT", table = "filter")
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv6IptablesVariant(useDummyInterface = false))
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv6IptablesVariant(useDummyInterface = true))
     }
@@ -75,7 +77,9 @@ private fun StringBuilder.appendIptablesVariantSetupRules(
         ${variant.command} -t mangle -I OUTPUT 1 -j ${variant.outputChain}
         """,
     )
-    appendPreroutingDnsTproxyRules(variant, port, config.mark)
+    config.externalInterfacePrefixes.forEach { prefix ->
+        appendPreroutingDnsTproxyRule(variant, prefix, port, config.mark)
+    }
     appendPreroutingPrivateDestinationInterfaceTproxyRules(
         variant = variant,
         interfacePrefixes = config.externalInterfacePrefixes,
@@ -181,8 +185,9 @@ private fun StringBuilder.appendIptablesVariantCleanupRules(
     }
 }
 
-private fun StringBuilder.appendIpv6DnsRejectRule() {
-    appendScript("$RootIp6tablesCommand -t filter -I OUTPUT 1 -p udp --dport 53 -j REJECT")
+private fun StringBuilder.appendIpv6KillSwitchRules() {
+    appendScript("$RootIp6tablesCommand -t filter -I OUTPUT 1 -j REJECT")
+    appendScript("$RootIp6tablesCommand -t filter -I FORWARD 1 -j REJECT")
 }
 
 private fun StringBuilder.appendUdpDnsMarkRule(
@@ -295,13 +300,15 @@ private fun StringBuilder.appendOutputUidMarkRules(
     }
 }
 
-private fun StringBuilder.appendPreroutingDnsTproxyRules(
+private fun StringBuilder.appendPreroutingDnsTproxyRule(
     variant: TproxyIptablesVariant,
+    interfaceName: String,
     port: Int,
     mark: String,
 ) {
+    val quotedInterface = interfaceName.shellQuote()
     appendScript(
-        "${variant.command} -t mangle -A ${variant.preroutingChain} -p udp -m udp --dport 53 " +
+        "${variant.command} -t mangle -A ${variant.preroutingChain} -i $quotedInterface -p udp -m udp --dport 53 " +
             "-j TPROXY --on-port $port --on-ip ${variant.tproxyOnIp} --tproxy-mark $mark",
     )
 }

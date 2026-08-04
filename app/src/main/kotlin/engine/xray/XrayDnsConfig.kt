@@ -64,6 +64,7 @@ internal fun buildXrayDnsConfig(plan: XrayDnsPlan): JsonObject {
         put("servers", plan.servers)
         put("queryStrategy", plan.queryStrategy)
         put("tag", plan.tag)
+        put("disableFallbackIfMatch", true)
         putIfNotEmpty("hosts", plan.hosts)
     }
 }

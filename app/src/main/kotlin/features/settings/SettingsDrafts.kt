@@ -4,91 +4,17 @@
 package features.settings
 
 import app.AppState
-import app.effectiveFakeDnsEnabled
-import features.settings.sheets.sanitizeMuxUdp443Index
-
-internal data class ProxySettingsDraft(
-    val transparentProxyPort: String = "",
-    val enableHttpProxy: Boolean = false,
-    val httpProxyPort: String = "",
-)
-
-internal fun AppState.toProxySettingsDraft(): ProxySettingsDraft {
-    return ProxySettingsDraft(
-        transparentProxyPort = transparentProxyPort,
-        enableHttpProxy = enableHttpProxy,
-        httpProxyPort = httpProxyPort,
-    )
-}
-
-internal data class LocalProxySettingsDraft(
-    val port: String = "",
-    val enableDynamicPort: Boolean = false,
-    val listenAllInterfaces: Boolean = false,
-    val username: String = "",
-    val password: String = "",
-)
-
-internal fun AppState.toLocalProxySettingsDraft(): LocalProxySettingsDraft {
-    return LocalProxySettingsDraft(
-        port = localProxyPort,
-        enableDynamicPort = enableDynamicLocalProxyPort,
-        listenAllInterfaces = localProxyListenAllInterfaces,
-        username = localProxyUsername,
-        password = localProxyPassword,
-    )
-}
+import engine.xray.DefaultPrimaryDnsServer
+import engine.xray.DefaultSecondaryDnsServer
 
 internal data class DnsSettingsDraft(
-    val enableFakeDns: Boolean = false,
-    val enableResolveProxyServerDomain: Boolean = false,
-    val proxyDns: List<String> = emptyList(),
-    val directDns: List<String> = emptyList(),
-    val directDnsDomains: List<String> = emptyList(),
-    val enableDirectDnsForProxyServerDomains: Boolean = true,
-    val dnsHosts: List<String> = emptyList(),
+    val primary: String = DefaultPrimaryDnsServer,
+    val secondary: String = DefaultSecondaryDnsServer,
 )
 
 internal fun AppState.toDnsSettingsDraft(): DnsSettingsDraft {
     return DnsSettingsDraft(
-        enableFakeDns = effectiveFakeDnsEnabled,
-        enableResolveProxyServerDomain = enableResolveProxyServerDomain,
-        proxyDns = proxyDns,
-        directDns = directDns,
-        directDnsDomains = directDnsDomains,
-        enableDirectDnsForProxyServerDomains = enableDirectDnsForProxyServerDomains,
-        dnsHosts = dnsHosts,
-    )
-}
-
-internal data class MuxSettingsDraft(
-    val enabled: Boolean = false,
-    val concurrency: String = "",
-    val xudpConcurrency: String = "",
-    val xudpProxyUdp443: Int = 0,
-)
-
-internal fun AppState.toMuxSettingsDraft(): MuxSettingsDraft {
-    return MuxSettingsDraft(
-        enabled = enableMux,
-        concurrency = muxConcurrency,
-        xudpConcurrency = muxXudpConcurrency,
-        xudpProxyUdp443 = sanitizeMuxUdp443Index(muxXudpProxyUdp443),
-    )
-}
-
-internal data class FragmentSettingsDraft(
-    val enabled: Boolean = false,
-    val packets: String = "",
-    val length: String = "",
-    val interval: String = "",
-)
-
-internal fun AppState.toFragmentSettingsDraft(): FragmentSettingsDraft {
-    return FragmentSettingsDraft(
-        enabled = enableFragment,
-        packets = fragmentPackets,
-        length = fragmentLength,
-        interval = fragmentInterval,
+        primary = proxyDns.getOrNull(0) ?: DefaultPrimaryDnsServer,
+        secondary = proxyDns.getOrNull(1) ?: DefaultSecondaryDnsServer,
     )
 }

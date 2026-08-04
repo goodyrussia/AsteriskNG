@@ -3,59 +3,28 @@
 
 package features.settings.sheets
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.key
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import app.R
 import engine.network.isIpAddress
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
-import ui.components.StringListEditor
-import utils.toTrimmedNonEmptyDistinctList
-
-private const val DnsHostSeparator = ':'
-private val XrayDnsUrlSchemes = setOf(
-    "https",
-    "h2c",
-    "https+local",
-    "h2c+local",
-    "quic+local",
-    "tcp",
-    "tcp+local",
-)
 
 @Composable
 internal fun DnsSettingsBottomSheet(
     show: Boolean,
-    enableFakeDns: Boolean,
-    enableResolveProxyServerDomain: Boolean,
-    proxyDns: List<String>,
-    directDns: List<String>,
-    directDnsDomains: List<String>,
-    enableDirectDnsForProxyServerDomains: Boolean,
-    dnsHosts: List<String>,
-    onEnableFakeDnsChange: (Boolean) -> Unit,
-    onEnableResolveProxyServerDomainChange: (Boolean) -> Unit,
-    onProxyDnsChange: (List<String>) -> Unit,
-    onDirectDnsChange: (List<String>) -> Unit,
-    onDirectDnsDomainsChange: (List<String>) -> Unit,
-    onEnableDirectDnsForProxyServerDomainsChange: (Boolean) -> Unit,
-    onDnsHostsChange: (List<String>) -> Unit,
+    primary: String,
+    secondary: String,
+    onPrimaryChange: (String) -> Unit,
+    onSecondaryChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    onSave: (Boolean, Boolean, List<String>, List<String>, List<String>, Boolean, List<String>) -> Unit,
+    onSave: (String, String) -> Unit,
 ) {
-    val proxyDnsEntries = proxyDns.toTrimmedNonEmptyDistinctList()
-    val directDnsEntries = directDns.toTrimmedNonEmptyDistinctList()
-    val directDnsDomainEntries = directDnsDomains.toTrimmedNonEmptyDistinctList()
-    val dnsHostsInvalidMessage = stringResource(R.string.settings_dns_hosts_invalid)
-    val dnsHostEntries = dnsHosts.toTrimmedNonEmptyDistinctList()
-    val dnsServerInvalidMessage = stringResource(R.string.settings_dns_server_invalid)
-    val dnsDomainInvalidMessage = stringResource(R.string.settings_dns_domain_invalid)
+    val invalidMessage = stringResource(R.string.settings_dns_address_invalid)
+    val primaryError = dnsAddressError(primary, invalidMessage)
+    val secondaryError = dnsAddressError(secondary, invalidMessage)
+
     WindowBottomSheet(
         show = show,
         title = stringResource(R.string.settings_dns),
@@ -69,184 +38,39 @@ internal fun DnsSettingsBottomSheet(
             TextButton(
                 text = stringResource(R.string.common_save),
                 onClick = {
-                    onSave(
-                        enableFakeDns,
-                        enableResolveProxyServerDomain,
-                        proxyDnsEntries,
-                        directDnsEntries,
-                        directDnsDomainEntries,
-                        enableDirectDnsForProxyServerDomains,
-                        dnsHostEntries,
-                    )
+                    if (primaryError == null && secondaryError == null) {
+                        onSave(primary.trim(), secondary.trim())
+                    }
                 },
             )
         },
         onDismissRequest = onDismissRequest,
     ) {
-        SettingsSheetContent {
-            SwitchPreference(
-                title = "FakeDNS",
-                summary = stringResource(R.string.settings_fake_dns_summary),
-                checked = enableFakeDns,
-                onCheckedChange = onEnableFakeDnsChange,
-            )
-            SwitchPreference(
-                title = stringResource(R.string.settings_resolve_proxy_server_domain),
-                summary = stringResource(R.string.settings_resolve_proxy_server_domain_summary),
-                checked = enableResolveProxyServerDomain,
-                onCheckedChange = onEnableResolveProxyServerDomainChange,
-            )
-            SwitchPreference(
-                title = stringResource(R.string.settings_direct_dns_resolve_proxy_server_domains),
-                summary = stringResource(R.string.settings_direct_dns_resolve_proxy_server_domains_summary),
-                checked = enableDirectDnsForProxyServerDomains,
-                onCheckedChange = onEnableDirectDnsForProxyServerDomainsChange,
-            )
-            Spacer(Modifier.height(8.dp))
-            StringListEditor(
-                editorKey = "direct-dns:$show",
-                title = stringResource(R.string.settings_direct_dns),
-                inputLabel = stringResource(R.string.settings_direct_dns_input),
-                values = directDnsEntries,
-                onValuesChange = { onDirectDnsChange(it.toTrimmedNonEmptyDistinctList()) },
-                emptyText = stringResource(R.string.settings_direct_dns_empty),
-                duplicateText = stringResource(R.string.settings_dns_hosts_duplicate),
-                validateInput = { dnsServerInputError(it, dnsServerInvalidMessage) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(8.dp))
-            StringListEditor(
-                editorKey = "direct-dns-domains:$show",
-                title = stringResource(R.string.settings_direct_dns_domains),
-                inputLabel = stringResource(R.string.settings_direct_dns_domains_input),
-                values = directDnsDomainEntries,
-                onValuesChange = { onDirectDnsDomainsChange(it.toTrimmedNonEmptyDistinctList()) },
-                emptyText = stringResource(R.string.settings_direct_dns_domains_empty),
-                duplicateText = stringResource(R.string.settings_dns_hosts_duplicate),
-                validateInput = { dnsDomainInputError(it, dnsDomainInvalidMessage) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(8.dp))
-            StringListEditor(
-                editorKey = "proxy-dns:$show",
-                title = stringResource(R.string.settings_proxy_dns),
-                inputLabel = stringResource(R.string.settings_proxy_dns_input),
-                values = proxyDnsEntries,
-                onValuesChange = { onProxyDnsChange(it.toTrimmedNonEmptyDistinctList()) },
-                emptyText = stringResource(R.string.settings_proxy_dns_empty),
-                duplicateText = stringResource(R.string.settings_dns_hosts_duplicate),
-                validateInput = { dnsServerInputError(it, dnsServerInvalidMessage) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(8.dp))
-            StringListEditor(
-                editorKey = "dns-hosts:$show",
-                title = stringResource(R.string.settings_dns_hosts),
-                description = stringResource(R.string.settings_dns_hosts_format),
-                inputLabel = stringResource(R.string.settings_dns_hosts_input),
-                values = dnsHostEntries,
-                onValuesChange = { onDnsHostsChange(it.toTrimmedNonEmptyDistinctList()) },
-                emptyText = stringResource(R.string.settings_dns_hosts_empty),
-                duplicateText = stringResource(R.string.settings_dns_hosts_duplicate),
-                validateInput = { dnsHostInputError(it, dnsHostsInvalidMessage) },
-                modifier = Modifier.fillMaxWidth(),
-            )
+        key(show) {
+            SettingsSheetContent {
+                SettingsTextField(
+                    value = primary,
+                    onValueChange = onPrimaryChange,
+                    label = stringResource(R.string.settings_dns_primary),
+                    errorText = primaryError,
+                    sanitizeInput = ::sanitizeDnsAddress,
+                )
+                SettingsTextField(
+                    value = secondary,
+                    onValueChange = onSecondaryChange,
+                    label = stringResource(R.string.settings_dns_secondary),
+                    errorText = secondaryError,
+                    sanitizeInput = ::sanitizeDnsAddress,
+                )
+            }
         }
     }
 }
 
-private fun dnsServerInputError(input: String, invalidMessage: String): String? {
-    val trimmed = input.trim()
-    if (trimmed.isEmpty() || trimmed.any(Char::isWhitespace)) return invalidMessage
-    return if (isXrayDnsServer(trimmed)) null else invalidMessage
+private fun sanitizeDnsAddress(value: String): String {
+    return value.filterNot(Char::isWhitespace).take(45)
 }
 
-private fun isXrayDnsServer(value: String): Boolean {
-    if (value.equals("localhost", ignoreCase = true) || value.equals("fakedns", ignoreCase = true)) {
-        return true
-    }
-
-    val schemeEnd = value.indexOf("://")
-    if (schemeEnd >= 0) {
-        val scheme = value.substring(0, schemeEnd).lowercase()
-        if (scheme !in XrayDnsUrlSchemes) return false
-        val authority = value.substring(schemeEnd + 3)
-            .substringBefore('/')
-            .substringBefore('?')
-            .substringBefore('#')
-            .substringAfterLast('@')
-        return isXrayDnsAuthority(authority)
-    }
-
-    return isIpAddress(value) || (!value.contains(":") && isDnsHostDomain(value))
-}
-
-private fun isXrayDnsAuthority(authority: String): Boolean {
-    val trimmed = authority.trim()
-    if (trimmed.isBlank()) return false
-
-    if (trimmed.startsWith("[")) {
-        val closeBracketIndex = trimmed.indexOf(']')
-        if (closeBracketIndex <= 1) return false
-        val host = trimmed.substring(1, closeBracketIndex)
-        val rest = trimmed.substring(closeBracketIndex + 1)
-        return isIpAddress(host) && (rest.isEmpty() || rest.startsWith(":") && isPort(rest.drop(1)))
-    }
-
-    val colonCount = trimmed.count { it == ':' }
-    if (colonCount == 0) {
-        return isIpAddress(trimmed) || isDnsHostDomain(trimmed)
-    }
-    if (colonCount == 1) {
-        val host = trimmed.substringBefore(':')
-        val port = trimmed.substringAfter(':')
-        return (isIpAddress(host) || isDnsHostDomain(host)) && isPort(port)
-    }
-
-    return isIpAddress(trimmed)
-}
-
-private fun dnsDomainInputError(input: String, invalidMessage: String): String? {
-    val trimmed = input.trim()
-    if (trimmed.isEmpty() || trimmed.any(Char::isWhitespace)) return invalidMessage
-    if (trimmed.startsWith("regexp:", ignoreCase = true)) {
-        return if (trimmed.substringAfter(":").isBlank()) invalidMessage else null
-    }
-
-    val supportedPrefix = trimmed.substringBefore(":", missingDelimiterValue = "")
-        .lowercase()
-        .takeIf { it in setOf("domain", "full", "keyword", "geosite", "ext") }
-    if (supportedPrefix != null) {
-        return if (trimmed.substringAfter(":").isBlank()) invalidMessage else null
-    }
-
-    return if (trimmed.contains("://") || trimmed.contains("/")) invalidMessage else null
-}
-
-private fun dnsHostInputError(input: String, invalidMessage: String): String? {
-    val separatorIndex = input.indexOf(DnsHostSeparator)
-    if (separatorIndex <= 0 || separatorIndex == input.lastIndex) return invalidMessage
-
-    val domain = input.substring(0, separatorIndex).trim()
-    val addresses = input.substring(separatorIndex + 1)
-        .split(",")
-        .map { it.trim().trim('[', ']') }
-
-    if (!isDnsHostDomain(domain)) return invalidMessage
-    if (addresses.isEmpty() || addresses.any { it.isEmpty() || !isIpAddress(it) }) return invalidMessage
-    return null
-}
-
-private fun isDnsHostDomain(domain: String): Boolean {
-    val normalized = domain.removeSuffix(".")
-    if (normalized.isEmpty() || normalized.length > 253) return false
-    if (normalized.any { it.isWhitespace() || it == '/' || it == DnsHostSeparator }) return false
-
-    return normalized.split(".").all { label ->
-        label.isNotEmpty() &&
-            label.length <= 63 &&
-            label.first() != '-' &&
-            label.last() != '-' &&
-            label.all { it.isLetterOrDigit() || it == '-' }
-    }
+private fun dnsAddressError(value: String, invalidMessage: String): String? {
+    return if (isIpAddress(value.trim())) null else invalidMessage
 }

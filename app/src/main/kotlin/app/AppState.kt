@@ -32,7 +32,7 @@ data class AppState(
     val nextSubscriptionGroupId: Int = 4,
     val enableAllProxyGroup: Boolean = false,
 
-    val enableResolveProxyServerDomain: Boolean = false,
+    val enableResolveProxyServerDomain: Boolean = true,
 
     val localProxyPort: String = DefaultLocalProxyPort.toString(),
     val enableDynamicLocalProxyPort: Boolean = false,
@@ -53,7 +53,7 @@ data class AppState(
     val customResourceFileGeoIpOnlyCnPrivateUrl: String = ResourceFileV2FlyGeoIpOnlyCnPrivateUrl,
     val customResourceFiles: List<CustomResourceFileState> = emptyList(),
     val nextCustomResourceFileId: Int = 1,
-    val enableSniffing: Boolean = true,
+    val enableSniffing: Boolean = false,
     val enableSniffingRouteOnly: Boolean = true,
 
     val enableMux: Boolean = false,
@@ -77,6 +77,7 @@ data class AppState(
 
     val transparentProxyPort: String = DefaultTproxyPort.toString(),
     val enableRootBootScript: Boolean = false,
+    val shareHotspot: Boolean = true,
     val enableHttpProxy: Boolean = false,
     val httpProxyPort: String = DefaultRootHttpProxyPort.toString(),
 

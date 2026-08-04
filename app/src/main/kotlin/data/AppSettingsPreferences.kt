@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import app.AppState
 import app.CustomResourceFileState
 import androidx.core.content.edit
+import engine.network.isIpAddress
 
 internal class AppSettingsPreferences(
     context: Context,
@@ -33,31 +34,16 @@ internal class AppSettingsPreferences(
                 defaults.nextSubscriptionGroupId,
             ),
             enableAllProxyGroup = preferences.getBoolean(KeyEnableAllProxyGroup, defaults.enableAllProxyGroup),
-            enableResolveProxyServerDomain = preferences.getBoolean(
-                KeyEnableResolveProxyServerDomain,
-                defaults.enableResolveProxyServerDomain,
-            ),
-            localProxyPort = preferences.getString(KeyLocalProxyPort, defaults.localProxyPort) ?: defaults.localProxyPort,
-            enableDynamicLocalProxyPort = preferences.getBoolean(
-                KeyEnableDynamicLocalProxyPort,
-                defaults.enableDynamicLocalProxyPort,
-            ),
-            localProxyListenAllInterfaces = preferences.getBoolean(
-                KeyLocalProxyListenAllInterfaces,
-                defaults.localProxyListenAllInterfaces,
-            ),
-            localProxyUsername = preferences.getString(
-                KeyLocalProxyUsername,
-                defaults.localProxyUsername,
-            ) ?: defaults.localProxyUsername,
-            localProxyPassword = preferences.getString(
-                KeyLocalProxyPassword,
-                defaults.localProxyPassword,
-            ) ?: defaults.localProxyPassword,
+            enableResolveProxyServerDomain = true,
+            localProxyPort = defaults.localProxyPort,
+            enableDynamicLocalProxyPort = false,
+            localProxyListenAllInterfaces = false,
+            localProxyUsername = "",
+            localProxyPassword = "",
             nextProxyServerId = preferences.getInt(KeyNextProxyServerId, defaults.nextProxyServerId),
             selectedProxyServerId = preferences.getInt(KeySelectedProxyServerId, defaults.selectedProxyServerId),
-            coreLogLevel = preferences.getInt(KeyCoreLogLevel, defaults.coreLogLevel),
-            enableAccessLog = preferences.getBoolean(KeyEnableAccessLog, defaults.enableAccessLog),
+            coreLogLevel = 3,
+            enableAccessLog = false,
             resourceFileSource = preferences.getInt(KeyResourceFileSource, defaults.resourceFileSource),
             customResourceFileGeoIpUrl = preferences.getString(
                 KeyCustomResourceFileGeoIpUrl,
@@ -73,55 +59,35 @@ internal class AppSettingsPreferences(
             ) ?: defaults.customResourceFileGeoIpOnlyCnPrivateUrl,
             customResourceFiles = customResourceFiles,
             nextCustomResourceFileId = nextCustomResourceFileId,
-            enableSniffing = preferences.getBoolean(KeyEnableSniffing, defaults.enableSniffing),
-            enableSniffingRouteOnly = preferences.getBoolean(
-                KeyEnableSniffingRouteOnly,
-                defaults.enableSniffingRouteOnly,
-            ),
-            enableMux = preferences.getBoolean(KeyEnableMux, defaults.enableMux),
-            muxConcurrency = preferences.getString(KeyMuxConcurrency, defaults.muxConcurrency) ?: defaults.muxConcurrency,
-            muxXudpConcurrency = preferences.getString(
-                KeyMuxXudpConcurrency,
-                defaults.muxXudpConcurrency,
-            ) ?: defaults.muxXudpConcurrency,
-            muxXudpProxyUdp443 = preferences.getInt(KeyMuxXudpProxyUdp443, defaults.muxXudpProxyUdp443),
-            enableFragment = preferences.getBoolean(KeyEnableFragment, defaults.enableFragment),
-            fragmentPackets = preferences.getString(
-                KeyFragmentPackets,
-                defaults.fragmentPackets,
-            ) ?: defaults.fragmentPackets,
-            fragmentLength = preferences.getString(
-                KeyFragmentLength,
-                defaults.fragmentLength,
-            ) ?: defaults.fragmentLength,
-            fragmentInterval = preferences.getString(
-                KeyFragmentInterval,
-                defaults.fragmentInterval,
-            ) ?: defaults.fragmentInterval,
-            enableIpv6 = preferences.getBoolean(KeyEnableIpv6, defaults.enableIpv6),
-            enableIpv6Prefer = preferences.getBoolean(KeyEnableIpv6Prefer, defaults.enableIpv6Prefer),
-            enableFakeDns = preferences.getBoolean(KeyEnableFakeDns, defaults.enableFakeDns),
-            proxyDns = preferences.getStringList(KeyProxyDns, defaults.proxyDns),
-            directDns = preferences.getStringList(KeyDirectDns, defaults.directDns),
-            directDnsDomains = preferences.getStringList(KeyDirectDnsDomains, defaults.directDnsDomains),
-            enableDirectDnsForProxyServerDomains = preferences.getBoolean(
-                KeyEnableDirectDnsForProxyServerDomains,
-                defaults.enableDirectDnsForProxyServerDomains,
-            ),
-            dnsHosts = preferences.getStringList(KeyDnsHosts, defaults.dnsHosts),
-            transparentProxyPort = preferences.getString(
-                KeyTransparentProxyPort,
-                defaults.transparentProxyPort,
-            ) ?: defaults.transparentProxyPort,
+            enableSniffing = false,
+            enableSniffingRouteOnly = true,
+            enableMux = false,
+            muxConcurrency = defaults.muxConcurrency,
+            muxXudpConcurrency = defaults.muxXudpConcurrency,
+            muxXudpProxyUdp443 = defaults.muxXudpProxyUdp443,
+            enableFragment = false,
+            fragmentPackets = defaults.fragmentPackets,
+            fragmentLength = defaults.fragmentLength,
+            fragmentInterval = defaults.fragmentInterval,
+            enableIpv6 = false,
+            enableIpv6Prefer = false,
+            enableFakeDns = false,
+            proxyDns = preferences.getSimplifiedDnsServers(defaults.proxyDns),
+            directDns = defaults.directDns,
+            directDnsDomains = emptyList(),
+            enableDirectDnsForProxyServerDomains = true,
+            dnsHosts = emptyList(),
+            transparentProxyPort = defaults.transparentProxyPort,
             enableRootBootScript = preferences.getBoolean(
                 KeyEnableRootBootScript,
                 defaults.enableRootBootScript,
             ),
-            enableHttpProxy = preferences.getBoolean(KeyEnableHttpProxy, defaults.enableHttpProxy),
-            httpProxyPort = preferences.getString(KeyHttpProxyPort, defaults.httpProxyPort) ?: defaults.httpProxyPort,
-            externalInterfaces = preferences.getStringList(KeyExternalInterfaces, defaults.externalInterfaces),
-            ignoredInterfaces = preferences.getStringList(KeyIgnoredInterfaces, defaults.ignoredInterfaces),
-            privateAddressCidrs = preferences.getStringList(KeyPrivateAddressCidrs, defaults.privateAddressCidrs),
+            shareHotspot = preferences.getBoolean(KeyShareHotspot, defaults.shareHotspot),
+            enableHttpProxy = false,
+            httpProxyPort = defaults.httpProxyPort,
+            externalInterfaces = emptyList(),
+            ignoredInterfaces = emptyList(),
+            privateAddressCidrs = emptyList(),
             proxyAppListMode = preferences.getInt(KeyProxyAppListMode, defaults.proxyAppListMode),
         )
     }
@@ -142,57 +108,67 @@ internal class AppSettingsPreferences(
             .remove("route_domain_strategy")
             .remove("default_route_outbound_tag")
             .remove("next_route_rule_id")
+            .remove(KeyEnableResolveProxyServerDomain)
+            .remove(KeyLocalProxyPort)
+            .remove(KeyEnableDynamicLocalProxyPort)
+            .remove(KeyLocalProxyListenAllInterfaces)
+            .remove(KeyLocalProxyUsername)
+            .remove(KeyLocalProxyPassword)
+            .remove(KeyEnableSniffing)
+            .remove(KeyEnableSniffingRouteOnly)
+            .remove(KeyEnableMux)
+            .remove(KeyMuxConcurrency)
+            .remove(KeyMuxXudpConcurrency)
+            .remove(KeyMuxXudpProxyUdp443)
+            .remove(KeyEnableFragment)
+            .remove(KeyFragmentPackets)
+            .remove(KeyFragmentLength)
+            .remove(KeyFragmentInterval)
+            .remove(KeyEnableIpv6)
+            .remove(KeyEnableIpv6Prefer)
+            .remove(KeyEnableFakeDns)
+            .remove(KeyDirectDns)
+            .remove(KeyDirectDnsDomains)
+            .remove(KeyEnableDirectDnsForProxyServerDomains)
+            .remove(KeyDnsHosts)
+            .remove(KeyTransparentProxyPort)
+            .remove(KeyEnableHttpProxy)
+            .remove(KeyHttpProxyPort)
+            .remove(KeyExternalInterfaces)
+            .remove(KeyIgnoredInterfaces)
+            .remove(KeyPrivateAddressCidrs)
+            .remove(KeyCoreLogLevel)
+            .remove(KeyEnableAccessLog)
             .putInt(KeyColorMode, state.colorMode)
             .putInt(KeyLanguageMode, state.languageMode)
             .putInt(KeySeedIndex, state.seedIndex)
             .putInt(KeyNextSubscriptionGroupId, state.nextSubscriptionGroupId)
             .putBoolean(KeyEnableAllProxyGroup, state.enableAllProxyGroup)
-            .putBoolean(KeyEnableResolveProxyServerDomain, state.enableResolveProxyServerDomain)
-            .putString(KeyLocalProxyPort, state.localProxyPort)
-            .putBoolean(KeyEnableDynamicLocalProxyPort, state.enableDynamicLocalProxyPort)
-            .putBoolean(KeyLocalProxyListenAllInterfaces, state.localProxyListenAllInterfaces)
-            .putString(KeyLocalProxyUsername, state.localProxyUsername)
-            .putString(KeyLocalProxyPassword, state.localProxyPassword)
+
             .putInt(KeyNextProxyServerId, state.nextProxyServerId)
             .putInt(KeySelectedProxyServerId, state.selectedProxyServerId)
-            .putInt(KeyCoreLogLevel, state.coreLogLevel)
-            .putBoolean(KeyEnableAccessLog, state.enableAccessLog)
+
             .putInt(KeyResourceFileSource, state.resourceFileSource)
             .putString(KeyCustomResourceFileGeoIpUrl, state.customResourceFileGeoIpUrl)
             .putString(KeyCustomResourceFileGeoSiteUrl, state.customResourceFileGeoSiteUrl)
             .putString(KeyCustomResourceFileGeoIpOnlyCnPrivateUrl, state.customResourceFileGeoIpOnlyCnPrivateUrl)
             .putCustomResourceFileList(KeyCustomResourceFiles, state.customResourceFiles)
             .putInt(KeyNextCustomResourceFileId, state.nextCustomResourceFileId)
-            .putBoolean(KeyEnableSniffing, state.enableSniffing)
-            .putBoolean(KeyEnableSniffingRouteOnly, state.enableSniffingRouteOnly)
-            .putBoolean(KeyEnableMux, state.enableMux)
-            .putString(KeyMuxConcurrency, state.muxConcurrency)
-            .putString(KeyMuxXudpConcurrency, state.muxXudpConcurrency)
-            .putInt(KeyMuxXudpProxyUdp443, state.muxXudpProxyUdp443)
-            .putBoolean(KeyEnableFragment, state.enableFragment)
-            .putString(KeyFragmentPackets, state.fragmentPackets)
-            .putString(KeyFragmentLength, state.fragmentLength)
-            .putString(KeyFragmentInterval, state.fragmentInterval)
-            .putBoolean(KeyEnableIpv6, state.enableIpv6)
-            .putBoolean(KeyEnableIpv6Prefer, state.enableIpv6Prefer)
-            .putBoolean(KeyEnableFakeDns, state.enableFakeDns)
             .putStringList(KeyProxyDns, state.proxyDns)
-            .putStringList(KeyDirectDns, state.directDns)
-            .putStringList(KeyDirectDnsDomains, state.directDnsDomains)
-            .putBoolean(KeyEnableDirectDnsForProxyServerDomains, state.enableDirectDnsForProxyServerDomains)
-            .putStringList(KeyDnsHosts, state.dnsHosts)
-            .putString(KeyTransparentProxyPort, state.transparentProxyPort)
             .putBoolean(KeyEnableRootBootScript, state.enableRootBootScript)
-            .putBoolean(KeyEnableHttpProxy, state.enableHttpProxy)
-            .putString(KeyHttpProxyPort, state.httpProxyPort)
-            .putStringList(KeyExternalInterfaces, state.externalInterfaces)
-            .putStringList(KeyIgnoredInterfaces, state.ignoredInterfaces)
-            .putStringList(KeyPrivateAddressCidrs, state.privateAddressCidrs)
+            .putBoolean(KeyShareHotspot, state.shareHotspot)
             .putInt(KeyProxyAppListMode, state.proxyAppListMode)
     }
 
     private fun SharedPreferences.getStringList(key: String, defaultValue: List<String>): List<String> {
         return getString(key, null)?.let(StringListJson::decode) ?: defaultValue
+    }
+
+    private fun SharedPreferences.getSimplifiedDnsServers(defaultValue: List<String>): List<String> {
+        val saved = getStringList(KeyProxyDns, defaultValue)
+        return defaultValue.indices.map { index ->
+            saved.getOrNull(index)?.trim()?.takeIf(::isIpAddress) ?: defaultValue[index]
+        }
     }
 
     private fun SharedPreferences.Editor.putStringList(
@@ -259,6 +235,7 @@ private const val KeyEnableDirectDnsForProxyServerDomains = "enable_direct_dns_f
 private const val KeyDnsHosts = "dns_hosts"
 private const val KeyTransparentProxyPort = "transparent_proxy_port"
 private const val KeyEnableRootBootScript = "enable_root_boot_script"
+private const val KeyShareHotspot = "share_hotspot"
 private const val KeyEnableHttpProxy = "enable_http_proxy"
 private const val KeyHttpProxyPort = "http_proxy_port"
 private const val KeyExternalInterfaces = "external_interfaces"

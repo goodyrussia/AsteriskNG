@@ -61,6 +61,10 @@
     <string name="settings_resolve_proxy_server_domain_summary">Write proxy server IPs to DNS hosts</string>
     <string name="settings_root_required">No ROOT access detected!</string>
     <string name="settings_proxy_tproxy">Proxy settings (TPROXY)</string>
+    <string name="settings_network">Network</string>
+    <string name="settings_share_hotspot">Share via Wi-Fi hotspot</string>
+    <string name="settings_share_hotspot_summary">Tunnel devices connected to this phone’s Wi-Fi hotspot</string>
+    <string name="settings_runtime_apply_failed">Failed to apply network settings</string>
 
     <string name="settings_root_boot_script">Start on boot</string>
     <string name="settings_root_boot_script_summary">Generate service.d startup script</string>
@@ -170,6 +174,10 @@
     <string name="settings_fragment_interval">Fragment interval</string>
     <string name="settings_fragment_interval_error">Use 0 or a positive range</string>
     <string name="settings_dns">DNS settings</string>
+    <string name="settings_dns_summary_simple">Primary and secondary DNS used through the tunnel</string>
+    <string name="settings_dns_primary">DNS primary</string>
+    <string name="settings_dns_secondary">DNS secondary</string>
+    <string name="settings_dns_address_invalid">Enter a valid IP address</string>
     <string name="settings_dns_summary">FakeDNS, direct DNS, proxy DNS, DNS hosts</string>
     <string name="settings_logs">Logs</string>
     <string name="settings_core_logs">Core logs</string>

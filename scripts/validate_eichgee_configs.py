@@ -70,7 +70,20 @@ def config(outbound: dict) -> dict:
     selected["tag"] = "proxy"
     return {
         "log": {"loglevel": "warning"},
-        "dns": {"servers": ["1.1.1.1"], "queryStrategy": "UseIPv4"},
+        "dns": {
+            "servers": [
+                {
+                    "address": "https+local://1.1.1.1/dns-query",
+                    "domains": ["full:proxy-bootstrap.example"],
+                    "skipFallback": True,
+                    "tag": "dns-direct",
+                },
+                "8.8.8.8",
+                "8.8.4.4",
+            ],
+            "queryStrategy": "UseIPv4",
+            "disableFallbackIfMatch": True,
+        },
         "inbounds": [TPROXY],
         "outbounds": [selected, {"tag": "dns-out", "protocol": "dns"}],
         "routing": {

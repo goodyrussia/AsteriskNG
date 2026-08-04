@@ -26,6 +26,8 @@ internal data class RootIptablesConfig(
     val proxyApplicationUids: List<Int> = emptyList(),
 )
 
+internal val RootWifiHotspotInterfacePrefixes = listOf("wlan+", "swlan+", "ap+", "softap+")
+
 internal fun RootIptablesConfig.withAppSettings(
     context: Context,
     appState: AppState,
@@ -34,7 +36,6 @@ internal fun RootIptablesConfig.withAppSettings(
     val localInterfaceCidrs = collectRootLocalInterfaceCidrs(
         ignoredInterfaceNames = ignoredLocalInterfaceNames,
     ).toTrimmedNonEmptyDistinctList()
-    val proxyPrivateCidrs = appState.privateAddressCidrs.toTrimmedNonEmptyDistinctList()
     val bypassPrivateCidrs = RootDefaultBypassPrivateCidrs.toTrimmedNonEmptyDistinctList()
     val selectedAppKeys = appState.proxyAppListSelectedApps.toTrimmedNonEmptyDistinctList()
     val appListMode = if (selectedAppKeys.isEmpty()) {
@@ -44,12 +45,12 @@ internal fun RootIptablesConfig.withAppSettings(
     }
 
     return copy(
-        externalInterfacePrefixes = appState.externalInterfaces.toTrimmedNonEmptyDistinctList(),
-        ignoredInterfaces = appState.ignoredInterfaces.toTrimmedNonEmptyDistinctList(),
+        externalInterfacePrefixes = if (appState.shareHotspot) RootWifiHotspotInterfacePrefixes else emptyList(),
+        ignoredInterfaces = emptyList(),
         localInterfaceIpv4Cidrs = localInterfaceCidrs.ipv4Cidrs(),
         localInterfaceIpv6Cidrs = localInterfaceCidrs.ipv6Cidrs(),
-        proxyPrivateIpv4Cidrs = proxyPrivateCidrs.ipv4Cidrs(),
-        proxyPrivateIpv6Cidrs = proxyPrivateCidrs.ipv6Cidrs(),
+        proxyPrivateIpv4Cidrs = emptyList(),
+        proxyPrivateIpv6Cidrs = emptyList(),
         bypassPrivateIpv4Cidrs = bypassPrivateCidrs.ipv4Cidrs(),
         bypassPrivateIpv6Cidrs = bypassPrivateCidrs.ipv6Cidrs(),
         forcedBypassUids = listOf(Process.myUid()),

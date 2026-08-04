@@ -7,14 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import app.R
 import top.yukonga.miuix.kmp.basic.Card
-import ui.text.formatTemplate
-
-internal val SettingsLogLevelOptions = listOf("debug", "info", "warning", "error", "none")
 
 @Composable
 internal fun SettingsSectionCard(
@@ -30,38 +25,4 @@ internal fun SettingsSectionCard(
     ) {
         content()
     }
-}
-
-@Composable
-internal fun inboundProxySummary(
-    transparentProxyPort: String,
-    enableHttpProxy: Boolean,
-): String {
-    val primaryInbound = stringResource(R.string.settings_inbound_tproxy_port)
-        .formatTemplate("port" to transparentProxyPort)
-    val enabledInbounds = mutableListOf<String>()
-    if (enableHttpProxy) {
-        enabledInbounds += stringResource(R.string.settings_http_proxy)
-    }
-    if (enabledInbounds.isEmpty()) {
-        return primaryInbound
-    }
-    return listOf(
-        primaryInbound,
-        stringResource(R.string.settings_inbound_selected)
-            .formatTemplate("inbounds" to enabledInbounds.joinToString()),
-    ).joinToString()
-}
-
-@Composable
-internal fun localProxySettingsSummary(
-    port: String,
-    listenAllInterfaces: Boolean,
-): String {
-    val summary = if (listenAllInterfaces) {
-        stringResource(R.string.settings_local_proxy_summary_all_interfaces)
-    } else {
-        stringResource(R.string.settings_local_proxy_summary_fixed)
-    }
-    return summary.formatTemplate("port" to port)
 }

@@ -45,11 +45,7 @@ internal object XrayConfigFactory {
 
 private fun buildGeneratedXrayConfig(request: XrayConfigRequest): GeneratedXrayConfig {
     val outboundPlan = request.appState.buildXrayOutboundPlan(request.selectedServer)
-    val startupProxyServerDomains = if (request.appState.enableDirectDnsForProxyServerDomains) {
-        outboundPlan.proxyOutbounds.startupProxyServerDnsDomains()
-    } else {
-        emptyList()
-    }
+    val startupProxyServerDomains = outboundPlan.proxyOutbounds.startupProxyServerDnsDomains()
     val dnsPlan = request.buildXrayDnsPlan(startupProxyServerDomains)
     val routingPlan = buildXrayRoutingPlan(
         proxyTarget = outboundPlan.routeTargets.getValue(XrayTags.PROXY),

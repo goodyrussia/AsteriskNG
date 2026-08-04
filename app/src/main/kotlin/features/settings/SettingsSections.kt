@@ -8,7 +8,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -60,160 +59,39 @@ internal fun SettingsThemeSection(
     }
 }
 
-
 @Composable
-internal fun SettingsCoreSection(
-    enableSniffing: Boolean,
-    enableSniffingRouteOnly: Boolean,
-    muxSettingsSummary: String,
-    fragmentSettingsSummary: String,
-    coreLogLevel: Int,
-    enableAccessLog: Boolean,
+internal fun SettingsNetworkSection(
+    shareHotspot: Boolean,
+    enableRootBootScript: Boolean,
     onOpenDnsSettings: () -> Unit,
-    onEnableSniffingChange: (Boolean) -> Unit,
-    onEnableSniffingRouteOnlyChange: (Boolean) -> Unit,
-    onOpenMuxSettings: () -> Unit,
-    onOpenFragmentSettings: () -> Unit,
-    onCoreLogLevelChange: (Int) -> Unit,
-    onEnableAccessLogChange: (Boolean) -> Unit,
+    onShareHotspotChange: (Boolean) -> Unit,
+    onEnableRootBootScriptChange: (Boolean) -> Unit,
 ) {
-    SmallTitle(text = stringResource(R.string.settings_core))
+    SmallTitle(text = stringResource(R.string.settings_network))
     SettingsSectionCard {
         ArrowPreference(
             title = stringResource(R.string.settings_dns),
-            summary = stringResource(R.string.settings_dns_summary),
+            summary = stringResource(R.string.settings_dns_summary_simple),
             onClick = onOpenDnsSettings,
         )
         SwitchPreference(
-            title = "Sniffing",
-            summary = stringResource(R.string.settings_sniffing_summary),
-            checked = enableSniffing,
-            onCheckedChange = onEnableSniffingChange,
-        )
-        AnimatedVisibility(
-            visible = enableSniffing,
-            enter = fadeIn() + expandVertically(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            SwitchPreference(
-                title = stringResource(R.string.settings_sniffing_route_only),
-                summary = stringResource(R.string.settings_sniffing_route_only_summary),
-                checked = enableSniffingRouteOnly,
-                onCheckedChange = onEnableSniffingRouteOnlyChange,
-            )
-        }
-        ArrowPreference(
-            title = stringResource(R.string.settings_mux),
-            summary = muxSettingsSummary,
-            onClick = onOpenMuxSettings,
-        )
-        ArrowPreference(
-            title = stringResource(R.string.settings_fragment),
-            summary = fragmentSettingsSummary,
-            onClick = onOpenFragmentSettings,
-        )
-        OverlayDropdownPreference(
-            title = stringResource(R.string.settings_log_level),
-            items = SettingsLogLevelOptions,
-            selectedIndex = coreLogLevel,
-            onSelectedIndexChange = onCoreLogLevelChange,
+            title = stringResource(R.string.settings_share_hotspot),
+            summary = stringResource(R.string.settings_share_hotspot_summary),
+            checked = shareHotspot,
+            onCheckedChange = onShareHotspotChange,
         )
         SwitchPreference(
-            title = stringResource(R.string.settings_record_access_log),
-            checked = enableAccessLog,
-            onCheckedChange = onEnableAccessLogChange,
+            title = stringResource(R.string.settings_root_boot_script),
+            summary = stringResource(R.string.settings_root_boot_script_summary),
+            checked = enableRootBootScript,
+            onCheckedChange = onEnableRootBootScriptChange,
         )
-    }
-}
-
-@Composable
-internal fun SettingsAdvancedSection(
-    enableIpv6: Boolean,
-    enableIpv6Prefer: Boolean,
-    onEnableIpv6Change: (Boolean) -> Unit,
-    onEnableIpv6PreferChange: (Boolean) -> Unit,
-) {
-    SmallTitle(text = stringResource(R.string.settings_advanced))
-    SettingsSectionCard {
-        SwitchPreference(
-            title = "IPv6",
-            summary = stringResource(R.string.settings_ipv6_summary),
-            checked = enableIpv6,
-            onCheckedChange = onEnableIpv6Change,
-        )
-        AnimatedVisibility(
-            visible = enableIpv6,
-            enter = fadeIn() + expandVertically(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            SwitchPreference(
-                title = stringResource(R.string.settings_ipv6_prefer),
-                summary = stringResource(R.string.settings_ipv6_prefer_summary),
-                checked = enableIpv6Prefer,
-                onCheckedChange = onEnableIpv6PreferChange,
-            )
-        }
-    }
-}
-
-@Composable
-internal fun SettingsTproxySection(
-    localProxySettingsSummary: String,
-    inboundProxySummary: String,
-    enableRootBootScript: Boolean,
-    externalInterfacesSummary: String,
-    ignoredInterfacesSummary: String,
-    privateAddressCidrsSummary: String,
-    onOpenLocalProxySettings: () -> Unit,
-    onOpenProxySettings: () -> Unit,
-    onEnableRootBootScriptChange: (Boolean) -> Unit,
-    onOpenExternalInterfaces: () -> Unit,
-    onOpenIgnoredInterfaces: () -> Unit,
-    onOpenPrivateAddresses: () -> Unit,
-) {
-    Column {
-        SmallTitle(text = stringResource(R.string.settings_proxy_tproxy))
-        SettingsSectionCard {
-            SwitchPreference(
-                title = stringResource(R.string.settings_root_boot_script),
-                summary = stringResource(R.string.settings_root_boot_script_summary),
-                checked = enableRootBootScript,
-                onCheckedChange = onEnableRootBootScriptChange,
-            )
-            ArrowPreference(
-                title = stringResource(R.string.settings_local_proxy),
-                summary = localProxySettingsSummary,
-                onClick = onOpenLocalProxySettings,
-            )
-            ArrowPreference(
-                title = stringResource(R.string.settings_inbound),
-                summary = inboundProxySummary,
-                onClick = onOpenProxySettings,
-            )
-            ArrowPreference(
-                title = stringResource(R.string.settings_external_interfaces),
-                summary = externalInterfacesSummary,
-                onClick = onOpenExternalInterfaces,
-            )
-            ArrowPreference(
-                title = stringResource(R.string.settings_ignored_interfaces),
-                summary = ignoredInterfacesSummary,
-                onClick = onOpenIgnoredInterfaces,
-            )
-            ArrowPreference(
-                title = stringResource(R.string.settings_private_addresses),
-                summary = privateAddressCidrsSummary,
-                onClick = onOpenPrivateAddresses,
-            )
-        }
     }
 }
 
 @Composable
 internal fun SettingsLogsSection(
-    enableAccessLog: Boolean,
     onOpenCoreLogs: () -> Unit,
-    onOpenAccessLogs: () -> Unit,
     onOpenLogcatLogs: () -> Unit,
 ) {
     SmallTitle(text = stringResource(R.string.settings_logs))
@@ -222,16 +100,6 @@ internal fun SettingsLogsSection(
             title = stringResource(R.string.settings_core_logs),
             onClick = onOpenCoreLogs,
         )
-        AnimatedVisibility(
-            visible = enableAccessLog,
-            enter = fadeIn() + expandVertically(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            ArrowPreference(
-                title = stringResource(R.string.settings_access_logs),
-                onClick = onOpenAccessLogs,
-            )
-        }
         ArrowPreference(
             title = stringResource(R.string.settings_logcat),
             onClick = onOpenLogcatLogs,
