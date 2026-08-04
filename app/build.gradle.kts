@@ -17,7 +17,7 @@ android {
         applicationId = ProjectConfig.PACKAGE_NAME
         minSdk = ProjectConfig.MIN_SDK
         targetSdk = ProjectConfig.TARGET_SDK
-        versionCode = getGitVersionCode()
+        versionCode = ProjectConfig.VERSION_CODE
         versionName = ProjectConfig.VERSION_NAME
     }
 
@@ -140,7 +140,7 @@ val generateProjectInfo by tasks.registering(GenerateProjectInfoTask::class) {
     packageName.set("app")
     projectName.set(ProjectConfig.PROJECT_NAME)
     versionName.set(ProjectConfig.VERSION_NAME)
-    versionCode.set(getGitVersionCode())
+    versionCode.set(ProjectConfig.VERSION_CODE)
     xrayCoreVersion.set(ProjectConfig.XRAY_CORE_VERSION)
     outputDirectory.set(generatedSrcDir.map { it.dir("kotlin") })
 }

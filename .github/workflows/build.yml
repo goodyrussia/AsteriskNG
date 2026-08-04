@@ -62,6 +62,7 @@ jobs:
           )
           file app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so | grep -E 'ARM aarch64|AArch64'
           sha256sum app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so
+          python3 scripts/validate_eichgee_configs.py /tmp/xray-linux
 
       - name: Install Android build requirements
         run: |
@@ -109,6 +110,11 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libxray.so'
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libsetuidgid.so'
           ! unzip -Z1 "$APK" | grep -F 'libhev-socks5-tunnel.so'
+          BADGING=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK")
+          grep -F "package: name='org.asterisk.zcc.ang' versionCode='105' versionName='1.2.4'" <<< "$BADGING"
+          grep -F "native-code: 'arm64-v8a'" <<< "$BADGING"
+          MANIFEST=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml)
+          ! grep -Ei 'VpnService|BIND_VPN_SERVICE|v2rayng|install-sub|clashmeta|flclashx' <<< "$MANIFEST"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" | tee apk-signing.txt
           grep -F 'Signer #1 certificate SHA-256 digest: 05a46696f793f9a49138e471c57746b82a1475a9ada62db93a3a55a300e68df7' apk-signing.txt
           sha256sum "$APK" | tee apk-sha256.txt

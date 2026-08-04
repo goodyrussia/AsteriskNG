@@ -12,6 +12,7 @@ object ProjectConfig {
     const val JVM_VERSION = 26
     const val PROJECT_NAME = "AsteriskNG"
     const val VERSION_NAME = "1.2.4"
+    const val VERSION_CODE = 105
     const val PACKAGE_NAME = "org.asterisk.zcc.ang"
     const val XRAY_CORE_VERSION = "v1.250516.0-patch.20"
     const val TARGET_SDK = 37
@@ -20,11 +21,6 @@ object ProjectConfig {
     val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a")
 }
 
-fun org.gradle.api.Project.getGitVersionCode(): Int {
-    return providers.exec {
-        commandLine("git", "rev-list", "--count", "HEAD")
-    }.standardOutput.asText.get().trim().toInt()
-}
 
 abstract class GenerateProjectInfoTask : DefaultTask() {
     @get:Input
