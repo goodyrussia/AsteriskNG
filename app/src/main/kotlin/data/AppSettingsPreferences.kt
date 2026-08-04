@@ -8,7 +8,7 @@ import android.content.SharedPreferences
 import app.AppState
 import app.CustomResourceFileState
 import androidx.core.content.edit
-import engine.network.isIpAddress
+import engine.network.isIpv4Address
 
 internal class AppSettingsPreferences(
     context: Context,
@@ -167,7 +167,7 @@ internal class AppSettingsPreferences(
     private fun SharedPreferences.getSimplifiedDnsServers(defaultValue: List<String>): List<String> {
         val saved = getStringList(KeyProxyDns, defaultValue)
         return defaultValue.indices.map { index ->
-            saved.getOrNull(index)?.trim()?.takeIf(::isIpAddress) ?: defaultValue[index]
+            saved.getOrNull(index)?.trim()?.takeIf(::isIpv4Address) ?: defaultValue[index]
         }
     }
 

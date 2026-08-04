@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.res.stringResource
 import app.R
-import engine.network.isIpAddress
+import engine.network.isIpv4Address
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
@@ -68,9 +68,9 @@ internal fun DnsSettingsBottomSheet(
 }
 
 private fun sanitizeDnsAddress(value: String): String {
-    return value.filterNot(Char::isWhitespace).take(45)
+    return value.filter { it.isDigit() || it == '.' }.take(15)
 }
 
 private fun dnsAddressError(value: String, invalidMessage: String): String? {
-    return if (isIpAddress(value.trim())) null else invalidMessage
+    return if (isIpv4Address(value.trim())) null else invalidMessage
 }

@@ -177,7 +177,7 @@
     <string name="settings_dns_summary_simple">Primary and secondary DNS used through the tunnel</string>
     <string name="settings_dns_primary">DNS primary</string>
     <string name="settings_dns_secondary">DNS secondary</string>
-    <string name="settings_dns_address_invalid">Enter a valid IP address</string>
+    <string name="settings_dns_address_invalid">Enter a valid IPv4 address</string>
     <string name="settings_dns_summary">FakeDNS, direct DNS, proxy DNS, DNS hosts</string>
     <string name="settings_logs">Logs</string>
     <string name="settings_core_logs">Core logs</string>
