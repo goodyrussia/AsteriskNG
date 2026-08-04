@@ -97,13 +97,11 @@ private val ProxyServerUrlPrefixes = listOf(
     "${ProxyServerConstants.PROTOCOL_VMESS}://",
     "${ProxyServerConstants.PROTOCOL_VLESS}://",
     "${ProxyServerConstants.PROTOCOL_TROJAN}://",
-    "${ProxyServerConstants.PROTOCOL_HY2}://",
-    "${ProxyServerConstants.PROTOCOL_HYSTERIA2}://",
     "${ProxyServerConstants.PROTOCOL_WIREGUARD}://",
 )
 
 private val ProxyServerUrlRegex = Regex(
-    "(?i)\\b(?:http|socks|socks4|socks5|ss|vmess|vless|trojan|hy2|hysteria2|wireguard)://[^\\s<>\"']+",
+    "(?i)\\b(?:http|socks|socks4|socks5|ss|vmess|vless|trojan|wireguard)://[^\\s<>\"']+",
 )
 
 private const val ProxyServerImportLogTag = "ProxyServerImport"

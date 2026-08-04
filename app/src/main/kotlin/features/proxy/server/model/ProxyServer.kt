@@ -22,8 +22,6 @@ object ProxyServerConstants {
     const val PROTOCOL_VMESS = "vmess"
     const val PROTOCOL_VLESS = "vless"
     const val PROTOCOL_TROJAN = "trojan"
-    const val PROTOCOL_HYSTERIA2 = "hysteria2"
-    const val PROTOCOL_HY2 = "hy2"
     const val PROTOCOL_WIREGUARD = "wireguard"
     const val PROTOCOL_STRATEGY_GROUP = "strategy-group"
     const val PROTOCOL_CHAIN_PROXY = "chain-proxy"
@@ -69,7 +67,6 @@ interface ProxyServer<T : ProxyServer<T>> {
 
                 ProxyServerConstants.PROTOCOL_VLESS -> VLESS().parse(url)
                 ProxyServerConstants.PROTOCOL_TROJAN -> Trojan().parse(url)
-                ProxyServerConstants.PROTOCOL_HY2, ProxyServerConstants.PROTOCOL_HYSTERIA2 -> Hysteria2().parse(url)
                 ProxyServerConstants.PROTOCOL_WIREGUARD -> Wireguard().parse(url)
                 else -> {
                     unsupportedProxyServerUrl(url)

@@ -9,7 +9,6 @@ import engine.network.toPortOrNull
 import features.logs.AndroidAppLogger
 import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
-import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
@@ -83,7 +82,6 @@ private data class ProxyServerEndpoint(
 private fun ProxyServer<*>.endpoint(): ProxyServerEndpoint? {
     return when (this) {
         is HTTP -> endpoint(server, port)
-        is Hysteria2 -> endpoint(server, port)
         is Shadowsocks -> endpoint(server, port)
         is Socks -> endpoint(server, port)
         is Trojan -> endpoint(server, port)

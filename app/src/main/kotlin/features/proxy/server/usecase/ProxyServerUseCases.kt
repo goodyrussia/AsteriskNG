@@ -10,7 +10,6 @@ import features.proxy.server.list.ProxyServerListAddAction
 import features.proxy.server.model.ChainProxy
 import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
-import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
@@ -248,8 +247,6 @@ internal fun createProxyServer(action: ProxyServerListAddAction): ProxyServer<*>
         ProxyServerListAddAction.Trojan -> Trojan(port = "")
 
         ProxyServerListAddAction.Socks -> Socks(port = "")
-
-        ProxyServerListAddAction.Hysteria2 -> Hysteria2(port = "")
 
         ProxyServerListAddAction.Wireguard -> Wireguard(port = "", reserved = "", address = "", mtu = "")
 

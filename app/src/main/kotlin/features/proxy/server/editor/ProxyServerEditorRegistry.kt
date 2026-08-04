@@ -9,7 +9,6 @@ import app.R
 import features.proxy.server.model.ChainProxy
 import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
-import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
@@ -37,7 +36,6 @@ internal fun ProxyServer<*>.editableCopy(): ProxyServer<*> {
         is Trojan -> copy(parms = parms.copy())
         is VLESS -> copy(parms = parms.copy())
         is Wireguard -> copy()
-        is Hysteria2 -> copy()
         else -> unsupportedProxyServerEditor()
     }
 }
@@ -66,7 +64,6 @@ internal fun LazyListScope.proxyServerEditorContent(
         is Trojan -> trojanProxyServer(proxyServer)
         is VLESS -> vlessProxyServer(proxyServer)
         is Wireguard -> wireguardProxyServer(proxyServer)
-        is Hysteria2 -> hysteria2ProxyServer(proxyServer)
         else -> proxyServer.unsupportedProxyServerEditor()
     }
 }

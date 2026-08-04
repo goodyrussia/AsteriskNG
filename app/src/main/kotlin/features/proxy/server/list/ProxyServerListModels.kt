@@ -16,7 +16,6 @@ internal enum class ProxyServerListAddAction {
     Trojan,
     Shadowsocks,
     Socks,
-    Hysteria2,
     Wireguard,
 }
 

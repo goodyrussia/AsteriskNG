@@ -6,7 +6,6 @@ package data
 import features.proxy.server.model.ChainProxy
 import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
-import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.ProxyServerConstants
 import features.proxy.server.model.Shadowsocks
@@ -52,9 +51,6 @@ internal fun String.decodePersistedProxyServer(): ProxyServer<*> {
         ProxyServerConstants.PROTOCOL_TROJAN ->
             ProxyServer.json.decodeFromJsonElement<Trojan>(persistedServer.payload)
 
-        ProxyServerConstants.PROTOCOL_HYSTERIA2 ->
-            ProxyServer.json.decodeFromJsonElement<Hysteria2>(persistedServer.payload)
-
         ProxyServerConstants.PROTOCOL_WIREGUARD ->
             ProxyServer.json.decodeFromJsonElement<Wireguard>(persistedServer.payload)
 
@@ -79,7 +75,6 @@ private fun ProxyServer<*>.toPersistedProxyServer(): PersistedProxyServer {
         is VMess -> persisted(ProxyServerConstants.PROTOCOL_VMESS, this)
         is VLESS -> persisted(ProxyServerConstants.PROTOCOL_VLESS, this)
         is Trojan -> persisted(ProxyServerConstants.PROTOCOL_TROJAN, this)
-        is Hysteria2 -> persisted(ProxyServerConstants.PROTOCOL_HYSTERIA2, this)
         is Wireguard -> persisted(ProxyServerConstants.PROTOCOL_WIREGUARD, this)
         is StrategyGroup -> persisted(ProxyServerConstants.PROTOCOL_STRATEGY_GROUP, this)
         is ChainProxy -> persisted(ProxyServerConstants.PROTOCOL_CHAIN_PROXY, this)
