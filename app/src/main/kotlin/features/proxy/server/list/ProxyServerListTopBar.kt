@@ -26,18 +26,10 @@ import features.proxy.server.usecase.createProxyServer
 import features.proxy.server.usecase.deleteDuplicateServersInGroup
 import features.proxy.server.usecase.importProxyServersFromText
 import features.proxy.server.usecase.sortedInGroupByLatencyResult
-import features.proxy.server.usecase.updatableSubscriptionGroups
 import features.proxy.server.usecase.withImportedProxyServers
-import features.proxy.server.usecase.withUpdatedSubscriptionServers
 import features.subscription.DefaultSubscriptionGroupId
-import features.subscription.SubscriptionInstallConfigUseCase
 import features.subscription.runtime.AndroidSubscriptionFetchOptions
 import features.subscription.runtime.AndroidSubscriptionFetcher
-import features.subscription.subscriptionInstallMessage
-import features.subscription.usecase.subscriptionUpdateMessage
-import features.subscription.usecase.toSubscriptionFetchOptions
-import features.subscription.usecase.updateSubscriptions
-import features.subscription.toSubscriptionInstallConfigOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
@@ -252,17 +244,6 @@ private fun importProxyServersInBackground(
 ) {
     backgroundScope.launch {
         runCatching {
-            if (
-                installSubscriptionFromText(
-                    text = text,
-                    stateStore = stateStore,
-                    subscriptionFetcher = subscriptionFetcher,
-                    tipNotifier = tipNotifier,
-                    messages = messages,
-                )
-            ) {
-                return@runCatching
-            }
             importProxyServers(
                 text = text,
                 source = source,
@@ -276,33 +257,6 @@ private fun importProxyServersInBackground(
     }
 }
 
-private suspend fun installSubscriptionFromText(
-    text: String,
-    stateStore: AndroidAppStateStore,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
-    tipNotifier: AndroidToastTipNotifier,
-    messages: ProxyServerListMessages,
-): Boolean {
-    val config = text.toSubscriptionInstallConfigOrNull() ?: return false
-    runCatching {
-        SubscriptionInstallConfigUseCase(
-            stateStore = stateStore,
-            subscriptionFetcher = subscriptionFetcher,
-        ).install(config)
-    }.onSuccess { result ->
-        tipNotifier.show(
-            subscriptionInstallMessage(
-                result = result,
-                existingUrlTemplate = messages.subscriptionInstallExistingUrlTemplate,
-                successTemplate = messages.subscriptionUpdateResultTemplate,
-                failedTemplate = messages.subscriptionUpdateResultWithFailedTemplate,
-            ),
-        )
-    }.onFailure { error ->
-        tipNotifier.showError(error)
-    }
-    return true
-}
 
 private suspend fun importProxyServers(
     text: String,
@@ -390,17 +344,6 @@ private fun handleProxyServerListToolAction(
             )
         }
 
-        ProxyServerListToolAction.UpdateSubscriptions -> {
-            updateSubscriptionGroups(
-                proxyListState = proxyListState,
-                stateStore = stateStore,
-                updateAppState = updateAppState,
-                subscriptionFetcher = subscriptionFetcher,
-                tipNotifier = tipNotifier,
-                backgroundScope = backgroundScope,
-                messages = messages,
-            )
-        }
 
         ProxyServerListToolAction.CopyAllUrls -> {
             copyCurrentGroupUrls(
@@ -485,43 +428,6 @@ private fun restartSelectedProxyService(
     }
 }
 
-private fun updateSubscriptionGroups(
-    proxyListState: ProxyServerListState,
-    stateStore: AndroidAppStateStore,
-    updateAppState: ((AppState) -> AppState) -> Unit,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
-    tipNotifier: AndroidToastTipNotifier,
-    backgroundScope: CoroutineScope,
-    messages: ProxyServerListMessages,
-) {
-    val subscriptionGroups = proxyListState.subscriptionGroups.updatableSubscriptionGroups()
-    backgroundScope.launch {
-        if (subscriptionGroups.isEmpty()) {
-            tipNotifier.show(messages.noSubscriptionUpdates)
-            return@launch
-        }
-        val result = updateSubscriptions(
-            groups = subscriptionGroups,
-            subscriptionFetcher = subscriptionFetcher,
-            fetchOptions = { group -> stateStore.state.value.toSubscriptionFetchOptions(group) },
-        )
-        if (result.updates.isNotEmpty()) {
-            updateAppState { state ->
-                state.withUpdatedSubscriptionServers(
-                    updates = result.updates,
-                    updatedAtMillis = result.updatedAtMillis,
-                )
-            }
-        }
-        tipNotifier.show(
-            subscriptionUpdateMessage(
-                result = result,
-                successTemplate = messages.subscriptionUpdateResultTemplate,
-                failedTemplate = messages.subscriptionUpdateResultWithFailedTemplate,
-            ),
-        )
-    }
-}
 
 private fun copyCurrentGroupUrls(
     servers: List<ProxyServerState>,

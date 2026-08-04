@@ -60,33 +60,6 @@ internal fun SettingsThemeSection(
     }
 }
 
-@Composable
-internal fun SettingsSubscriptionsSection(
-    enableAllProxyGroup: Boolean,
-    onOpenGroupManagement: () -> Unit,
-    onOpenResourceManagement: () -> Unit,
-    onEnableAllProxyGroupChange: (Boolean) -> Unit,
-) {
-    SmallTitle(text = stringResource(R.string.settings_subscriptions))
-    SettingsSectionCard {
-        ArrowPreference(
-            title = stringResource(R.string.settings_group_management),
-            summary = stringResource(R.string.settings_group_management_summary),
-            onClick = onOpenGroupManagement,
-        )
-        ArrowPreference(
-            title = stringResource(R.string.settings_resource_management),
-            summary = stringResource(R.string.settings_resource_management_summary),
-            onClick = onOpenResourceManagement,
-        )
-        SwitchPreference(
-            title = stringResource(R.string.settings_enable_all_proxy_group),
-            summary = stringResource(R.string.settings_enable_all_proxy_group_summary),
-            checked = enableAllProxyGroup,
-            onCheckedChange = onEnableAllProxyGroupChange,
-        )
-    }
-}
 
 @Composable
 internal fun SettingsCoreSection(

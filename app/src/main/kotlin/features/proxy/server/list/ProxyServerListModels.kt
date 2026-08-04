@@ -23,7 +23,7 @@ internal enum class ProxyServerListToolAction {
     RestartService,
     TestLatency,
     SortByTestResult,
-    UpdateSubscriptions,
+
     CopyAllUrls,
     DeleteDuplicateServers,
 }

@@ -65,11 +65,11 @@ import features.logs.AccessLogsPage
 import features.logs.CoreLogsPage
 import features.logs.LogcatLogsPage
 import features.proxy.app.ProxyAppListPage
-import features.resources.ResourceManagementPage
+
 import features.proxy.server.list.ProxyServerListPage
 import features.proxy.server.editor.ProxyServerPage
 import features.settings.SettingsPage
-import features.subscription.SubscriptionGroupListPage
+
 import top.yukonga.miuix.kmp.basic.NavigationBar
 import top.yukonga.miuix.kmp.basic.NavigationBarDisplayMode
 import top.yukonga.miuix.kmp.basic.NavigationBarItem
@@ -173,16 +173,7 @@ fun AppContent(
                         LogcatLogsPage(padding = padding)
                     }
                 }
-                entry<Route.ResourceManagement> {
-                    key(languageMode) {
-                        ResourceManagementPage(padding = padding)
-                    }
-                }
-                entry<Route.SubscriptionGroupList> {
-                    key(languageMode) {
-                        SubscriptionGroupListPage(padding = padding)
-                    }
-                }
+
                 entry<Route.ProxyServerEditor> {
                     key(languageMode) {
                         ProxyServerPage(

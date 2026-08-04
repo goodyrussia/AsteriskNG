@@ -59,7 +59,7 @@ internal class AndroidResourceFileStore(
 
     fun ensureBundledFiles() {
         val bundledUpdatedAtMillis = appContext.packageUpdatedAtMillis()
-        ResourceFileKind.entries.forEach { kind ->
+        listOf(ResourceFileKind.XrayCore).forEach { kind ->
             val target = file(kind)
             if (!target.needsBundledRestore(bundledUpdatedAtMillis)) return@forEach
             if (kind == ResourceFileKind.XrayCore && bundledXrayCoreFileOrNull() == null) return@forEach

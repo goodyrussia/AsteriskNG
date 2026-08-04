@@ -180,16 +180,7 @@ private fun SettingsContent(
                     onLanguageModeChange = { index -> updateAppState { state -> state.copy(languageMode = index) } },
                 )
             }
-            item(key = "settings_subscriptions") {
-                SettingsSubscriptionsSection(
-                    enableAllProxyGroup = appState.enableAllProxyGroup,
-                    onOpenGroupManagement = { navigator.push(Route.SubscriptionGroupList) },
-                    onOpenResourceManagement = { navigator.push(Route.ResourceManagement) },
-                    onEnableAllProxyGroupChange = { enabled ->
-                        updateAppState { state -> state.copy(enableAllProxyGroup = enabled) }
-                    },
-                )
-            }
+
             item(key = "settings_core") {
                 SettingsCoreSection(
                     enableSniffing = appState.enableSniffing,

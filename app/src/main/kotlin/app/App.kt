@@ -13,9 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.effects.LauncherIconSynchronizer
 import app.effects.ProxyStatusSynchronizer
-import app.effects.ResourceFileSynchronizer
 import app.effects.RootBootScriptSynchronizer
-import app.effects.SubscriptionAutoUpdater
 import data.AndroidAppStateStore
 import engine.proxy.AndroidProxyEngine
 import engine.proxy.latency.AndroidProxyLatencyTester
@@ -24,7 +22,7 @@ import features.logs.AndroidCoreLogRepository
 import features.logs.AndroidLogcatRepository
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
-import features.resources.ResourceFileUseCase
+
 import features.settings.locale.ProvideAppLanguage
 import features.settings.locale.RecreateActivityOnAppLanguageChange
 import features.settings.usecase.RootBootScriptUseCase
@@ -63,12 +61,6 @@ fun App(
     val networkInterfaces = remember(rootAccess) {
         AndroidNetworkInterfaceProvider(rootAccess)
     }
-    val resourceFileUseCase = remember(appContext, resourceFilePicker) {
-        ResourceFileUseCase(
-            context = appContext,
-            resourceFilePicker = resourceFilePicker,
-        )
-    }
     val subscriptionFetcher = remember { AndroidSubscriptionFetcher() }
     val qrScanner = remember(qrCodeScanner) { qrCodeScanner }
     val proxyServerImportFileUseCase = remember(appContext, resourceFilePicker) {
@@ -102,7 +94,6 @@ fun App(
         userSpaces,
         packageCatalog,
         networkInterfaces,
-        resourceFileUseCase,
         subscriptionFetcher,
         qrScanner,
         proxyServerImportFileUseCase,
@@ -119,7 +110,6 @@ fun App(
             userSpaces = userSpaces,
             packageCatalog = packageCatalog,
             networkInterfaces = networkInterfaces,
-            resourceFileUseCase = resourceFileUseCase,
             subscriptionFetcher = subscriptionFetcher,
             qrScanner = qrScanner,
             proxyServerImportFileUseCase = proxyServerImportFileUseCase,
@@ -144,18 +134,12 @@ fun App(
         proxyEngine = proxyEngine,
         updateAppState = updateAppState,
     )
-    ResourceFileSynchronizer(
-        resourceFileUseCase = resourceFileUseCase,
-    )
+
     LauncherIconSynchronizer(
         context = appContext,
         stateStore = stateStore,
     )
-    SubscriptionAutoUpdater(
-        stateStore = stateStore,
-        subscriptionFetcher = subscriptionFetcher,
-        updateAppState = updateAppState,
-    )
+
     RootBootScriptSynchronizer(
         stateStore = stateStore,
         rootBootScriptUseCase = rootBootScriptUseCase,

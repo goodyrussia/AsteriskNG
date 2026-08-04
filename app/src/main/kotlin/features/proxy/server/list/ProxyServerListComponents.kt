@@ -425,7 +425,7 @@ private fun proxyServerListToolMenuEntries() = listOf(
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_restart_service), ProxyServerListToolAction.RestartService),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_latency_test), ProxyServerListToolAction.TestLatency),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_sort_by_test_result), ProxyServerListToolAction.SortByTestResult),
-    ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_update_subscriptions), ProxyServerListToolAction.UpdateSubscriptions),
+
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_copy_all_urls), ProxyServerListToolAction.CopyAllUrls),
     ProxyServerListToolMenuEntry(stringResource(R.string.proxy_server_list_delete_duplicates), ProxyServerListToolAction.DeleteDuplicateServers),
 ).map { entry ->
