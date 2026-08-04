@@ -5,6 +5,7 @@ package engine.root
 
 internal fun <Config : RootModeStartConfig> Config.buildInstallRootBootScriptCommand(
     modeName: String,
+    buildPreCoreStartCommand: (Config) -> String,
     buildSetupRulesCommand: (Config) -> String,
     buildPostCoreStartCommand: (Config) -> String,
     buildReadinessCheck: (Config) -> RootReadinessCheck,
@@ -15,6 +16,7 @@ internal fun <Config : RootModeStartConfig> Config.buildInstallRootBootScriptCom
     val bootScript = root.buildRootBootScript()
     val startupScript = buildRootStartupScript(
         modeName = modeName,
+        buildPreCoreStartCommand = buildPreCoreStartCommand,
         buildSetupRulesCommand = buildSetupRulesCommand,
         buildPostCoreStartCommand = buildPostCoreStartCommand,
         buildReadinessCheck = buildReadinessCheck,
@@ -43,6 +45,7 @@ internal fun <Config : RootModeStartConfig> Config.buildInstallRootBootScriptCom
 
 private fun <Config : RootModeStartConfig> Config.buildRootStartupScript(
     modeName: String,
+    buildPreCoreStartCommand: (Config) -> String,
     buildSetupRulesCommand: (Config) -> String,
     buildPostCoreStartCommand: (Config) -> String,
     buildReadinessCheck: (Config) -> RootReadinessCheck,
@@ -57,6 +60,11 @@ private fun <Config : RootModeStartConfig> Config.buildRootStartupScript(
             appendStartupSummary = appendStartupSummary,
             appendStartupFailureDiagnostics = appendStartupFailureDiagnostics,
         )
+        val preCoreStartCommand = buildPreCoreStartCommand(this@buildRootStartupScript)
+        if (preCoreStartCommand.isNotBlank()) {
+            appendScript("section \"Install pre-start $modeName safeguards\"")
+            append(preCoreStartCommand)
+        }
         appendScript("section \"Prepare core logs\"")
         append(root.coreLogPaths.buildPrepareCoreLogFilesCommand())
         appendScript("section \"Start Xray-core\"")

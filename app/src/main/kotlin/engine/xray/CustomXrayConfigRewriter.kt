@@ -21,11 +21,7 @@ internal object CustomXrayConfigRewriter {
     ): JsonObject {
         server.check()
         val config = parseCustomXrayConfigJsonObject(server.configJson)
-        return if (server.overrideAsteriskInboundAndDns) {
-            config.overwriteAsteriskInboundDns(request, server)
-        } else {
-            config
-        }
+        return config.overwriteAsteriskInboundDns(request, server)
     }
 }
 
@@ -72,7 +68,8 @@ private fun JsonObject.rewriteCustomDnsOutbounds(
             when (outbound.stringValue("tag")) {
                 XrayTags.DNS_OUT -> Unit
                 XrayTags.DIRECT -> Unit
-                else -> add(outbound)
+                XrayTags.BLOCK -> add(outbound)
+                else -> add(outbound.applyFixedProxyOutboundDomainStrategy(appState))
             }
         }
         add(

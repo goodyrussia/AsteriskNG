@@ -27,19 +27,25 @@ internal fun RootIptablesConfig.buildSetupRulesCommand(
         if (enableIpv6) {
             appendIpv6VariantSetupRules(this@buildSetupRulesCommand, port)
         } else {
-            appendIpv6KillSwitchRules()
+            append(buildIpv6KillSwitchSetupCommand())
         }
     }
+}
+
+internal fun buildIpv6KillSwitchSetupCommand(): String {
+    return buildString { appendIpv6KillSwitchRules() }
 }
 
 internal fun RootIptablesConfig.buildCleanupRulesCommand(): String {
     return buildString {
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv4IptablesVariant())
         appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-p udp --dport 53 -j REJECT", table = "filter")
-        appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-j REJECT", table = "filter")
-        appendDeleteRuleLoop(RootIp6tablesCommand, "FORWARD", "-j REJECT", table = "filter")
+        appendIpv6KillSwitchCleanupRules()
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv6IptablesVariant(useDummyInterface = false))
         appendIptablesVariantCleanupRules(this@buildCleanupRulesCommand, ipv6IptablesVariant(useDummyInterface = true))
+        appendScript("iptables -t mangle -S $TproxyPreroutingChain >/dev/null 2>&1 && exit 1 || true")
+        appendScript("iptables -t mangle -S $TproxyOutputChain >/dev/null 2>&1 && exit 1 || true")
+        appendScript("$RootIp6tablesCommand -t filter -S $TproxyIpv6BlockChain >/dev/null 2>&1 && exit 1 || true")
     }
 }
 
@@ -176,7 +182,7 @@ private fun StringBuilder.appendIptablesVariantCleanupRules(
         """
         ${variant.command} -t nat -F ${variant.dnsOutputChain} 2>/dev/null || true
         ${variant.command} -t nat -X ${variant.dnsOutputChain} 2>/dev/null || true
-        ${variant.ipCommand} rule del fwmark ${config.mark} table ${variant.routeTable} 2>/dev/null || true
+        while ${variant.ipCommand} rule del fwmark ${config.mark} table ${variant.routeTable} 2>/dev/null; do :; done
         ${variant.ipCommand} route flush table ${variant.routeTable} 2>/dev/null || true
         """,
     )
@@ -186,8 +192,26 @@ private fun StringBuilder.appendIptablesVariantCleanupRules(
 }
 
 private fun StringBuilder.appendIpv6KillSwitchRules() {
-    appendScript("$RootIp6tablesCommand -t filter -I OUTPUT 1 -j REJECT")
-    appendScript("$RootIp6tablesCommand -t filter -I FORWARD 1 -j REJECT")
+    appendScript("mkdir -p /data/adb/asteriskng")
+    appendScript("if [ ! -f ${TproxyIpv6BlockMigrationMarker.shellQuote()} ]; then")
+    appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-j REJECT", table = "filter")
+    appendDeleteRuleLoop(RootIp6tablesCommand, "FORWARD", "-j REJECT", table = "filter")
+    appendScript("touch ${TproxyIpv6BlockMigrationMarker.shellQuote()}")
+    appendScript("fi")
+    appendScript("$RootIp6tablesCommand -t filter -N $TproxyIpv6BlockChain 2>/dev/null || true")
+    appendScript("$RootIp6tablesCommand -t filter -F $TproxyIpv6BlockChain")
+    appendScript("$RootIp6tablesCommand -t filter -A $TproxyIpv6BlockChain -j REJECT")
+    appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-j $TproxyIpv6BlockChain", table = "filter")
+    appendDeleteRuleLoop(RootIp6tablesCommand, "FORWARD", "-j $TproxyIpv6BlockChain", table = "filter")
+    appendScript("$RootIp6tablesCommand -t filter -I OUTPUT 1 -j $TproxyIpv6BlockChain")
+    appendScript("$RootIp6tablesCommand -t filter -I FORWARD 1 -j $TproxyIpv6BlockChain")
+}
+
+private fun StringBuilder.appendIpv6KillSwitchCleanupRules() {
+    appendDeleteRuleLoop(RootIp6tablesCommand, "OUTPUT", "-j $TproxyIpv6BlockChain", table = "filter")
+    appendDeleteRuleLoop(RootIp6tablesCommand, "FORWARD", "-j $TproxyIpv6BlockChain", table = "filter")
+    appendScript("$RootIp6tablesCommand -t filter -F $TproxyIpv6BlockChain 2>/dev/null || true")
+    appendScript("$RootIp6tablesCommand -t filter -X $TproxyIpv6BlockChain 2>/dev/null || true")
 }
 
 private fun StringBuilder.appendUdpDnsMarkRule(
@@ -308,8 +332,10 @@ private fun StringBuilder.appendPreroutingDnsTproxyRule(
 ) {
     val quotedInterface = interfaceName.shellQuote()
     appendScript(
-        "${variant.command} -t mangle -A ${variant.preroutingChain} -i $quotedInterface -p udp -m udp --dport 53 " +
-            "-j TPROXY --on-port $port --on-ip ${variant.tproxyOnIp} --tproxy-mark $mark",
+        """
+        ${variant.command} -t mangle -A ${variant.preroutingChain} -i $quotedInterface -p tcp -m tcp --dport 53 -j TPROXY --on-port $port --on-ip ${variant.tproxyOnIp} --tproxy-mark $mark
+        ${variant.command} -t mangle -A ${variant.preroutingChain} -i $quotedInterface -p udp -m udp --dport 53 -j TPROXY --on-port $port --on-ip ${variant.tproxyOnIp} --tproxy-mark $mark
+        """,
     )
 }
 

@@ -28,6 +28,10 @@ internal class TproxyRootRunner(
         )
     }
 
+    override fun buildPreCoreStartCommand(config: TproxyStartConfig): String {
+        return if (config.root.enableIpv6) "" else buildIpv6KillSwitchSetupCommand()
+    }
+
     override fun buildCleanupRulesCommand(): String {
         return TproxyBaseIptablesConfig.buildCleanupRulesCommand()
     }

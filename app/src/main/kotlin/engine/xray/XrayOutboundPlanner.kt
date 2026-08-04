@@ -63,9 +63,7 @@ private class XrayOutboundPlanner(
 
     private fun addCustomDnsHosts(proxyServer: Custom) {
         proxyServer.check()
-        if (proxyServer.overrideAsteriskInboundAndDns) {
-            dnsHostServers += customXrayConfigProxyServerHosts(proxyServer.configJson)
-        }
+        dnsHostServers += customXrayConfigProxyServerHosts(proxyServer.configJson)
     }
 
     private fun addNormalOutbound(

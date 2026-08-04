@@ -30,7 +30,6 @@ internal class RootModeEngine<Config : RootModeStartConfig>(
         if (!rootAccess.hasRootAccess()) {
             error(context.getString(rootRequiredErrorResId))
         }
-        stop()
         val rootContext = context.prepareRootConfigBuildContext(request)
         val config = buildConfig(rootContext)
         if (!File(config.root.runtimeLayout.xrayCorePath).canExecute()) {
@@ -65,11 +64,7 @@ internal class RootModeEngine<Config : RootModeStartConfig>(
     suspend fun stop(): ProxyEngineStatus {
         logFileTailers.forEach { tailer -> tailer.stop() }
         logFileTailers = emptyList()
-        runCatching {
-            runner.stop(context.prepareRootRuntimeLayout())
-        }.onFailure { error ->
-            AndroidAppLogger.warn(logTag, "Failed to stop $modeName", error)
-        }
+        runner.stop(context.prepareRootRuntimeLayout())
         LocalProxyRuntime.clear()
         return status()
     }

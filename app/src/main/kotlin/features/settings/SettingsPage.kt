@@ -77,7 +77,8 @@ private fun SettingsContent(
     outerPadding: PaddingValues,
     topAppBarScrollBehavior: ScrollBehavior,
 ) {
-    val appState by LocalAppStateStore.current.collectAppState()
+    val stateStore = LocalAppStateStore.current
+    val appState by stateStore.collectAppState()
     val isWideScreen = LocalIsWideScreen.current
     val updateAppState = LocalUpdateAppState.current
     val navigator = LocalNavigator.current
@@ -126,26 +127,22 @@ private fun SettingsContent(
         selectServerFirstMessage,
     ) {
         { transform ->
-            val nextState = transform(appState)
             updateAppState(transform)
-            if (appState.proxyRunning) {
-                services.appScope.launch {
+            services.appScope.launch {
+                val runtimeStatus = services.proxyEngine.status()
+                if (runtimeStatus.running) {
+                    val nextState = stateStore.state.value
                     val selectedServer = nextState.proxyServers.firstOrNull { it.id == nextState.selectedProxyServerId }
                     when (val result = services.proxyServiceUseCase.restart(nextState, selectedServer)) {
                         is ProxyServiceResult.Success -> {
-                            result.appState?.let { restartedState ->
-                                updateAppState { current ->
-                                    restartedState.copy(
-                                        shareHotspot = current.shareHotspot,
-                                        proxyDns = current.proxyDns,
-                                        enableRootBootScript = current.enableRootBootScript,
-                                    )
-                                }
+                            updateAppState { current ->
+                                current.copy(proxyRunning = result.proxyRunning)
                             }
                         }
                         ProxyServiceResult.MissingServer -> tipNotifier.show(selectServerFirstMessage)
                         is ProxyServiceResult.Failed -> {
-                            updateAppState { state -> state.copy(proxyRunning = false) }
+                            val actualStatus = services.proxyEngine.status()
+                            updateAppState { state -> state.copy(proxyRunning = actualStatus.running) }
                             tipNotifier.showError(result.error, runtimeSettingsFailedMessage)
                         }
                     }

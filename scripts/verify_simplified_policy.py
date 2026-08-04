@@ -57,9 +57,17 @@ require(
 )
 require(
     "app/src/main/kotlin/engine/tproxy/TproxyIptablesScript.kt",
-    'RootIp6tablesCommand, "OUTPUT", "-j REJECT"',
-    'RootIp6tablesCommand, "FORWARD", "-j REJECT"',
+    '"OUTPUT", "-j $TproxyIpv6BlockChain"',
+    '"FORWARD", "-j $TproxyIpv6BlockChain"',
+    'filter -A $TproxyIpv6BlockChain -j REJECT',
+    '-p tcp -m tcp --dport 53',
+    '-p udp -m udp --dport 53',
     "appendPreroutingDnsTproxyRule(variant, prefix, port, config.mark)",
+)
+require(
+    "app/src/main/kotlin/engine/xray/CustomXrayConfigRewriter.kt",
+    "return config.overwriteAsteriskInboundDns(request, server)",
+    "outbound.applyFixedProxyOutboundDomainStrategy(appState)",
 )
 require(
     "app/src/main/kotlin/data/AppSettingsPreferences.kt",

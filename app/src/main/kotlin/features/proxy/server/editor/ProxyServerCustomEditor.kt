@@ -68,7 +68,7 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TextFieldDefaults
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.ConvertFile
-import top.yukonga.miuix.kmp.preference.SwitchPreference
+
 
 @Composable
 internal fun CustomProxyServerEditor(
@@ -86,9 +86,7 @@ internal fun CustomProxyServerEditor(
     var remarks by remember(customEdit) {
         mutableStateOf(customEdit.remarks)
     }
-    var overrideAsteriskInboundAndDns by remember(customEdit) {
-        mutableStateOf(customEdit.overrideAsteriskInboundAndDns)
-    }
+
     var configJsonValue by remember(customEdit) {
         mutableStateOf(
             TextFieldValue(
@@ -137,19 +135,6 @@ internal fun CustomProxyServerEditor(
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         )
-        SwitchPreference(
-            title = stringResource(R.string.proxy_editor_custom_override_inbound_dns),
-            summary = stringResource(R.string.proxy_editor_custom_override_inbound_dns_summary),
-            checked = overrideAsteriskInboundAndDns,
-            onCheckedChange = { checked ->
-                overrideAsteriskInboundAndDns = checked
-                customEdit.overrideAsteriskInboundAndDns = checked
-            },
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .padding(bottom = 12.dp),
-        )
-
         SmallTitle(text = stringResource(R.string.proxy_editor_custom_json))
         Box(
             modifier = Modifier

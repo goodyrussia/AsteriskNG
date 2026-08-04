@@ -95,7 +95,7 @@ private fun buildProxyOutbound(appState: AppState, outboundServer: XrayProxyOutb
     val tag = outboundServer.tag
     val server = outboundServer.server
     var outbound = server.toXrayOutbound(tag).toJsonObject()
-        .applyProxyOutboundDomainStrategy(appState)
+        .applyFixedProxyOutboundDomainStrategy(appState)
         .updated {
             put("tag", tag)
         }
@@ -120,7 +120,7 @@ private fun buildProxyOutbound(appState: AppState, outboundServer: XrayProxyOutb
     return outbound
 }
 
-private fun JsonObject.applyProxyOutboundDomainStrategy(appState: AppState): JsonObject {
+internal fun JsonObject.applyFixedProxyOutboundDomainStrategy(appState: AppState): JsonObject {
     if (stringValue("protocol") == ProxyServerConstants.PROTOCOL_WIREGUARD) {
         val settings = objectValue("settings") ?: buildJsonObject {}
         return updated {

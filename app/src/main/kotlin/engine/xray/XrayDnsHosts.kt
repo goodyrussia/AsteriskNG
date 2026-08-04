@@ -29,6 +29,7 @@ private fun String.resolveHostAddresses(): List<String> {
     return runCatching {
         InetAddress.getAllByName(host)
             .mapNotNull { address -> address.hostAddress?.substringBefore('%') }
+            .filter(::isIpv4Address)
             .filter(String::isNotBlank)
             .distinct()
     }.onFailure { error ->

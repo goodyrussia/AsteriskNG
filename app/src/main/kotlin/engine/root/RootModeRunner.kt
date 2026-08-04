@@ -25,6 +25,10 @@ internal abstract class RootModeRunner<Config : RootModeStartConfig>(
 ) {
     suspend fun start(config: Config) = withContext(Dispatchers.IO) {
         stop(config.root.runtimeLayout)
+        runRootCommandIfNotBlank(
+            command = buildPreCoreStartCommand(config),
+            failureMessage = "Failed to install pre-start $modeName safeguards",
+        )
         writeRootConfigFile(config.root)
         prepareModeRuntimeFiles(config)
         runRootCommand(config.root.buildPrepareRuntimeCommand(), "Failed to prepare $modeName environment")
@@ -52,7 +56,7 @@ internal abstract class RootModeRunner<Config : RootModeStartConfig>(
         val command = buildStopCommand(runtimeLayout)
         val result = rootAccess.exec(command, ShellExecOptions(logFailure = false))
         if (result.errno != 0) {
-            AndroidAppLogger.warn(logTag, "Failed to stop $modeName cleanly:\n${result.stderr}")
+            error("Failed to stop $modeName cleanly: ${result.stderr}")
         }
     }
 
@@ -61,6 +65,7 @@ internal abstract class RootModeRunner<Config : RootModeStartConfig>(
         prepareModeRuntimeFiles(config)
         val command = config.buildInstallRootBootScriptCommand(
             modeName = modeName,
+            buildPreCoreStartCommand = ::buildPreCoreStartCommand,
             buildSetupRulesCommand = ::buildSetupRulesCommand,
             buildPostCoreStartCommand = ::buildPostCoreStartCommand,
             buildReadinessCheck = ::buildReadinessCheck,
@@ -107,6 +112,8 @@ internal abstract class RootModeRunner<Config : RootModeStartConfig>(
     }
 
     protected abstract fun buildSetupRulesCommand(config: Config): String
+
+    protected open fun buildPreCoreStartCommand(config: Config): String = ""
 
     protected abstract fun buildCleanupRulesCommand(): String
 

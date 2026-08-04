@@ -18,4 +18,6 @@ const val TproxyDnsOutputChain = "ASTERISK_TPROXY_DNS_OUTPUT"
 const val TproxyPrerouting6Chain = "ASTERISK_TPROXY6_PREROUTING"
 const val TproxyOutput6Chain = "ASTERISK_TPROXY6_OUTPUT"
 const val TproxyDnsOutput6Chain = "ASTERISK_TPROXY6_DNS_OUTPUT"
+const val TproxyIpv6BlockChain = "ASTERISK_TPROXY6_BLOCK"
+const val TproxyIpv6BlockMigrationMarker = "/data/adb/asteriskng/.ipv6_block_chain_v1"
 
