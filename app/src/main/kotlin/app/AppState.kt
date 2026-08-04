@@ -22,7 +22,6 @@ import features.resources.ResourceFileLoyalsoldierGeoIpUrl
 import features.resources.ResourceFileLoyalsoldierGeoSiteUrl
 import features.resources.ResourceFileSourceLoyalsoldierGithub
 import features.resources.ResourceFileV2FlyGeoIpOnlyCnPrivateUrl
-import features.routing.model.RouteRule
 
 data class AppState(
     val colorMode: Int = ColorModeSystem,
@@ -45,11 +44,6 @@ data class AppState(
     val nextProxyServerId: Int = 10,
     val selectedProxyServerId: Int = 1,
     val proxyRunning: Boolean = false,
-
-    val routeDomainStrategy: Int = 0,
-    val defaultRouteOutboundTag: String = DefaultRouteOutboundTag,
-    val routeRules: List<RouteRule> = DefaultRouteRules,
-    val nextRouteRuleId: Int = 10,
 
     val coreLogLevel: Int = 3,
     val enableAccessLog: Boolean = false,

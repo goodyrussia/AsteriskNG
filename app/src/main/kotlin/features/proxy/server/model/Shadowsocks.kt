@@ -32,12 +32,14 @@ data class Shadowsocks(
         return OutboundObject(
             tag = tag,
             protocol = "shadowsocks",
-            settings = buildJsonObject {
-                put("address", server)
-                put("port", port.toXrayPort())
-                put("method", method)
-                put("password", method.toXrayShadowsocksPassword(password))
-            },
+            settings = buildLegacyServerSettings(
+                buildJsonObject {
+                    put("address", server)
+                    put("port", port.toXrayPort())
+                    put("method", method)
+                    put("password", method.toXrayShadowsocksPassword(password))
+                },
+            ),
             streamSettings = parms.toXrayStreamSettings(),
         )
     }

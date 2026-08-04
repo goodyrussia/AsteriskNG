@@ -8,13 +8,11 @@ import app.AppState
 internal data class PersistedAppState(
     val subscriptionGroups: List<SubscriptionGroupEntity>,
     val proxyServers: List<ProxyServerEntity>,
-    val routingRules: List<RouteRuleEntity>,
     val proxyAppListSelectedApps: List<ProxyAppListSelectedAppEntity>,
 ) {
     fun hasRoomContent(): Boolean {
         return subscriptionGroups.isNotEmpty() ||
             proxyServers.isNotEmpty() ||
-            routingRules.isNotEmpty() ||
             proxyAppListSelectedApps.isNotEmpty()
     }
 
@@ -30,7 +28,6 @@ internal data class PersistedAppState(
             proxyServers = restoredProxyServerList,
             selectedProxyServerId = restoredSelectedProxyServerId,
             proxyRunning = false,
-            routeRules = routingRules.map { rule -> rule.toState() },
             proxyAppListSelectedApps = proxyAppListSelectedApps.map { app -> app.packageKey },
         )
     }

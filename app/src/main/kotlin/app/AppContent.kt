@@ -68,7 +68,6 @@ import features.proxy.app.ProxyAppListPage
 import features.resources.ResourceManagementPage
 import features.proxy.server.list.ProxyServerListPage
 import features.proxy.server.editor.ProxyServerPage
-import features.routing.RoutingPage
 import features.settings.SettingsPage
 import features.subscription.SubscriptionGroupListPage
 import top.yukonga.miuix.kmp.basic.NavigationBar
@@ -82,7 +81,6 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.AppRecording
 import top.yukonga.miuix.kmp.icon.extended.Layers
-import top.yukonga.miuix.kmp.icon.extended.MindMap
 import top.yukonga.miuix.kmp.icon.extended.Settings
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import ui.layout.pageWindowPadding
@@ -93,24 +91,21 @@ import androidx.compose.runtime.setValue
 
 private object MainNavigation {
     const val PROXY_PAGE_INDEX = 0
-    const val ROUTING_PAGE_INDEX = 1
-    const val PROXY_APP_LIST_PAGE_INDEX = 2
-    const val SETTINGS_PAGE_INDEX = 3
+    const val PROXY_APP_LIST_PAGE_INDEX = 1
+    const val SETTINGS_PAGE_INDEX = 2
 
-    const val NAVIGATION_ITEMS_COUNT = 4
+    const val NAVIGATION_ITEMS_COUNT = 3
 
     @Composable
     fun navigationItems(): List<NavigationItem> {
         val languageMode = LocalAppChromeState.current.languageMode
         val proxy = stringResource(R.string.nav_proxy)
-        val routing = stringResource(R.string.nav_routing)
         val apps = stringResource(R.string.nav_apps)
         val settings = stringResource(R.string.nav_settings)
 
-        return remember(languageMode, proxy, routing, apps, settings) {
+        return remember(languageMode, proxy, apps, settings) {
             listOf(
                 NavigationItem(proxy, MiuixIcons.Layers),
-                NavigationItem(routing, MiuixIcons.MindMap),
                 NavigationItem(apps, MiuixIcons.AppRecording),
                 NavigationItem(settings, MiuixIcons.Settings),
             )
@@ -366,10 +361,6 @@ fun AppPager(
             key(languageMode, page) {
                 when (page) {
                     MainNavigation.PROXY_PAGE_INDEX -> ProxyServerListPage(
-                        padding = padding,
-                    )
-
-                    MainNavigation.ROUTING_PAGE_INDEX -> RoutingPage(
                         padding = padding,
                     )
 

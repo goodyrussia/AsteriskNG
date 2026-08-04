@@ -30,13 +30,15 @@ data class VLESS(
         return OutboundObject(
             tag = tag,
             protocol = ProxyServerConstants.PROTOCOL_VLESS,
-            settings = buildJsonObject {
-                put("address", server)
-                put("port", port.toXrayPort())
-                put("id", id)
-                put("encryption", encryption.ifBlank { "none" })
-                putIfNotBlank("flow", flow)
-            },
+            settings = buildLegacyVnextSettings(
+                address = server,
+                port = port.toXrayPort(),
+                user = buildJsonObject {
+                    put("id", id)
+                    put("encryption", encryption.ifBlank { "none" })
+                    putIfNotBlank("flow", flow)
+                },
+            ),
             streamSettings = parms.toXrayStreamSettings(),
         )
     }

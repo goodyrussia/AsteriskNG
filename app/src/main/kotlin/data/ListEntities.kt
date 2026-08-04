@@ -9,7 +9,6 @@ import androidx.room.PrimaryKey
 import app.ProxyServerState
 import app.SubscriptionGroupState
 import features.logs.AndroidAppLogger
-import features.routing.model.RouteRule
 
 @Entity(
     tableName = "subscription_groups",
@@ -91,57 +90,6 @@ internal data class ProxyServerEntity(
                 position = position,
                 groupId = server.groupId,
                 serverJson = server.server.encodePersistedProxyServer(),
-            )
-        }
-    }
-}
-
-@Entity(
-    tableName = "routing_rules",
-    indices = [Index("position")],
-)
-internal data class RouteRuleEntity(
-    @PrimaryKey val id: Int,
-    val position: Int,
-    val remarks: String,
-    val outboundTag: String,
-    val domainJson: String,
-    val ipJson: String,
-    val processJson: String,
-    val port: String,
-    val protocol: String,
-    val network: String,
-    val enabled: Boolean,
-) {
-    fun toState(): RouteRule {
-        return RouteRule(
-            id = id,
-            remarks = remarks,
-            outboundTag = outboundTag,
-            domain = StringListJson.decode(domainJson),
-            ip = StringListJson.decode(ipJson),
-            process = StringListJson.decode(processJson),
-            port = port,
-            protocol = protocol,
-            network = network,
-            enabled = enabled,
-        )
-    }
-
-    companion object {
-        fun from(position: Int, rule: RouteRule): RouteRuleEntity {
-            return RouteRuleEntity(
-                id = rule.id,
-                position = position,
-                remarks = rule.remarks,
-                outboundTag = rule.outboundTag,
-                domainJson = StringListJson.encode(rule.domain),
-                ipJson = StringListJson.encode(rule.ip),
-                processJson = StringListJson.encode(rule.process),
-                port = rule.port,
-                protocol = rule.protocol,
-                network = rule.network,
-                enabled = rule.enabled,
             )
         }
     }

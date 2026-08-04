@@ -43,14 +43,12 @@ private fun JsonObject.overwriteAsteriskInboundDns(
         appState = request.appState,
         enableLocalDns = request.appState.effectiveLocalDnsEnabled,
     )
-    val routing = rewriteCustomDnsRouting(
-        CustomDnsRoutingPlan(
-            dnsHijackInboundTags = request.dnsHijackInboundTags,
-            enableLocalDns = request.appState.effectiveLocalDnsEnabled,
-            routeProxyDns = dnsPlan.routingOptions.routeProxyDns,
-            routeDirectDns = dnsPlan.routingOptions.routeDirectDns,
-            proxyDnsOutboundTag = outboundsRewrite.proxyOutboundTag,
-        ),
+    val proxyOutboundTag = checkNotNull(outboundsRewrite.proxyOutboundTag) {
+        "Custom Xray config has no proxy outbound"
+    }
+    val routing = rewriteCustomFixedRouting(
+        dnsHijackInboundTags = request.dnsHijackInboundTags,
+        proxyOutboundTag = proxyOutboundTag,
     )
 
     return updatedWithout(setOf("fakedns", "fakeDns")) {
@@ -131,42 +129,19 @@ private fun JsonArray.withProxyOutboundTag(): CustomProxyOutbounds {
     return CustomProxyOutbounds(outbounds, XrayTags.PROXY)
 }
 
-private data class CustomDnsRoutingPlan(
-    val dnsHijackInboundTags: List<String>,
-    val enableLocalDns: Boolean,
-    val routeProxyDns: Boolean,
-    val routeDirectDns: Boolean,
-    val proxyDnsOutboundTag: String?,
-)
-
-private fun JsonObject.rewriteCustomDnsRouting(plan: CustomDnsRoutingPlan): JsonObject {
+private fun JsonObject.rewriteCustomFixedRouting(
+    dnsHijackInboundTags: List<String>,
+    proxyOutboundTag: String,
+): JsonObject {
     val routing = objectValue("routing") ?: buildJsonObject {}
-    val existingRules = routing.arrayValue("rules") ?: buildJsonArray {}
     return routing.updated {
+        put("domainStrategy", FixedRoutingDomainStrategy)
         put(
             "rules",
-            buildJsonArray {
-                if (plan.enableLocalDns) {
-                    buildXrayDnsHijackRule(plan.dnsHijackInboundTags)?.let(::add)
-                }
-                if (plan.routeDirectDns) {
-                    add(buildCustomDnsUpstreamRoute(XrayTags.DIRECT_DNS, XrayTags.DIRECT))
-                }
-                if (plan.routeProxyDns && !plan.proxyDnsOutboundTag.isNullOrBlank()) {
-                    add(buildCustomDnsUpstreamRoute(XrayTags.PROXY_DNS, plan.proxyDnsOutboundTag))
-                }
-                existingRules.forEach(::add)
-            },
+            buildFixedXrayRoutingRules(
+                proxyTarget = XrayRouteTarget(proxyOutboundTag, XrayRouteTargetKind.Outbound),
+                dnsHijackInboundTags = dnsHijackInboundTags,
+            ),
         )
-    }
-}
-
-private fun buildCustomDnsUpstreamRoute(
-    inboundTag: String,
-    outboundTag: String,
-): JsonObject {
-    return buildJsonObject {
-        put("inboundTag", listOf(inboundTag).toJsonStringArray())
-        put("outboundTag", outboundTag)
     }
 }

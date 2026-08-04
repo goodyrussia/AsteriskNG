@@ -24,7 +24,6 @@ internal data class XrayDnsPlan(
     val tag: String,
     val hosts: JsonObject,
     val fakeDns: JsonElement?,
-    val routingOptions: XrayDnsRoutingOptions,
 )
 
 internal fun XrayConfigRequest.buildXrayDnsPlan(
@@ -57,15 +56,6 @@ private fun AppState.buildXrayDnsPlan(
         tag = XrayTags.PROXY_DNS,
         hosts = dnsHosts.toDnsHostsJson(),
         fakeDns = if (effectiveFakeDnsEnabled) buildXrayFakeDnsConfig() else null,
-        routingOptions = XrayDnsRoutingOptions(
-            routeProxyDns = xrayProxyDnsServers(
-                proxyDnsServers = proxyDnsServers,
-                directDnsServers = directDnsServers,
-                directDnsDomains = effectiveDirectDnsDomains,
-            ).isNotEmpty(),
-            routeDirectDns = effectiveDirectDnsDomains.isNotEmpty() &&
-                xrayDirectDnsServers(directDnsServers).isNotEmpty(),
-        ),
     )
 }
 
@@ -100,11 +90,6 @@ private fun AppState.buildXrayFakeDnsConfig(): JsonElement {
         )
     }
 }
-
-internal data class XrayDnsRoutingOptions(
-    val routeProxyDns: Boolean,
-    val routeDirectDns: Boolean,
-)
 
 internal fun AppState.xrayProxyDnsServers(
     proxyDnsServers: List<String>,

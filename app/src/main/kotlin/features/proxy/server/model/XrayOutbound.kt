@@ -36,6 +36,26 @@ data class OutboundObject(
     }
 }
 
+internal fun buildLegacyVnextSettings(address: String, port: Int, user: JsonObject): JsonObject {
+    return buildJsonObject {
+        putJsonArray("vnext") {
+            add(
+                buildJsonObject {
+                    put("address", address)
+                    put("port", port)
+                    putJsonArray("users") { add(user) }
+                },
+            )
+        }
+    }
+}
+
+internal fun buildLegacyServerSettings(server: JsonObject): JsonObject {
+    return buildJsonObject {
+        putJsonArray("servers") { add(server) }
+    }
+}
+
 internal fun String.toXrayPort(): Int {
     return toPortOrNull()
         ?: proxyValidationError(
@@ -68,6 +88,7 @@ internal fun V2RayParameters.toXrayStreamSettings(): JsonObject {
             "tls" -> {
                 put("security", "tls")
                 putJsonObject("tlsSettings") {
+                    put("allowInsecure", this@toXrayStreamSettings.allowInsecure)
                     putIfNotBlank("serverName", sni)
                     putIfNotBlank("fingerprint", fp)
                     putJsonArrayIfNotBlank("alpn", alpn)

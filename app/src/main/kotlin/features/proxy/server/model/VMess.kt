@@ -143,12 +143,15 @@ data class VMess(
         return OutboundObject(
             tag = tag,
             protocol = ProxyServerConstants.PROTOCOL_VMESS,
-            settings = buildJsonObject {
-                put("address", server)
-                put("port", port.toXrayPort())
-                put("id", id)
-                put("security", encryption.ifBlank { "auto" })
-            },
+            settings = buildLegacyVnextSettings(
+                address = server,
+                port = port.toXrayPort(),
+                user = buildJsonObject {
+                    put("id", id)
+                    put("alterId", 0)
+                    put("security", encryption.ifBlank { "auto" })
+                },
+            ),
             streamSettings = parms.toXrayStreamSettings(),
         )
     }

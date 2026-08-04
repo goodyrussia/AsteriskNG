@@ -157,6 +157,7 @@ data class V2RayParameters(
     // standard
     var type: String = "raw",
     var security: String = "none",
+    var allowInsecure: Boolean = false,
     var path: String? = null,
     var host: String? = null,
     var headers: String? = null,
@@ -183,6 +184,7 @@ data class V2RayParameters(
     fun parse(url: Url, defaultType: String, defaultSecurity: String): V2RayParameters {
         this.type = url.parameters["type"] ?: defaultType
         this.security = url.parameters["security"] ?: defaultSecurity
+        this.allowInsecure = url.parameters["allowInsecure"].toEnabledFlag() || url.parameters["insecure"].toEnabledFlag()
         this.fm = url.parameters["fm"]
         when (this.type) {
             "tcp", "raw" -> {
@@ -293,6 +295,9 @@ data class V2RayParameters(
             when (security) {
                 "none" -> {}
                 "tls" -> {
+                    if (this@V2RayParameters.allowInsecure) {
+                        append("allowInsecure", "1")
+                    }
                     appendIfNotBlank("fp", this@V2RayParameters.fp)
                     appendIfNotBlank("sni", this@V2RayParameters.sni)
                     appendIfNotBlank("alpn", this@V2RayParameters.alpn)
@@ -325,4 +330,11 @@ private fun String.toV2RayTransportTypeParameter(): String {
 
 private fun ParametersBuilder.appendIfNotBlank(name: String, value: String?) {
     value?.takeIf(String::isNotBlank)?.let { append(name, it) }
+}
+
+private fun String?.toEnabledFlag(): Boolean {
+    return when (this?.trim()?.lowercase()) {
+        "1", "true", "yes", "on" -> true
+        else -> false
+    }
 }

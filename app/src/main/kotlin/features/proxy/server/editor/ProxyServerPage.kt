@@ -77,7 +77,7 @@ fun ProxyServerPage(
     val unknownGroupName = stringResource(R.string.common_unknown_group)
     val defaultGroupName = stringResource(R.string.subscription_default_group)
     val allGroupsLabel = stringResource(R.string.proxy_editor_strategy_group_all_groups)
-    val defaultProxyServerTemplate = stringResource(R.string.routing_default_proxy_server)
+    val defaultProxyServerTemplate = stringResource(R.string.proxy_default_server)
 
     val psEdit = remember(ps) {
         ps.editableCopy()

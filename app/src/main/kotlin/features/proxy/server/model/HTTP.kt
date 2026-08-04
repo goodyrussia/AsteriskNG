@@ -7,8 +7,10 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
 import io.ktor.http.Url
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import utils.decodeFlexibleBase64ToStringOrRaw
 import utils.proxyUrlRemarks
 import utils.userInfoOrNull
@@ -29,14 +31,22 @@ data class HTTP(
         return OutboundObject(
             tag = tag,
             protocol = ProxyServerConstants.PROTOCOL_HTTP,
-            settings = buildJsonObject {
-                put("address", server)
-                put("port", port.toXrayPort())
-                putIfNotBlank("user", user)
-                if (!user.isNullOrBlank()) {
-                    put("pass", password.orEmpty())
-                }
-            },
+            settings = buildLegacyServerSettings(
+                buildJsonObject {
+                    put("address", server)
+                    put("port", port.toXrayPort())
+                    if (!user.isNullOrBlank()) {
+                        putJsonArray("users") {
+                            add(
+                                buildJsonObject {
+                                    put("user", user)
+                                    put("pass", password.orEmpty())
+                                },
+                            )
+                        }
+                    }
+                },
+            ),
         )
     }
 

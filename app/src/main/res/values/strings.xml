@@ -40,9 +40,9 @@
 
     <!-- Navigation -->
     <string name="nav_proxy">Proxy</string>
-    <string name="nav_routing">Routing</string>
     <string name="nav_apps">Apps</string>
     <string name="nav_settings">Settings</string>
+    <string name="proxy_default_server">Proxy server {id}</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -358,6 +358,8 @@
     <string name="proxy_editor_final_mask">FinalMask raw JSON, format: { FinalMaskObject }</string>
     <string name="proxy_editor_security">Transport security</string>
     <string name="proxy_editor_tls_settings">TLS settings</string>
+    <string name="proxy_editor_allow_insecure">Allow insecure TLS</string>
+    <string name="proxy_editor_allow_insecure_summary">Skip server certificate verification for this profile</string>
     <string name="proxy_editor_tls_fingerprint">TLS fingerprint</string>
     <string name="proxy_editor_reality_settings">Reality settings</string>
     <string name="proxy_editor_strategy_group_type">Strategy group type</string>
@@ -421,44 +423,6 @@
     <string name="proxy_validation_shadowsocks_2022_key_base64_invalid">Shadowsocks 2022 key must be base64</string>
     <string name="proxy_validation_shadowsocks_2022_key_length_invalid">Invalid Shadowsocks 2022 key length. Decoded length must be {lengths} bytes</string>
     <string name="proxy_validation_vless_vision_flow_unsupported">VLESS Vision flow only supports RAW + TLS/REALITY</string>
-
-    <!-- Routing -->
-    <string name="routing_title">Routing rules</string>
-    <string name="routing_domain_policy">Domain policy</string>
-    <string name="routing_domain_strategy">Domain strategy</string>
-    <string name="routing_default_outbound_tag">Default outbound proxy tag</string>
-    <string name="routing_default_outbound_subtitle">Default outbound proxy tag: {tag}</string>
-    <string name="routing_deleted">{name} deleted</string>
-    <string name="routing_saved">{name} saved</string>
-    <string name="routing_edit">Edit route</string>
-    <string name="routing_delete">Delete route</string>
-    <string name="routing_default_proxy_server">Proxy server {id}</string>
-    <string name="routing_new_rule">New routing rule</string>
-    <string name="routing_unnamed_rule">Unnamed rule</string>
-    <string name="routing_add_rule">Add routing rule</string>
-    <string name="routing_edit_rule">Edit routing rule</string>
-    <string name="routing_rule_name">Rule name</string>
-    <string name="routing_domain_label">Domain rules</string>
-    <string name="routing_domain_input">Add domain rule</string>
-    <string name="routing_domain_invalid">Invalid domain rule</string>
-    <string name="routing_ip_label">IP rules</string>
-    <string name="routing_ip_input">Add IP rule</string>
-    <string name="routing_ip_invalid">Invalid IP rule</string>
-    <string name="routing_process_label">Process rules</string>
-    <string name="routing_process_input">Add process rule</string>
-    <string name="routing_process_invalid">Invalid process rule</string>
-    <string name="routing_list_empty">No entries added</string>
-    <string name="routing_list_duplicate">Already added</string>
-    <string name="routing_port_label">Port</string>
-    <string name="routing_port_invalid">Invalid port format</string>
-    <string name="routing_protocol_label">Protocol type</string>
-    <string name="routing_network_label">Network type</string>
-    <string name="routing_network_invalid">Network type only supports tcp or udp</string>
-    <string name="routing_outbound_tag_label">Outbound proxy tag</string>
-    <string name="routing_outbound_proxy">Proxy</string>
-    <string name="routing_outbound_direct">Direct</string>
-    <string name="routing_outbound_block">Block</string>
-    <string name="routing_empty">No routing rules yet. Tap the top-right button to add one.</string>
 
     <!-- Subscription groups -->
     <string name="subscription_group_list_title">Subscription groups</string>

@@ -74,11 +74,11 @@ private fun buildTproxyTunnelInbound(
     return buildJsonObject {
         put("tag", XrayTags.TPROXY_INBOUND)
         put("port", port)
-        put("protocol", XrayProtocols.TUNNEL)
+        put("protocol", XrayProtocols.DOKODEMO_DOOR)
         put(
             "settings",
             buildJsonObject {
-                put("allowedNetwork", "tcp,udp")
+                put("network", "tcp,udp")
                 put("followRedirect", true)
                 put("userLevel", 0)
             },

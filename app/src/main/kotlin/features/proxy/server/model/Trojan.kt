@@ -28,11 +28,13 @@ data class Trojan(
         return OutboundObject(
             tag = tag,
             protocol = ProxyServerConstants.PROTOCOL_TROJAN,
-            settings = buildJsonObject {
-                put("address", server)
-                put("port", port.toXrayPort())
-                put("password", password)
-            },
+            settings = buildLegacyServerSettings(
+                buildJsonObject {
+                    put("address", server)
+                    put("port", port.toXrayPort())
+                    put("password", password)
+                },
+            ),
             streamSettings = parms.toXrayStreamSettings(),
         )
     }

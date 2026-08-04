@@ -64,7 +64,7 @@ internal object XrayProtocols {
     const val BLACKHOLE = "blackhole"
     const val SOCKS = "socks"
     const val HTTP = "http"
-    const val TUNNEL = "tunnel"
+    const val DOKODEMO_DOOR = "dokodemo-door"
 }
 
 internal fun xraySniffingDestOverrides(enableFakeDns: Boolean): List<String> {

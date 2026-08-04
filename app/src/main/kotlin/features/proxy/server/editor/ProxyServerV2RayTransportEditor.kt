@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -26,6 +27,7 @@ import features.proxy.server.model.V2RayParameters
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 
 internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
@@ -53,6 +55,7 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
                 if (securityOptions.indexOf(params.security) > -1) securityOptions.indexOf(params.security) else 0
             )
         }
+        val allowInsecure = remember { mutableStateOf(params.allowInsecure) }
 
         SmallTitle(text = stringResource(R.string.proxy_editor_transport))
         OverlayDropdownPreference(
@@ -432,6 +435,18 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
                         .padding(bottom = 12.dp),
                     onKeyboardAction = { focusManager.clearFocus() },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.proxy_editor_allow_insecure),
+                    summary = stringResource(R.string.proxy_editor_allow_insecure_summary),
+                    checked = allowInsecure.value,
+                    onCheckedChange = { checked ->
+                        allowInsecure.value = checked
+                        params.allowInsecure = checked
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
                 )
                 OverlayDropdownPreference(
                     title = stringResource(R.string.proxy_editor_tls_fingerprint),

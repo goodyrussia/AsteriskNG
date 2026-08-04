@@ -56,12 +56,6 @@ internal class AppSettingsPreferences(
             ) ?: defaults.localProxyPassword,
             nextProxyServerId = preferences.getInt(KeyNextProxyServerId, defaults.nextProxyServerId),
             selectedProxyServerId = preferences.getInt(KeySelectedProxyServerId, defaults.selectedProxyServerId),
-            routeDomainStrategy = preferences.getInt(KeyRouteDomainStrategy, defaults.routeDomainStrategy),
-            defaultRouteOutboundTag = preferences.getString(
-                KeyDefaultRouteOutboundTag,
-                defaults.defaultRouteOutboundTag,
-            ) ?: defaults.defaultRouteOutboundTag,
-            nextRouteRuleId = preferences.getInt(KeyNextRouteRuleId, defaults.nextRouteRuleId),
             coreLogLevel = preferences.getInt(KeyCoreLogLevel, defaults.coreLogLevel),
             enableAccessLog = preferences.getBoolean(KeyEnableAccessLog, defaults.enableAccessLog),
             resourceFileSource = preferences.getInt(KeyResourceFileSource, defaults.resourceFileSource),
@@ -145,6 +139,9 @@ internal class AppSettingsPreferences(
             .remove("tun_ipv4_cidr")
             .remove("tun_ipv6_cidr")
             .remove("socks5_proxy_port")
+            .remove("route_domain_strategy")
+            .remove("default_route_outbound_tag")
+            .remove("next_route_rule_id")
             .putInt(KeyColorMode, state.colorMode)
             .putInt(KeyLanguageMode, state.languageMode)
             .putInt(KeySeedIndex, state.seedIndex)
@@ -158,9 +155,6 @@ internal class AppSettingsPreferences(
             .putString(KeyLocalProxyPassword, state.localProxyPassword)
             .putInt(KeyNextProxyServerId, state.nextProxyServerId)
             .putInt(KeySelectedProxyServerId, state.selectedProxyServerId)
-            .putInt(KeyRouteDomainStrategy, state.routeDomainStrategy)
-            .putString(KeyDefaultRouteOutboundTag, state.defaultRouteOutboundTag)
-            .putInt(KeyNextRouteRuleId, state.nextRouteRuleId)
             .putInt(KeyCoreLogLevel, state.coreLogLevel)
             .putBoolean(KeyEnableAccessLog, state.enableAccessLog)
             .putInt(KeyResourceFileSource, state.resourceFileSource)
@@ -237,9 +231,6 @@ private const val KeyLocalProxyUsername = "local_proxy_username"
 private const val KeyLocalProxyPassword = "local_proxy_password"
 private const val KeyNextProxyServerId = "next_proxy_server_id"
 private const val KeySelectedProxyServerId = "selected_proxy_server_id"
-private const val KeyRouteDomainStrategy = "route_domain_strategy"
-private const val KeyDefaultRouteOutboundTag = "default_route_outbound_tag"
-private const val KeyNextRouteRuleId = "next_route_rule_id"
 private const val KeyCoreLogLevel = "core_log_level"
 private const val KeyEnableAccessLog = "enable_access_log"
 private const val KeyResourceFileSource = "resource_file_source"
