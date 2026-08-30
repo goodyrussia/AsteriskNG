@@ -175,6 +175,7 @@ private fun SettingsContent(
                 SettingsNetworkSection(
                     shareHotspot = appState.shareHotspot,
                     enableRootBootScript = appState.enableRootBootScript,
+                    dnsMode = appState.dnsMode,
                     onOpenDnsSettings = { sheetState.openDnsSettings(appState) },
                     onShareHotspotChange = { enabled ->
                         updateRuntimeAppState { state -> state.copy(shareHotspot = enabled) }

@@ -68,6 +68,7 @@ data class AppState(
 
     val enableIpv6: Boolean = false,
     val enableIpv6Prefer: Boolean = false,
+    val dnsMode: Int = 0,
     val enableFakeDns: Boolean = false,
     val proxyDns: List<String> = DefaultProxyDnsServers,
     val directDns: List<String> = DefaultDirectDnsServers,

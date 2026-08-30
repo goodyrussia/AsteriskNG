@@ -174,7 +174,12 @@
     <string name="settings_fragment_interval">Fragment interval</string>
     <string name="settings_fragment_interval_error">Use 0 or a positive range</string>
     <string name="settings_dns">DNS settings</string>
-    <string name="settings_dns_summary_simple">Primary and secondary DNS used through the tunnel</string>
+    <string name="settings_dns_mode">DNS mode</string>
+    <string name="settings_dns_mode_fast">Fast</string>
+    <string name="settings_dns_mode_fast_summary">All domains resolve directly on-device via encrypted resolvers. Fastest, no tunnel round-trips for DNS.</string>
+    <string name="settings_dns_mode_tunnel">Through tunnel</string>
+    <string name="settings_dns_mode_custom">Custom</string>
+    <string name="settings_dns_summary_simple">DNS mode</string>
     <string name="settings_dns_primary">DNS primary</string>
     <string name="settings_dns_secondary">DNS secondary</string>
     <string name="settings_dns_address_invalid">Enter a valid IPv4 address</string>

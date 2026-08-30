@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.R
+import engine.xray.DnsModeCustom
+import engine.xray.DnsModeFast
+import engine.xray.DnsModeTunnel
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
@@ -63,6 +66,7 @@ internal fun SettingsThemeSection(
 internal fun SettingsNetworkSection(
     shareHotspot: Boolean,
     enableRootBootScript: Boolean,
+    dnsMode: Int,
     onOpenDnsSettings: () -> Unit,
     onShareHotspotChange: (Boolean) -> Unit,
     onEnableRootBootScriptChange: (Boolean) -> Unit,
@@ -71,7 +75,13 @@ internal fun SettingsNetworkSection(
     SettingsSectionCard {
         ArrowPreference(
             title = stringResource(R.string.settings_dns),
-            summary = stringResource(R.string.settings_dns_summary_simple),
+            summary = stringResource(
+                when (dnsMode) {
+                    DnsModeFast -> R.string.settings_dns_mode_fast
+                    DnsModeTunnel -> R.string.settings_dns_mode_tunnel
+                    else -> R.string.settings_dns_mode_custom
+                },
+            ),
             onClick = onOpenDnsSettings,
         )
         SwitchPreference(

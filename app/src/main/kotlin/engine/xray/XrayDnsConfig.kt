@@ -30,7 +30,7 @@ internal data class XrayDnsPlan(
 internal fun XrayConfigRequest.buildXrayDnsPlan(
     startupProxyServerDomains: List<String> = emptyList(),
 ): XrayDnsPlan {
-    val effectiveProxyDnsServers = if (selectedServer.server is Ssh) {
+    val effectiveProxyDnsServers = if (selectedServer.server is Ssh && appState.dnsMode != DnsModeFast) {
         // The SSH tunnel exposes a TCP-only SOCKS proxy; DNS must use TCP
         // transport so queries flow through the tunnel (udp-over-socks is
         // not supported by the sshcore daemon).
@@ -151,28 +151,49 @@ private fun AppState.xrayDnsServers(
     directDnsServers: List<String>,
     effectiveDirectDnsDomains: List<String>,
 ): JsonArray {
-    val effectiveDirectDnsServers = xrayDirectDnsServers(directDnsServers)
-        .takeIf { effectiveDirectDnsDomains.isNotEmpty() }
-        .orEmpty()
     return buildJsonArray {
         if (effectiveFakeDnsEnabled) {
             add(JsonPrimitive("fakedns"))
         }
-        effectiveDirectDnsServers.forEach { server ->
-            add(
-                buildJsonObject {
-                    put("address", server)
-                    put("domains", effectiveDirectDnsDomains.toJsonStringArray())
-                    put("skipFallback", true)
-                    put("tag", XrayTags.DIRECT_DNS)
-                },
-            )
+        when (dnsMode) {
+            DnsModeFast -> {
+                xrayDirectDnsServers(directDnsServers).forEach { server ->
+                    add(
+                        buildJsonObject {
+                            put("address", server)
+                            put("skipFallback", true)
+                        },
+                    )
+                }
+            }
+            DnsModeTunnel -> {
+                xrayProxyDnsServers(
+                    proxyDnsServers = proxyDnsServers,
+                    directDnsServers = emptyList(),
+                    directDnsDomains = emptyList(),
+                ).forEach { server -> add(JsonPrimitive(server)) }
+            }
+            else -> {
+                val effectiveDirectDnsServers = xrayDirectDnsServers(directDnsServers)
+                    .takeIf { effectiveDirectDnsDomains.isNotEmpty() }
+                    .orEmpty()
+                effectiveDirectDnsServers.forEach { server ->
+                    add(
+                        buildJsonObject {
+                            put("address", server)
+                            put("domains", effectiveDirectDnsDomains.toJsonStringArray())
+                            put("skipFallback", true)
+                            put("tag", XrayTags.DIRECT_DNS)
+                        },
+                    )
+                }
+                xrayProxyDnsServers(
+                    proxyDnsServers = proxyDnsServers,
+                    directDnsServers = directDnsServers,
+                    directDnsDomains = effectiveDirectDnsDomains,
+                ).forEach { server -> add(JsonPrimitive(server)) }
+            }
         }
-        xrayProxyDnsServers(
-            proxyDnsServers = proxyDnsServers,
-            directDnsServers = directDnsServers,
-            directDnsDomains = effectiveDirectDnsDomains,
-        ).forEach { server -> add(JsonPrimitive(server)) }
     }
 }
 

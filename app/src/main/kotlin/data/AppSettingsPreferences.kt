@@ -72,6 +72,7 @@ internal class AppSettingsPreferences(
             enableIpv6 = false,
             enableIpv6Prefer = false,
             enableFakeDns = false,
+            dnsMode = preferences.getInt(KeyDnsMode, defaults.dnsMode),
             proxyDns = preferences.getSimplifiedDnsServers(defaults.proxyDns),
             directDns = defaults.directDns,
             directDnsDomains = emptyList(),
@@ -155,6 +156,7 @@ internal class AppSettingsPreferences(
             .putCustomResourceFileList(KeyCustomResourceFiles, state.customResourceFiles)
             .putInt(KeyNextCustomResourceFileId, state.nextCustomResourceFileId)
             .putStringList(KeyProxyDns, state.proxyDns)
+            .putInt(KeyDnsMode, state.dnsMode)
             .putBoolean(KeyEnableRootBootScript, state.enableRootBootScript)
             .putBoolean(KeyShareHotspot, state.shareHotspot)
             .putInt(KeyProxyAppListMode, state.proxyAppListMode)
@@ -228,6 +230,7 @@ private const val KeyFragmentInterval = "fragment_interval"
 private const val KeyEnableIpv6 = "enable_ipv6"
 private const val KeyEnableIpv6Prefer = "enable_ipv6_prefer"
 private const val KeyEnableFakeDns = "enable_fake_dns"
+private const val KeyDnsMode = "dns_mode"
 private const val KeyProxyDns = "proxy_dns"
 private const val KeyDirectDns = "direct_dns"
 private const val KeyDirectDnsDomains = "direct_dns_domains"

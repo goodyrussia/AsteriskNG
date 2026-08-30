@@ -21,4 +21,8 @@ const val XrayFakeDnsIpv6Pool = "fc00::/18"
 const val XrayFakeDnsIpv4OnlyPoolSize = 65_535
 const val XrayFakeDnsDualStackPoolSize = 32_768
 const val XrayLogDisabled = "none"
+val DnsModeFast = 0
+val DnsModeTunnel = 1
+val DnsModeCustom = 2
+
 val DefaultDirectDnsDomains: List<String> = emptyList()
