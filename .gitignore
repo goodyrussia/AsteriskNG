@@ -22,3 +22,5 @@ app/libs/*.aar
 app/src/main/assets/xray/
 __pycache__/
 *.py[cod]
+sshcore/sshcore
+sshcore/*.exe

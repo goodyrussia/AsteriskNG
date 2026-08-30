@@ -64,6 +64,7 @@ import features.about.LicensePage
 import features.logs.AccessLogsPage
 import features.logs.CoreLogsPage
 import features.logs.LogcatLogsPage
+import features.logs.SshLogsPage
 import features.proxy.app.ProxyAppListPage
 
 import features.proxy.server.list.ProxyServerListPage
@@ -171,6 +172,11 @@ fun AppContent(
                 entry<Route.LogcatLogs> {
                     key(languageMode) {
                         LogcatLogsPage(padding = padding)
+                    }
+                }
+                entry<Route.SshLogs> {
+                    key(languageMode) {
+                        SshLogsPage(padding = padding)
                     }
                 }
 

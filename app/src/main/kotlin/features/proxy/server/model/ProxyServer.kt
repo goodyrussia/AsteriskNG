@@ -23,6 +23,7 @@ object ProxyServerConstants {
     const val PROTOCOL_VLESS = "vless"
     const val PROTOCOL_TROJAN = "trojan"
     const val PROTOCOL_WIREGUARD = "wireguard"
+    const val PROTOCOL_SSH = "ssh"
     const val PROTOCOL_STRATEGY_GROUP = "strategy-group"
     const val PROTOCOL_CHAIN_PROXY = "chain-proxy"
     const val PROTOCOL_CUSTOM = "custom"
@@ -68,6 +69,7 @@ interface ProxyServer<T : ProxyServer<T>> {
                 ProxyServerConstants.PROTOCOL_VLESS -> VLESS().parse(url)
                 ProxyServerConstants.PROTOCOL_TROJAN -> Trojan().parse(url)
                 ProxyServerConstants.PROTOCOL_WIREGUARD -> Wireguard().parse(url)
+                ProxyServerConstants.PROTOCOL_SSH -> Ssh().parse(url)
                 else -> {
                     unsupportedProxyServerUrl(url)
                 }

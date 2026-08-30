@@ -461,4 +461,28 @@
     <string name="subscription_install_existing_url">A matching subscription URL already exists in {name}; updating that group</string>
     <string name="subscription_install_config_invalid">Invalid subscription link</string>
     <string name="subscription_install_config_failed">Failed to import subscription</string>
+
+    <string name="proxy_server_list_add_ssh">Add SSH</string>
+    <string name="ssh_editor_title">SSH</string>
+    <string name="ssh_editor_mode">SSH Mode</string>
+    <string name="ssh_editor_mode_direct">Direct</string>
+    <string name="ssh_editor_mode_proxy">Proxy</string>
+    <string name="ssh_editor_mode_tls">TLS</string>
+    <string name="ssh_editor_mode_tls_proxy">TLS + Proxy</string>
+    <string name="ssh_editor_payload">Payload</string>
+    <string name="ssh_editor_payload_enabled">Payload Injection</string>
+    <string name="ssh_editor_payload_split">Split Mode</string>
+    <string name="ssh_editor_payload_split_none">None</string>
+    <string name="ssh_editor_payload_split_instant">Instant</string>
+    <string name="ssh_editor_payload_split_delay">Delay</string>
+    <string name="ssh_editor_payload_delay_ms">Delay (ms)</string>
+    <string name="ssh_editor_sni">SNI</string>
+    <string name="ssh_editor_tls_version">TLS Version</string>
+    <string name="ssh_editor_allow_insecure">Allow Insecure</string>
+    <string name="ssh_editor_http_proxy">HTTP Proxy</string>
+    <string name="ssh_editor_http_proxy_port">HTTP Proxy Port</string>
+    <string name="ssh_editor_authenticate_proxy">Authenticate Proxy</string>
+    <string name="ssh_editor_ssh_type">SSH</string>
+    <string name="ssh_logs_title">SSH Logs</string>
+    <string name="settings_ssh_logs">SSH Logs</string>
 </resources>

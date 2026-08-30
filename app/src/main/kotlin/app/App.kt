@@ -20,6 +20,7 @@ import engine.proxy.latency.AndroidProxyLatencyTester
 import features.logs.AndroidAccessLogRepository
 import features.logs.AndroidCoreLogRepository
 import features.logs.AndroidLogcatRepository
+import features.logs.AndroidSshLogRepository
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
 
@@ -121,6 +122,7 @@ fun App(
             coreLogRepository = AndroidCoreLogRepository,
             accessLogRepository = AndroidAccessLogRepository,
             logcatRepository = AndroidLogcatRepository,
+            sshLogRepository = AndroidSshLogRepository,
         )
     }
     val chromeState by stateStore.collectAppChromeState()

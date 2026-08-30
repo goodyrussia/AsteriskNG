@@ -9,6 +9,7 @@ import engine.xray.clearCoreLogFilesAsApp
 import engine.xray.prepareXrayCoreLogPaths
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 internal suspend fun Context.clearCoreLogFile(logFile: XrayLogFile) {
     val logPath = applicationContext.prepareXrayCoreLogPaths().pathOf(logFile)
@@ -34,6 +35,16 @@ private fun XrayCoreLogPaths.pathOf(logFile: XrayLogFile): String {
 internal enum class XrayLogFile {
     Error,
     Access,
+}
+
+internal suspend fun Context.clearSshLogFile() {
+    val logFile = File(filesDir, "xray/ssh.log")
+    withContext(Dispatchers.IO) {
+        logFile.apply {
+            parentFile?.mkdirs()
+            writeText("")
+        }
+    }
 }
 
 private const val LogTag = "CoreLogClear"

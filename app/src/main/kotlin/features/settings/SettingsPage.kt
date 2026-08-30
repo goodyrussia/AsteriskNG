@@ -211,6 +211,7 @@ private fun SettingsContent(
                 SettingsLogsSection(
                     onOpenCoreLogs = { navigator.push(Route.CoreLogs) },
                     onOpenLogcatLogs = { navigator.push(Route.LogcatLogs) },
+                    onOpenSshLogs = { navigator.push(Route.SshLogs) },
                 )
             }
             item(key = "settings_about") {

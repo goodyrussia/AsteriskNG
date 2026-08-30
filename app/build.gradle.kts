@@ -151,6 +151,7 @@ androidComponents {
             task.outputDirectory
         }
         variant.sources.jniLibs?.addStaticSourceDirectory("build/generated/xrayCoreJniLibs")
+        variant.sources.jniLibs?.addStaticSourceDirectory("build/generated/sshCoreJniLibs")
     }
 }
 

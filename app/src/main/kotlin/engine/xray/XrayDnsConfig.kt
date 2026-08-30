@@ -6,6 +6,7 @@ package engine.xray
 import app.AppState
 import app.effectiveFakeDnsEnabled
 import engine.network.isIpAddress
+import features.proxy.server.model.Ssh
 import features.proxy.server.model.normalizedServerHost
 import features.proxy.server.model.serverHost
 import kotlinx.serialization.json.JsonArray
@@ -29,13 +30,29 @@ internal data class XrayDnsPlan(
 internal fun XrayConfigRequest.buildXrayDnsPlan(
     startupProxyServerDomains: List<String> = emptyList(),
 ): XrayDnsPlan {
+    val effectiveProxyDnsServers = if (selectedServer.server is Ssh) {
+        // The SSH tunnel exposes a TCP-only SOCKS proxy; DNS must use TCP
+        // transport so queries flow through the tunnel (udp-over-socks is
+        // not supported by the sshcore daemon).
+        proxyDnsServers.map { server -> server.toTcpDnsServer() }
+    } else {
+        proxyDnsServers
+    }
     return appState.buildXrayDnsPlan(
-        proxyDnsServers = proxyDnsServers,
+        proxyDnsServers = effectiveProxyDnsServers,
         directDnsServers = directDnsServers,
         directDnsDomains = directDnsDomains,
         dnsHosts = dnsHosts,
         startupProxyServerDomains = startupProxyServerDomains,
     )
+}
+
+private fun String.toTcpDnsServer(): String {
+    val value = trim()
+    if (value.startsWith("tcp+") || value.startsWith("https+") || value.startsWith("quic+") || value.startsWith("udp+")) {
+        return value
+    }
+    return "tcp+$value"
 }
 
 private fun AppState.buildXrayDnsPlan(

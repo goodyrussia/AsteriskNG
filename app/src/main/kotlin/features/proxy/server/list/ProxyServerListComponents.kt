@@ -412,6 +412,7 @@ private fun proxyServerListAddMenuEntries() = listOf(
     ProxyServerListMenuEntry(stringResource(R.string.proxy_server_list_add_shadowsocks), ProxyServerListAddAction.Shadowsocks),
     ProxyServerListMenuEntry(stringResource(R.string.proxy_server_list_add_socks), ProxyServerListAddAction.Socks),
     ProxyServerListMenuEntry(stringResource(R.string.proxy_server_list_add_wireguard), ProxyServerListAddAction.Wireguard),
+    ProxyServerListMenuEntry(stringResource(R.string.proxy_server_list_add_ssh), ProxyServerListAddAction.Ssh),
 ).map { entry ->
     IconDropdownMenuEntry(
         key = entry.action,

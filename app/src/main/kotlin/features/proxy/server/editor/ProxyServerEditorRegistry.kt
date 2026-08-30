@@ -11,6 +11,7 @@ import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
+import features.proxy.server.model.Ssh
 import features.proxy.server.model.Socks
 import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
@@ -36,6 +37,7 @@ internal fun ProxyServer<*>.editableCopy(): ProxyServer<*> {
         is Trojan -> copy(parms = parms.copy())
         is VLESS -> copy(parms = parms.copy())
         is Wireguard -> copy()
+        is Ssh -> copy()
         else -> unsupportedProxyServerEditor()
     }
 }
@@ -64,6 +66,7 @@ internal fun LazyListScope.proxyServerEditorContent(
         is Trojan -> trojanProxyServer(proxyServer)
         is VLESS -> vlessProxyServer(proxyServer)
         is Wireguard -> wireguardProxyServer(proxyServer)
+        is Ssh -> sshProxyServer(proxyServer)
         else -> proxyServer.unsupportedProxyServerEditor()
     }
 }

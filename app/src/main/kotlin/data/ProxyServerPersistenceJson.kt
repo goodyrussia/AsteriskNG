@@ -9,6 +9,7 @@ import features.proxy.server.model.HTTP
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.ProxyServerConstants
 import features.proxy.server.model.Shadowsocks
+import features.proxy.server.model.Ssh
 import features.proxy.server.model.Socks
 import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
@@ -63,6 +64,9 @@ internal fun String.decodePersistedProxyServer(): ProxyServer<*> {
         ProxyServerConstants.PROTOCOL_CUSTOM ->
             ProxyServer.json.decodeFromJsonElement<Custom>(persistedServer.payload)
 
+        ProxyServerConstants.PROTOCOL_SSH ->
+            ProxyServer.json.decodeFromJsonElement<Ssh>(persistedServer.payload)
+
         else -> error("Unsupported persisted proxy server protocol: ${persistedServer.protocol}")
     }
 }
@@ -79,6 +83,7 @@ private fun ProxyServer<*>.toPersistedProxyServer(): PersistedProxyServer {
         is StrategyGroup -> persisted(ProxyServerConstants.PROTOCOL_STRATEGY_GROUP, this)
         is ChainProxy -> persisted(ProxyServerConstants.PROTOCOL_CHAIN_PROXY, this)
         is Custom -> persisted(ProxyServerConstants.PROTOCOL_CUSTOM, this)
+        is Ssh -> persisted(ProxyServerConstants.PROTOCOL_SSH, this)
         else -> error("Unsupported proxy server type")
     }
 }

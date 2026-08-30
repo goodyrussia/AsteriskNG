@@ -30,6 +30,9 @@ sealed interface Route : NavKey {
     @Serializable
     data object LogcatLogs : Route
 
+    @Serializable
+    data object SshLogs : Route
+
 
     @Serializable
     data class ProxyServerEditor(

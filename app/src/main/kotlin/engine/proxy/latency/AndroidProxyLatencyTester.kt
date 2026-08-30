@@ -11,6 +11,7 @@ import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
+import features.proxy.server.model.Ssh
 import features.proxy.server.model.Socks
 import features.proxy.server.model.Trojan
 import features.proxy.server.model.VLESS
@@ -88,6 +89,7 @@ private fun ProxyServer<*>.endpoint(): ProxyServerEndpoint? {
         is VLESS -> endpoint(server, port)
         is VMess -> endpoint(server, port)
         is Wireguard -> endpoint(server, port)
+        is Ssh -> endpoint(server, port)
         is Custom -> customXrayConfigProxyOutboundEndpoint(configJson)
             ?.let { endpoint -> ProxyServerEndpoint(endpoint.host, endpoint.port) }
         else -> null

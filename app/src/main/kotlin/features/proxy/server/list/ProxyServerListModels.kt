@@ -17,6 +17,7 @@ internal enum class ProxyServerListAddAction {
     Shadowsocks,
     Socks,
     Wireguard,
+    Ssh,
 }
 
 internal enum class ProxyServerListToolAction {

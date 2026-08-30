@@ -98,6 +98,7 @@ private val ProxyServerUrlPrefixes = listOf(
     "${ProxyServerConstants.PROTOCOL_VLESS}://",
     "${ProxyServerConstants.PROTOCOL_TROJAN}://",
     "${ProxyServerConstants.PROTOCOL_WIREGUARD}://",
+    "${ProxyServerConstants.PROTOCOL_SSH}://",
 )
 
 private val ProxyServerUrlRegex = Regex(

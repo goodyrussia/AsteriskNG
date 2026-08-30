@@ -93,12 +93,17 @@ internal fun SettingsNetworkSection(
 internal fun SettingsLogsSection(
     onOpenCoreLogs: () -> Unit,
     onOpenLogcatLogs: () -> Unit,
+    onOpenSshLogs: () -> Unit,
 ) {
     SmallTitle(text = stringResource(R.string.settings_logs))
     SettingsSectionCard {
         ArrowPreference(
             title = stringResource(R.string.settings_core_logs),
             onClick = onOpenCoreLogs,
+        )
+        ArrowPreference(
+            title = stringResource(R.string.settings_ssh_logs),
+            onClick = onOpenSshLogs,
         )
         ArrowPreference(
             title = stringResource(R.string.settings_logcat),
