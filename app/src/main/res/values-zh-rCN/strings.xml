@@ -174,7 +174,11 @@
     <string name="settings_fragment_interval">分片间隔</string>
     <string name="settings_fragment_interval_error">请输入 0、正数或有效范围</string>
     <string name="settings_dns">DNS 设置</string>
-    <string name="settings_dns_summary_simple">通过隧道使用的主 DNS 和备用 DNS</string>
+    <string name="settings_dns_mode">DNS 模式</string>
+    <string name="settings_dns_mode_fast">快速</string>
+    <string name="settings_dns_mode_fast_summary">所有域名均通过加密解析器在设备上直接解析，速度最快，DNS 无需经过隧道往返。</string>
+    <string name="settings_dns_mode_tunnel">通过隧道</string>
+    <string name="settings_dns_mode_custom">自定义</string>
     <string name="settings_dns_primary">主 DNS</string>
     <string name="settings_dns_secondary">备用 DNS</string>
     <string name="settings_dns_address_invalid">请输入有效的 IPv4 地址</string>
