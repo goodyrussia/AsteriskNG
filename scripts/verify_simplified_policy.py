@@ -83,7 +83,10 @@ require(
     "app/src/main/kotlin/features/settings/SettingsSections.kt",
     "SettingsNetworkSection",
     "settings_share_hotspot",
-    "settings_dns_summary_simple",
+    "settings_dns_mode",
+    "settings_dns_mode_fast",
+    "settings_dns_mode_tunnel",
+    "settings_dns_mode_custom",
 )
 forbid(
     "app/src/main/kotlin/features/settings/SettingsSections.kt",
