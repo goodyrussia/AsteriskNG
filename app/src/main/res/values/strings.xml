@@ -176,7 +176,7 @@
     <string name="settings_dns">DNS settings</string>
     <string name="settings_dns_mode">DNS mode</string>
     <string name="settings_dns_mode_fast">Fast</string>
-    <string name="settings_dns_mode_fast_summary">All domains resolve directly on-device via encrypted resolvers. Fastest, no tunnel round-trips for DNS.</string>
+    <string name="settings_dns_mode_fast_summary">DNS via encrypted DoH + TCP through the tunnel. Fast, matches tunnel region.</string>
     <string name="settings_dns_mode_tunnel">Through tunnel</string>
     <string name="settings_dns_mode_custom">Custom</string>
     <string name="settings_dns_primary">DNS primary</string>

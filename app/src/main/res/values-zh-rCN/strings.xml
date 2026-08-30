@@ -176,7 +176,7 @@
     <string name="settings_dns">DNS 设置</string>
     <string name="settings_dns_mode">DNS 模式</string>
     <string name="settings_dns_mode_fast">快速</string>
-    <string name="settings_dns_mode_fast_summary">所有域名均通过加密解析器在设备上直接解析，速度最快，DNS 无需经过隧道往返。</string>
+    <string name="settings_dns_mode_fast_summary">通过隧道使用加密 DoH + TCP 解析 DNS，速度快且与隧道区域一致。</string>
     <string name="settings_dns_mode_tunnel">通过隧道</string>
     <string name="settings_dns_mode_custom">自定义</string>
     <string name="settings_dns_primary">主 DNS</string>

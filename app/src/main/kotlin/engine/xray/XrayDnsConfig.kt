@@ -157,11 +157,14 @@ private fun AppState.xrayDnsServers(
         }
         when (dnsMode) {
             DnsModeFast -> {
-                xrayDirectDnsServers(directDnsServers).forEach { server ->
+                // Route DNS through the tunnel (like NetMod's DNS forwarder):
+                // DoH first (fast, encrypted), then TCP. No +local so queries
+                // go via the proxy/tunnel, matching the tunnel exit region and
+                // avoiding CDN/geo mismatches (e.g. broken images on X).
+                listOf("https://1.1.1.1/dns-query", "tcp://8.8.8.8").forEach { server ->
                     add(
                         buildJsonObject {
                             put("address", server)
-                            put("skipFallback", true)
                         },
                     )
                 }

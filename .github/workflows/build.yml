@@ -123,7 +123,7 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libsshcore.so'
           ! unzip -Z1 "$APK" | grep -F 'libhev-socks5-tunnel.so'
           BADGING=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK")
-          grep -F "package: name='org.asterisk.zcc.ang' versionCode='107' versionName='1.4.0'" <<< "$BADGING"
+          grep -F "package: name='org.asterisk.zcc.ang' versionCode='108' versionName='1.4.1'" <<< "$BADGING"
           grep -F "native-code: 'arm64-v8a'" <<< "$BADGING"
           MANIFEST=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml)
           ! grep -Ei 'VpnService|BIND_VPN_SERVICE|v2rayng|install-sub|clashmeta|flclashx' <<< "$MANIFEST"
