@@ -68,6 +68,7 @@ private fun AppState.buildXrayDnsPlan(
             proxyDnsServers = proxyDnsServers,
             directDnsServers = directDnsServers,
             effectiveDirectDnsDomains = effectiveDirectDnsDomains,
+            startupProxyServerDomains = startupProxyServerDomains,
         ),
         queryStrategy = if (enableIpv6) "UseIP" else "UseIPv4",
         tag = XrayTags.PROXY_DNS,
@@ -150,24 +151,29 @@ private fun AppState.xrayDnsServers(
     proxyDnsServers: List<String>,
     directDnsServers: List<String>,
     effectiveDirectDnsDomains: List<String>,
+    startupProxyServerDomains: List<String>,
 ): JsonArray {
     return buildJsonArray {
+        // Proxy hostnames must never depend on the tunnel that they start.
+        // Resolve them with the device resolver, then use the tunneled/local
+        // mode for ordinary application DNS according to dnsMode.
+        if (startupProxyServerDomains.isNotEmpty()) {
+            add(
+                buildJsonObject {
+                    put("address", "localhost")
+                    put("domains", startupProxyServerDomains.toJsonStringArray())
+                    put("skipFallback", true)
+                },
+            )
+        }
         if (effectiveFakeDnsEnabled) {
             add(JsonPrimitive("fakedns"))
         }
         when (dnsMode) {
             DnsModeFast -> {
-                // Route DNS through the tunnel (like NetMod's DNS forwarder):
-                // DoH first (fast, encrypted), then TCP. No +local so queries
-                // go via the proxy/tunnel, matching the tunnel exit region and
-                // avoiding CDN/geo mismatches (e.g. broken images on X).
-                listOf("https://1.1.1.1/dns-query", "tcp://8.8.8.8").forEach { server ->
-                    add(
-                        buildJsonObject {
-                            put("address", server)
-                        },
-                    )
-                }
+                // Android/Xray system resolver: no hardcoded public DNS and
+                // no dependency on the proxy tunnel.
+                add(JsonPrimitive("localhost"))
             }
             DnsModeTunnel -> {
                 xrayProxyDnsServers(

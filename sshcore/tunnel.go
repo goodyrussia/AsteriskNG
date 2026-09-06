@@ -53,8 +53,32 @@ func (t *sshTunnel) dial(ctx context.Context) (net.Conn, error) {
 }
 
 func (t *sshTunnel) dialDirect(ctx context.Context) (net.Conn, error) {
-	d := net.Dialer{}
-	return d.DialContext(ctx, "tcp", t.sshAddr())
+	return t.dialTCP(ctx, t.cfg.SshAddress, t.cfg.SshPort)
+}
+
+func (t *sshTunnel) dialTCP(ctx context.Context, host string, port int) (net.Conn, error) {
+	if net.ParseIP(host) != nil {
+		return (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(host, strconv.Itoa(port)))
+	}
+
+	ips, err := net.DefaultResolver.LookupHost(ctx, host)
+	if err != nil {
+		return nil, fmt.Errorf("resolve SSH host %q: %w", host, err)
+	}
+	if len(ips) == 0 {
+		return nil, fmt.Errorf("resolve SSH host %q: no addresses", host)
+	}
+	Log.Info("resolved SSH host %s -> %s", host, strings.Join(ips, ","))
+
+	var lastErr error
+	for _, ip := range ips {
+		conn, dialErr := (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(ip, strconv.Itoa(port)))
+		if dialErr == nil {
+			return conn, nil
+		}
+		lastErr = dialErr
+	}
+	return nil, fmt.Errorf("connect SSH host %q: %w", host, lastErr)
 }
 
 func (t *sshTunnel) dialProxy(ctx context.Context) (net.Conn, error) {

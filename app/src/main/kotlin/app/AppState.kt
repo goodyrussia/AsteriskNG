@@ -11,6 +11,7 @@ import engine.root.DefaultRootHttpProxyPort
 import engine.tproxy.DefaultTproxyPort
 import engine.xray.DefaultDirectDnsDomains
 import engine.xray.DefaultDirectDnsServers
+import engine.xray.DnsModeFast
 import engine.xray.DefaultFragmentInterval
 import engine.xray.DefaultFragmentLength
 import engine.xray.DefaultFragmentPackets
@@ -68,7 +69,7 @@ data class AppState(
 
     val enableIpv6: Boolean = false,
     val enableIpv6Prefer: Boolean = false,
-    val dnsMode: Int = 0,
+    val dnsMode: Int = DnsModeFast,
     val enableFakeDns: Boolean = false,
     val proxyDns: List<String> = DefaultProxyDnsServers,
     val directDns: List<String> = DefaultDirectDnsServers,

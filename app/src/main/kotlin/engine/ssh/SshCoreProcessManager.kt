@@ -5,11 +5,14 @@ package engine.ssh
 
 import android.content.Context
 import android.os.Build
+import engine.root.RootXrayGid
+import engine.root.RootXrayUid
 import engine.root.shellQuote
 import features.logs.AndroidAppLogger
 import features.logs.AndroidSshLogRepository
 import features.logs.CoreLogFile
 import features.logs.CoreLogFileTailer
+import features.resources.runtime.prepareXrayResourceFilePaths
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -58,13 +61,16 @@ internal class SshCoreProcessManager(
 
     suspend fun start(config: SshCoreConfig): SshCoreRuntimeLayout {
         val layout = prepareBinary()
+        val setuidgidPath = withContext(Dispatchers.IO) {
+            context.prepareXrayResourceFilePaths().setuidgidPath
+        }
         withContext(Dispatchers.IO) {
             context.writeSshCoreConfig(config, layout)
             File(layout.logPath).apply {
                 parentFile?.mkdirs()
                 if (!exists()) createNewFile()
             }
-            startDaemon(layout)
+            startDaemon(layout, setuidgidPath)
             startLogTailer(layout)
             running = true
             AndroidAppLogger.info(LogTag, "sshcore started")
@@ -72,7 +78,7 @@ internal class SshCoreProcessManager(
         return layout
     }
 
-    private suspend fun startDaemon(layout: SshCoreRuntimeLayout) {
+    private suspend fun startDaemon(layout: SshCoreRuntimeLayout, setuidgidPath: String) {
         val command = buildString {
             appendScript("rm -f ${layout.pidPath.shellQuote()} 2>/dev/null || true")
             appendScript("chmod 755 ${layout.binaryPath.shellQuote()}")
@@ -81,7 +87,7 @@ internal class SshCoreProcessManager(
                 $$"""trap '' HUP
                 cd $${layout.dataDir.shellQuote()} || exit 1
                 ulimit -SHn 1000000 2>/dev/null || true
-                $${layout.binaryPath.shellQuote()} -config $${layout.configPath.shellQuote()} >> $${layout.logPath.shellQuote()} 2>&1 < /dev/null &
+                $${setuidgidPath.shellQuote()} $${RootXrayUid} $${RootXrayGid} $${layout.binaryPath.shellQuote()} -config $${layout.configPath.shellQuote()} >> $${layout.logPath.shellQuote()} 2>&1 < /dev/null &
                 echo $! > $${layout.pidPath.shellQuote()}
                 """,
             )

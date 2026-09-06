@@ -33,17 +33,28 @@ require(
     "val enableFragment: Boolean = false",
     "val enableIpv6: Boolean = false",
     "val enableFakeDns: Boolean = false",
+    "val dnsMode: Int = DnsModeFast",
 )
 require(
+    "app/src/main/kotlin/features/proxy/server/model/ProxyServerEndpoint.kt",
+    "is Ssh -> server",
+)
+require(
+    "app/src/main/kotlin/engine/ssh/SshCoreProcessManager.kt",
+    "RootXrayGid",
+    "setuidgidPath",
+)
+
+require(
     "app/src/main/kotlin/engine/xray/XrayDnsDefaults.kt",
-    'DefaultPrimaryDnsServer = "8.8.8.8"',
-    'DefaultSecondaryDnsServer = "8.8.4.4"',
-    '"https+local://1.1.1.1/dns-query"',
-    '"tcp+local://8.8.8.8"',
+    'DefaultDirectDnsServers = listOf("localhost")',
 )
 require(
     "app/src/main/kotlin/engine/xray/XrayDnsConfig.kt",
     'put("disableFallbackIfMatch", true)',
+    'put("address", "localhost")',
+    'add(JsonPrimitive("localhost"))',
+    "startupProxyServerDomains",
 )
 require(
     "app/src/main/kotlin/engine/xray/XrayOutboundJson.kt",

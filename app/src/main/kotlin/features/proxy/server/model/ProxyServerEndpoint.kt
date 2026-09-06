@@ -12,7 +12,7 @@ internal fun ProxyServer<*>.serverHost(): String {
         is VLESS -> server
         is VMess -> server
         is Wireguard -> server
-        is Ssh -> ""
+        is Ssh -> server
         else -> ""
     }
 }
