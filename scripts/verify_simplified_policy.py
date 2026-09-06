@@ -48,12 +48,11 @@ require(
 require(
     "app/src/main/kotlin/engine/xray/XrayDnsDefaults.kt",
     'DefaultDirectDnsServers = listOf("localhost")',
+    'DefaultProxyDnsServers = listOf(DefaultPrimaryDnsServer)',
 )
 require(
     "app/src/main/kotlin/engine/xray/XrayDnsConfig.kt",
     'put("disableFallbackIfMatch", true)',
-    'put("address", "localhost")',
-    'add(JsonPrimitive("localhost"))',
     "startupProxyServerDomains",
 )
 require(

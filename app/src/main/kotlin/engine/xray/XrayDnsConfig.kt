@@ -171,9 +171,14 @@ private fun AppState.xrayDnsServers(
         }
         when (dnsMode) {
             DnsModeFast -> {
-                // Android/Xray system resolver: no hardcoded public DNS and
-                // no dependency on the proxy tunnel.
-                add(JsonPrimitive("localhost"))
+                // DNS through the tunnel for CDN consistency.
+                // Proxy server hostnames are resolved via device DNS before
+                // the tunnel starts (see startupProxyServerDomains above).
+                xrayProxyDnsServers(
+                    proxyDnsServers = proxyDnsServers,
+                    directDnsServers = emptyList(),
+                    directDnsDomains = emptyList(),
+                ).forEach { server -> add(JsonPrimitive(server)) }
             }
             DnsModeTunnel -> {
                 xrayProxyDnsServers(

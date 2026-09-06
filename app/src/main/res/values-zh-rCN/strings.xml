@@ -175,8 +175,8 @@
     <string name="settings_fragment_interval_error">请输入 0、正数或有效范围</string>
     <string name="settings_dns">DNS 设置</string>
     <string name="settings_dns_mode">DNS 模式</string>
-    <string name="settings_dns_mode_fast">设备 / 本地</string>
-    <string name="settings_dns_mode_fast_summary">所有 DNS 使用设备本地解析器。不使用 Cloudflare 或 Google DNS，也不依赖隧道。</string>
+    <string name="settings_dns_mode_fast">快速</string>
+    <string name="settings_dns_mode_fast_summary">通过隧道解析 DNS，速度快且与隧道区域一致。启动域名通过设备 DNS 解析。</string>
     <string name="settings_dns_mode_tunnel">通过隧道</string>
     <string name="settings_dns_mode_custom">自定义</string>
     <string name="settings_dns_primary">主 DNS</string>

@@ -3,8 +3,8 @@
 
 package engine.xray
 
-internal const val DefaultPrimaryDnsServer = "8.8.8.8"
-internal const val DefaultSecondaryDnsServer = "8.8.4.4"
+internal const val DefaultPrimaryDnsServer = "localhost"
+internal const val DefaultSecondaryDnsServer = "localhost"
 internal const val DefaultFallbackDnsServer = DefaultPrimaryDnsServer
-internal val DefaultProxyDnsServers = listOf(DefaultPrimaryDnsServer, DefaultSecondaryDnsServer)
+internal val DefaultProxyDnsServers = listOf(DefaultPrimaryDnsServer)
 internal val DefaultDirectDnsServers = listOf("localhost")
