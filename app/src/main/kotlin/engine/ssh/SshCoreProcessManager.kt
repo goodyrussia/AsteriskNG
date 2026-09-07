@@ -32,19 +32,22 @@ internal class SshCoreProcessManager(
     private var logTailer: CoreLogFileTailer? = null
     private var running = false
 
-    /** Restores the bundled sshcore binary from native libs if needed. */
+    /** Restores the bundled sshcore binary from native libs on every start. */
     suspend fun prepareBinary(): SshCoreRuntimeLayout {
         val layout = context.prepareSshCoreRuntimeLayout()
         withContext(Dispatchers.IO) {
             val binary = File(layout.binaryPath)
             val bundled = bundledSshCoreBinaryOrNull()
-            if (bundled != null && (binary.length() <= 0 || bundled.lastModified() > binary.lastModified())) {
+            if (bundled != null) {
+                // Do not compare filesystem timestamps: Android preserves the
+                // extracted native library timestamp across app upgrades, so a
+                // newer APK can otherwise keep launching an old sshcore.
                 File(layout.dataDir).mkdirs()
                 bundled.inputStream().use { input ->
                     binary.outputStream().use { output -> input.copyTo(output) }
                 }
                 binary.setExecutable(true, false)
-                AndroidAppLogger.info(LogTag, "restored sshcore binary to ${layout.binaryPath}")
+                AndroidAppLogger.info(LogTag, "refreshed sshcore binary from APK: ${layout.binaryPath}")
             }
             if (!binary.canExecute()) {
                 binary.setExecutable(true, false)
@@ -82,7 +85,16 @@ internal class SshCoreProcessManager(
 
     private suspend fun startDaemon(layout: SshCoreRuntimeLayout, setuidgidPath: String) {
         val command = buildString {
-            appendScript("rm -f ${layout.pidPath.shellQuote()} 2>/dev/null || true")
+            appendScript(
+                $$"""pid="$(cat $${layout.pidPath.shellQuote()} 2>/dev/null || true)"
+                if [ -n "$pid" ]; then
+                    kill "$pid" 2>/dev/null || true
+                    sleep 0.2
+                    kill -9 "$pid" 2>/dev/null || true
+                fi
+                rm -f $${layout.pidPath.shellQuote()} 2>/dev/null || true
+                """,
+            )
             appendScript("chmod 755 ${layout.binaryPath.shellQuote()}")
             appendScript("chmod 666 ${layout.logPath.shellQuote()} 2>/dev/null || true")
             appendScript(

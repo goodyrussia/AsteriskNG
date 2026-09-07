@@ -43,6 +43,8 @@ require(
     "app/src/main/kotlin/engine/ssh/SshCoreProcessManager.kt",
     "RootXrayGid",
     "setuidgidPath",
+    "refreshed sshcore binary from APK",
+    "kill \"$pid\"",
 )
 require(
     "app/src/main/kotlin/engine/ssh/SshCoreConfig.kt",
