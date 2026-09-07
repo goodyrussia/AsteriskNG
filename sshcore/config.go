@@ -44,6 +44,12 @@ type Config struct {
 	SshUsername string `json:"ssh_username"`
 	SshPassword string `json:"ssh_password"`
 
+	// Optional pre-resolved SSH server IP. When set, the daemon dials this
+	// literal IP directly and never invokes Go's system resolver (which is
+	// blocked on Android). The hostname (SshAddress) is still used for the
+	// TLS SNI / payload Host and SSH handshake.
+	SshResolvedIp string `json:"ssh_resolved_ip"`
+
 	// Connection mode: direct | proxy | tls | tls_proxy.
 	TunnelMode string `json:"tunnel_mode"`
 

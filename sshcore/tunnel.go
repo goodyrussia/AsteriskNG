@@ -53,7 +53,12 @@ func (t *sshTunnel) dial(ctx context.Context) (net.Conn, error) {
 }
 
 func (t *sshTunnel) dialDirect(ctx context.Context) (net.Conn, error) {
-	return t.dialTCP(ctx, t.cfg.SshAddress, t.cfg.SshPort)
+	host := t.cfg.SshAddress
+	if t.cfg.SshResolvedIp != "" && net.ParseIP(t.cfg.SshResolvedIp) != nil {
+		host = t.cfg.SshResolvedIp
+		Log.Info("using pre-resolved SSH host %s -> %s", t.cfg.SshAddress, host)
+	}
+	return t.dialTCP(ctx, host, t.cfg.SshPort)
 }
 
 func (t *sshTunnel) dialTCP(ctx context.Context, host string, port int) (net.Conn, error) {

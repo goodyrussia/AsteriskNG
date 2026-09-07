@@ -44,6 +44,16 @@ require(
     "RootXrayGid",
     "setuidgidPath",
 )
+require(
+    "app/src/main/kotlin/engine/ssh/SshCoreConfig.kt",
+    "put(\"ssh_resolved_ip\", resolvedIp)",
+    "resolveSshHostIp",
+)
+require(
+    "sshcore/tunnel.go",
+    "SshResolvedIp",
+    "using pre-resolved SSH host",
+)
 
 require(
     "app/src/main/kotlin/engine/xray/XrayDnsDefaults.kt",
