@@ -68,7 +68,9 @@ internal class SshCoreProcessManager(
             context.writeSshCoreConfig(config, layout)
             File(layout.logPath).apply {
                 parentFile?.mkdirs()
-                if (!exists()) createNewFile()
+                // Start each run with a clean log so stale entries from
+                // previous versions never mix with the current run.
+                writeText(config.resolveLog + "\n")
             }
             startDaemon(layout, setuidgidPath)
             startLogTailer(layout)

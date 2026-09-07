@@ -34,6 +34,8 @@ internal val SshCoreJson = Json {
 /** Serialized sshcore daemon configuration. */
 internal data class SshCoreConfig(
     val json: String,
+    /** Human-readable resolution outcome, written into the visible daemon log. */
+    val resolveLog: String,
 )
 
 /** Builds the sshcore daemon config JSON from an SSH proxy server. */
@@ -43,9 +45,16 @@ internal fun Ssh.toSshCoreConfig(): SshCoreConfig {
     // app layer — same pattern as the Xray bootstrap. Go's pure resolver is
     // blocked on Android (raw UDP to [::1]:53 -> EPERM), so sshcore must
     // receive a literal IP and dial it directly.
-    val resolvedIp = resolveSshHostIp(host)
+    val resolvedIp = resolveSshHostIpWithRetry(host)
     if (resolvedIp.isNotEmpty()) {
         AndroidAppLogger.info(LogTag, "resolved SSH host $host -> $resolvedIp")
+    } else {
+        AndroidAppLogger.warn(LogTag, "SSH host resolution failed: $host")
+    }
+    val resolveLog = if (resolvedIp.isNotEmpty()) {
+        "[app] SSH host resolved: $host -> $resolvedIp"
+    } else {
+        "[app] SSH host resolution FAILED: $host (daemon will retry system DNS)"
     }
     val jsonObject = buildJsonObject {
         put("listen", "127.0.0.1:$DefaultSshLocalPort")
@@ -71,6 +80,7 @@ internal fun Ssh.toSshCoreConfig(): SshCoreConfig {
     }
     return SshCoreConfig(
         json = SshCoreJson.encodeToString(JsonObject.serializer(), jsonObject),
+        resolveLog = resolveLog,
     )
 }
 
@@ -106,19 +116,33 @@ internal fun Context.writeSshCoreConfig(config: SshCoreConfig, layout: SshCoreRu
  * Resolves a hostname to its first IPv4 address using the Android (Bionic)
  * resolver, which works on device (unlike Go's pure resolver). Returns an
  * empty string when the host is already an IP, is unresolvable, or is blank.
+ * Retries a few times because the first attempt may race with network state.
  */
-internal fun resolveSshHostIp(host: String): String {
+internal fun resolveSshHostIpWithRetry(host: String): String {
     val trimmed = host.trim()
     if (trimmed.isBlank() || isIpv4Address(trimmed)) return ""
+    repeat(SshHostResolveAttempts) {
+        val resolved = resolveSshHostIpOnce(trimmed)
+        if (resolved.isNotEmpty()) return resolved
+        Thread.sleep(SshHostResolveRetryDelayMs)
+    }
+    return ""
+}
+
+private fun resolveSshHostIpOnce(host: String): String {
     return runCatching {
-        InetAddress.getAllByName(trimmed)
+        val all = InetAddress.getAllByName(host)
             .mapNotNull { address -> address.hostAddress?.substringBefore('%') }
-            .filter(::isIpv4Address)
-            .firstOrNull()
-            .orEmpty()
+            .filter(String::isNotBlank)
+            .distinct()
+        // IPv4 first (matches the tunnel policy), then any address as fallback.
+        all.firstOrNull(::isIpv4Address) ?: all.firstOrNull().orEmpty()
     }.onFailure { error ->
-        AndroidAppLogger.warn(LogTag, "Failed to resolve SSH host: $trimmed", error)
+        AndroidAppLogger.warn(LogTag, "Failed to resolve SSH host: $host", error)
     }.getOrDefault("")
 }
+
+internal const val SshHostResolveAttempts = 3
+internal const val SshHostResolveRetryDelayMs = 500L
 
 private const val LogTag = "SshCoreConfig"

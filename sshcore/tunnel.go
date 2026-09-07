@@ -57,6 +57,8 @@ func (t *sshTunnel) dialDirect(ctx context.Context) (net.Conn, error) {
 	if t.cfg.SshResolvedIp != "" && net.ParseIP(t.cfg.SshResolvedIp) != nil {
 		host = t.cfg.SshResolvedIp
 		Log.Info("using pre-resolved SSH host %s -> %s", t.cfg.SshAddress, host)
+	} else {
+		Log.Warn("no pre-resolved IP for %s; falling back to system resolver", t.cfg.SshAddress)
 	}
 	return t.dialTCP(ctx, host, t.cfg.SshPort)
 }
