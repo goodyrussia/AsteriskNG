@@ -5,6 +5,7 @@ package engine.ssh
 
 import app.AppState
 import android.content.Context
+import android.net.ConnectivityManager
 import engine.network.isIpv4Address
 import features.logs.AndroidAppLogger
 import features.proxy.server.model.Ssh
@@ -39,13 +40,13 @@ internal data class SshCoreConfig(
 )
 
 /** Builds the sshcore daemon config JSON from an SSH proxy server. */
-internal fun Ssh.toSshCoreConfig(): SshCoreConfig {
-    val host = server.trim()
+internal fun Context.toSshCoreConfig(ssh: Ssh): SshCoreConfig {
+    val host = ssh.server.trim()
     // Resolve the SSH hostname through the Android (Bionic) resolver in the
     // app layer — same pattern as the Xray bootstrap. Go's pure resolver is
     // blocked on Android (raw UDP to [::1]:53 -> EPERM), so sshcore must
     // receive a literal IP and dial it directly.
-    val resolvedIp = resolveSshHostIpWithRetry(host)
+    val resolvedIp = resolveSshHostIpWithRetry(host, this)
     if (resolvedIp.isNotEmpty()) {
         AndroidAppLogger.info(LogTag, "resolved SSH host $host -> $resolvedIp")
     } else {
@@ -60,22 +61,22 @@ internal fun Ssh.toSshCoreConfig(): SshCoreConfig {
         put("listen", "127.0.0.1:$DefaultSshLocalPort")
         put("ssh_address", host)
         put("ssh_resolved_ip", resolvedIp)
-        put("ssh_port", port.toIntOrNull() ?: 22)
-        put("ssh_username", username)
-        put("ssh_password", password)
-        put("tunnel_mode", mode)
-        put("http_proxy", httpProxy.trim())
-        put("http_proxy_port", httpProxyPort.toIntOrNull() ?: 8080)
-        put("proxy_username", proxyUsername)
-        put("proxy_password", proxyPassword)
-        put("authenticate_proxy", authenticateProxy)
-        put("sni", sni.trim())
-        put("tls_version", tlsVersion)
-        put("tls_allow_insecure", allowInsecure)
-        put("payload_enabled", payloadEnabled)
-        put("payload", payload)
-        put("payload_split_mode", payloadSplitMode)
-        put("payload_delay_ms", payloadDelayMs.toIntOrNull() ?: 300)
+        put("ssh_port", ssh.port.toIntOrNull() ?: 22)
+        put("ssh_username", ssh.username)
+        put("ssh_password", ssh.password)
+        put("tunnel_mode", ssh.mode)
+        put("http_proxy", ssh.httpProxy.trim())
+        put("http_proxy_port", ssh.httpProxyPort.toIntOrNull() ?: 8080)
+        put("proxy_username", ssh.proxyUsername)
+        put("proxy_password", ssh.proxyPassword)
+        put("authenticate_proxy", ssh.authenticateProxy)
+        put("sni", ssh.sni.trim())
+        put("tls_version", ssh.tlsVersion)
+        put("tls_allow_insecure", ssh.allowInsecure)
+        put("payload_enabled", ssh.payloadEnabled)
+        put("payload", ssh.payload)
+        put("payload_split_mode", ssh.payloadSplitMode)
+        put("payload_delay_ms", ssh.payloadDelayMs.toIntOrNull() ?: 300)
         put("log_level", "info")
     }
     return SshCoreConfig(
@@ -118,20 +119,23 @@ internal fun Context.writeSshCoreConfig(config: SshCoreConfig, layout: SshCoreRu
  * empty string when the host is already an IP, is unresolvable, or is blank.
  * Retries a few times because the first attempt may race with network state.
  */
-internal fun resolveSshHostIpWithRetry(host: String): String {
+internal fun resolveSshHostIpWithRetry(host: String, context: Context): String {
     val trimmed = host.trim()
     if (trimmed.isBlank() || isIpv4Address(trimmed)) return ""
     repeat(SshHostResolveAttempts) {
-        val resolved = resolveSshHostIpOnce(trimmed)
+        val resolved = resolveSshHostIpOnce(trimmed, context)
         if (resolved.isNotEmpty()) return resolved
         Thread.sleep(SshHostResolveRetryDelayMs)
     }
     return ""
 }
 
-private fun resolveSshHostIpOnce(host: String): String {
+private fun resolveSshHostIpOnce(host: String, context: Context): String {
     return runCatching {
-        val all = InetAddress.getAllByName(host)
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val addresses = connectivity?.activeNetwork?.getAllByName(host)?.toList().orEmpty()
+            .ifEmpty { InetAddress.getAllByName(host).toList() }
+        val all = addresses
             .mapNotNull { address -> address.hostAddress?.substringBefore('%') }
             .filter(String::isNotBlank)
             .distinct()

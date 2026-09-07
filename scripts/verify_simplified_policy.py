@@ -47,7 +47,9 @@ require(
 require(
     "app/src/main/kotlin/engine/ssh/SshCoreConfig.kt",
     "put(\"ssh_resolved_ip\", resolvedIp)",
-    "resolveSshHostIp",
+    "resolveSshHostIpWithRetry",
+    "activeNetwork",
+    "getAllByName",
 )
 require(
     "sshcore/tunnel.go",

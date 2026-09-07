@@ -45,7 +45,7 @@ class AndroidProxyEngine(
             var sshCoreStarted = false
             if (ssh != null) {
                 sshCoreStarted = runCatching {
-                    sshCoreProcess.start(ssh.toSshCoreConfig())
+                    sshCoreProcess.start(appContext.toSshCoreConfig(ssh))
                     true
                 }.getOrElse { error ->
                     Log.e(LogTag, "Failed to start sshcore", error)

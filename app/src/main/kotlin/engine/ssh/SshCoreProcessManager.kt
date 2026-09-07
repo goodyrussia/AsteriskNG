@@ -103,7 +103,7 @@ internal class SshCoreProcessManager(
     private suspend fun startLogTailer(layout: SshCoreRuntimeLayout) {
         stopLogTailer()
         val tailer = CoreLogFileTailer(
-            logFiles = listOf(CoreLogFile(path = layout.logPath, defaultLevel = "info")),
+            logFiles = listOf(CoreLogFile(path = layout.logPath, defaultLevel = "info", readFromBeginning = true)),
             repository = AndroidSshLogRepository,
         )
         tailer.start()

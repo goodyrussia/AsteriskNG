@@ -16,6 +16,7 @@ import java.io.RandomAccessFile
 internal data class CoreLogFile(
     val path: String,
     val defaultLevel: String,
+    val readFromBeginning: Boolean = false,
 )
 
 internal class CoreLogFileTailer(
@@ -41,7 +42,7 @@ internal class CoreLogFileTailer(
     private suspend fun tail(logFile: CoreLogFile) {
         val file = File(logFile.path)
         file.parentFile?.mkdirs()
-        var position = runCatching { file.length() }.getOrDefault(0L)
+        var position = if (logFile.readFromBeginning) 0L else runCatching { file.length() }.getOrDefault(0L)
         var failureLogged = false
 
         while (scope.isActive) {
