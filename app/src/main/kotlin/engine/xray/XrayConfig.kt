@@ -20,6 +20,7 @@ internal data class XrayConfigRequest(
     val directDnsDomains: List<String> = appState.directDnsDomains,
     val dnsHosts: List<String> = appState.dnsHosts,
     val dnsHijackInboundTags: List<String> = emptyList(),
+    val deviceDnsServers: List<String> = emptyList(),
 )
 
 internal data class XrayProxyOutboundServer(

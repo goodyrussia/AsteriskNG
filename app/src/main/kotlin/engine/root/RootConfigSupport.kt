@@ -4,6 +4,7 @@
 package engine.root
 
 import android.content.Context
+import android.net.ConnectivityManager
 import app.AppState
 import app.ProxyServerState
 import engine.proxy.ProxyEngineStartRequest
@@ -27,6 +28,7 @@ internal class RootConfigBuildContext(
     private val resourceFilePaths: XrayResourceFilePaths,
     private val coreLogPaths: XrayCoreLogPaths,
     private val dnsHosts: List<String>,
+    private val deviceDnsServers: List<String>,
 ) {
     fun buildRootStartConfig(
         inbounds: List<JsonObject>,
@@ -40,6 +42,7 @@ internal class RootConfigBuildContext(
                 coreLogPaths = coreLogPaths,
                 dnsHosts = dnsHosts,
                 dnsHijackInboundTags = dnsHijackInboundTags,
+                deviceDnsServers = deviceDnsServers,
             ),
         )
         return appState.toRootStartConfig(
@@ -74,7 +77,27 @@ internal fun Context.prepareRootConfigBuildContext(request: ProxyEngineStartRequ
         resourceFilePaths = resourceFilePaths,
         coreLogPaths = coreLogPaths,
         dnsHosts = appState.xrayDnsHosts(outboundPlan.dnsHostServers),
+        deviceDnsServers = applicationContext.activeNetworkDnsServers(),
     )
+}
+
+/**
+ * Reads the device's real DNS servers from the active network's LinkProperties.
+ * These are the resolvers the device actually uses (carrier/router), which is the
+ * "device or local" set the user prefers. Used as DNS-over-TCP tunnel targets so
+ * SSH content DNS is resolved from the SSH exit's network without hardcoding any
+ * public resolver.
+ */
+private fun Context.activeNetworkDnsServers(): List<String> {
+    return runCatching {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return@runCatching emptyList()
+        cm.activeNetwork?.let { active ->
+            cm.getLinkProperties(active)
+                ?.dnsServers
+                ?.mapNotNull { address -> address.hostAddress?.substringBefore('%') }
+                .orEmpty()
+        }.orEmpty()
+    }.getOrDefault(emptyList())
 }
 
 private fun AppState.toRootStartConfig(

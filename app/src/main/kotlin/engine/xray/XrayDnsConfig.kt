@@ -30,11 +30,8 @@ internal data class XrayDnsPlan(
 internal fun XrayConfigRequest.buildXrayDnsPlan(
     startupProxyServerDomains: List<String> = emptyList(),
 ): XrayDnsPlan {
-    val effectiveProxyDnsServers = if (selectedServer.server is Ssh && appState.dnsMode != DnsModeFast) {
-        // The SSH tunnel exposes a TCP-only SOCKS proxy; DNS must use TCP
-        // transport so queries flow through the tunnel (udp-over-socks is
-        // not supported by the sshcore daemon).
-        proxyDnsServers.map { server -> server.toTcpDnsServer() }
+    val effectiveProxyDnsServers = if (selectedServer.server is Ssh) {
+        sshTunneledDnsServers(proxyDnsServers, deviceDnsServers)
     } else {
         proxyDnsServers
     }
@@ -45,6 +42,52 @@ internal fun XrayConfigRequest.buildXrayDnsPlan(
         dnsHosts = dnsHosts,
         startupProxyServerDomains = startupProxyServerDomains,
     )
+}
+
+/**
+ * In SSH mode the tunnel exposes a TCP-only SOCKS proxy: DNS queries cannot ride
+ * as UDP (the sshcore daemon's SOCKS5 UDP path is a no-op), and the Xray
+ * `localhost` resolver resolves via Go's `net.LookupIP`, which Android blocks
+ * (`[::1]:53` -> SELinux EPERM). So content DNS must be tunneled as DNS-over-TCP
+ * (`tcp+...`) through the SSH SOCKS outbound, resolved at the SSH exit's network.
+ *
+ * Priority:
+ *  1. The SSH profile's own configured proxy DNS servers (tcp+).
+ *  2. The device's real DNS servers (tcp+), read from ConnectivityManager —
+ *     only public ones are usable, since the SSH server must be able to reach them.
+ *  3. A well-known public resolver, only as a last resort.
+ */
+private fun sshTunneledDnsServers(
+    proxyDnsServers: List<String>,
+    deviceDnsServers: List<String>,
+): List<String> {
+    val configured = proxyDnsServers.toTrimmedNonEmptyDistinctList()
+        .filter { it.isUsableTunnelDns() }
+        .map { server -> server.toTcpDnsServer() }
+    if (configured.isNotEmpty()) return configured
+
+    val device = deviceDnsServers.toTrimmedNonEmptyDistinctList()
+        .filter { it.isUsableTunnelDns() }
+        .map { server -> server.toTcpDnsServer() }
+    if (device.isNotEmpty()) return device
+
+    return listOf("tcp+1.1.1.1", "tcp+8.8.8.8")
+}
+
+/** A tunnel-target DNS address must be a public IP the SSH server can reach. */
+private fun String.isUsableTunnelDns(): Boolean {
+    val trimmed = trim()
+    if (trimmed.isBlank() || trimmed == "localhost" || trimmed == "127.0.0.1" || trimmed == "::1") {
+        return false
+    }
+    if (!isIpAddress(trimmed)) return false
+    return isPublicIpAddress(trimmed)
+}
+
+/** True only for globally routable addresses; rejects loopback/private/link-local/reserved. */
+private fun isPublicIpAddress(ip: String): Boolean {
+    val addr = java.net.InetAddress.getByName(ip.substringBefore('%')) ?: return false
+    return !(addr.isLoopbackAddress || addr.isLinkLocalAddress || addr.isSiteLocalAddress || addr.isAnyLocalAddress)
 }
 
 private fun String.toTcpDnsServer(): String {
