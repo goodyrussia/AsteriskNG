@@ -55,7 +55,7 @@ internal fun Context.toSshCoreConfig(ssh: Ssh): SshCoreConfig {
     val resolveLog = if (resolvedIp.isNotEmpty()) {
         "[app] SSH host resolved: $host -> $resolvedIp"
     } else {
-        "[app] SSH host resolution FAILED: $host (daemon will retry system DNS)"
+        "[app] SSH host resolution FAILED: $host (sshcore will use Android-safe resolver)"
     }
     val jsonObject = buildJsonObject {
         put("listen", "127.0.0.1:$DefaultSshLocalPort")

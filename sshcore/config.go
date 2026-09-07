@@ -14,21 +14,21 @@ import (
 type SshTunnelMode string
 
 const (
-	ModeDirect    SshTunnelMode = "direct"     // plain TCP to the SSH server
-	ModeProxy     SshTunnelMode = "proxy"      // HTTP CONNECT proxy -> SSH server
-	ModeTLS       SshTunnelMode = "tls"        // TCP -> TLS (SNI) -> SSH server
-	ModeTLSProxy  SshTunnelMode = "tls_proxy"  // HTTP CONNECT proxy -> TLS (SNI) -> SSH server
+	ModeDirect   SshTunnelMode = "direct"    // plain TCP to the SSH server
+	ModeProxy    SshTunnelMode = "proxy"     // HTTP CONNECT proxy -> SSH server
+	ModeTLS      SshTunnelMode = "tls"       // TCP -> TLS (SNI) -> SSH server
+	ModeTLSProxy SshTunnelMode = "tls_proxy" // HTTP CONNECT proxy -> TLS (SNI) -> SSH server
 )
 
 // PayloadSplitMode selects how the injected payload is written.
 type PayloadSplitMode string
 
 const (
-	SplitNone        PayloadSplitMode = "none"
-	SplitInstant     PayloadSplitMode = "instant"
-	SplitDelay       PayloadSplitMode = "delay"
-	SplitSplit       PayloadSplitMode = "split"
-	SplitSplitDelay  PayloadSplitMode = "split_delay"
+	SplitNone       PayloadSplitMode = "none"
+	SplitInstant    PayloadSplitMode = "instant"
+	SplitDelay      PayloadSplitMode = "delay"
+	SplitSplit      PayloadSplitMode = "split"
+	SplitSplitDelay PayloadSplitMode = "split_delay"
 )
 
 // Config is the flat JSON configuration consumed by the sshcore daemon.
@@ -48,22 +48,23 @@ type Config struct {
 	// literal IP directly and never invokes Go's system resolver (which is
 	// blocked on Android). The hostname (SshAddress) is still used for the
 	// TLS SNI / payload Host and SSH handshake.
-	SshResolvedIp string `json:"ssh_resolved_ip"`
+	SshResolvedIp  string   `json:"ssh_resolved_ip"`
+	SshFallbackIps []string `json:"ssh_fallback_ips"`
 
 	// Connection mode: direct | proxy | tls | tls_proxy.
 	TunnelMode string `json:"tunnel_mode"`
 
 	// HTTP CONNECT proxy (used by proxy and tls_proxy modes).
-	HttpProxy        string `json:"http_proxy"`
-	HttpProxyPort    int    `json:"http_proxy_port"`
-	ProxyUsername    string `json:"proxy_username"`
-	ProxyPassword    string `json:"proxy_password"`
-	AuthenticateProxy bool  `json:"authenticate_proxy"`
+	HttpProxy         string `json:"http_proxy"`
+	HttpProxyPort     int    `json:"http_proxy_port"`
+	ProxyUsername     string `json:"proxy_username"`
+	ProxyPassword     string `json:"proxy_password"`
+	AuthenticateProxy bool   `json:"authenticate_proxy"`
 
 	// TLS wrapping (used by tls and tls_proxy modes).
-	Sni            string `json:"sni"`
-	TLSVersion     string `json:"tls_version"`
-	TLSAllowInsecure bool `json:"tls_allow_insecure"`
+	Sni              string `json:"sni"`
+	TLSVersion       string `json:"tls_version"`
+	TLSAllowInsecure bool   `json:"tls_allow_insecure"`
 
 	// Payload injection.
 	PayloadEnabled   bool   `json:"payload_enabled"`

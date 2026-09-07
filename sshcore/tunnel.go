@@ -54,38 +54,35 @@ func (t *sshTunnel) dial(ctx context.Context) (net.Conn, error) {
 
 func (t *sshTunnel) dialDirect(ctx context.Context) (net.Conn, error) {
 	host := t.cfg.SshAddress
-	if t.cfg.SshResolvedIp != "" && net.ParseIP(t.cfg.SshResolvedIp) != nil {
-		host = t.cfg.SshResolvedIp
-		Log.Info("using pre-resolved SSH host %s -> %s", t.cfg.SshAddress, host)
-	} else {
-		Log.Warn("no pre-resolved IP for %s; falling back to system resolver", t.cfg.SshAddress)
-	}
-	return t.dialTCP(ctx, host, t.cfg.SshPort)
+	fallback := append([]string{t.cfg.SshResolvedIp}, t.cfg.SshFallbackIps...)
+	return t.dialTCPWithFallback(ctx, host, t.cfg.SshPort, fallback)
 }
 
 func (t *sshTunnel) dialTCP(ctx context.Context, host string, port int) (net.Conn, error) {
-	if net.ParseIP(host) != nil {
-		return (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(host, strconv.Itoa(port)))
+	return t.dialTCPWithFallback(ctx, host, port, nil)
+}
+
+func (t *sshTunnel) dialTCPWithFallback(ctx context.Context, host string, port int, fallbackIPs []string) (net.Conn, error) {
+	host = strings.TrimSpace(host)
+	if ip := net.ParseIP(host); ip != nil {
+		return (&net.Dialer{Timeout: 15 * time.Second}).DialContext(ctx, "tcp", net.JoinHostPort(ip.String(), strconv.Itoa(port)))
 	}
 
-	ips, err := net.DefaultResolver.LookupHost(ctx, host)
+	ips, method, err := resolveAndroidHost(ctx, host, fallbackIPs)
 	if err != nil {
 		return nil, fmt.Errorf("resolve SSH host %q: %w", host, err)
 	}
-	if len(ips) == 0 {
-		return nil, fmt.Errorf("resolve SSH host %q: no addresses", host)
-	}
-	Log.Info("resolved SSH host %s -> %s", host, strings.Join(ips, ","))
-
+	Log.Info("resolved SSH host %s via %s -> %s", host, method, strings.Join(ips, ","))
 	var lastErr error
 	for _, ip := range ips {
-		conn, dialErr := (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(ip, strconv.Itoa(port)))
+		conn, dialErr := (&net.Dialer{Timeout: 15 * time.Second}).DialContext(ctx, "tcp", net.JoinHostPort(ip, strconv.Itoa(port)))
 		if dialErr == nil {
 			return conn, nil
 		}
 		lastErr = dialErr
+		Log.Warn("dial %s (%s) failed: %v", net.JoinHostPort(ip, strconv.Itoa(port)), method, dialErr)
 	}
-	return nil, fmt.Errorf("connect SSH host %q: %w", host, lastErr)
+	return nil, fmt.Errorf("connect SSH host %q via %s: %w", host, method, lastErr)
 }
 
 func (t *sshTunnel) dialProxy(ctx context.Context) (net.Conn, error) {
@@ -118,8 +115,7 @@ func (t *sshTunnel) httpConnect(ctx context.Context, target string) (net.Conn, e
 	proxyAddr := net.JoinHostPort(t.cfg.HttpProxy, strconv.Itoa(t.cfg.HttpProxyPort))
 	Log.Info("http connect proxy %s -> %s", proxyAddr, target)
 
-	d := net.Dialer{}
-	conn, err := d.DialContext(ctx, "tcp", proxyAddr)
+	conn, err := t.dialTCP(ctx, t.cfg.HttpProxy, t.cfg.HttpProxyPort)
 	if err != nil {
 		return nil, fmt.Errorf("connect to http proxy %s: %w", proxyAddr, err)
 	}

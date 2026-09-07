@@ -53,8 +53,15 @@ require(
 )
 require(
     "sshcore/tunnel.go",
-    "SshResolvedIp",
-    "using pre-resolved SSH host",
+    "resolveAndroidHost",
+    "dialTCPWithFallback",
+)
+require(
+    "sshcore/resolver.go",
+    "androidCarrierDNSServers",
+    "getent",
+    "toybox",
+    "profile_fallback_ip",
 )
 
 require(
