@@ -6,7 +6,6 @@ package engine.xray
 import app.AppState
 import app.effectiveFakeDnsEnabled
 import engine.network.isIpAddress
-import features.proxy.server.model.Ssh
 import features.proxy.server.model.normalizedServerHost
 import features.proxy.server.model.serverHost
 import kotlinx.serialization.json.JsonArray
@@ -30,11 +29,14 @@ internal data class XrayDnsPlan(
 internal fun XrayConfigRequest.buildXrayDnsPlan(
     startupProxyServerDomains: List<String> = emptyList(),
 ): XrayDnsPlan {
-    val effectiveProxyDnsServers = if (selectedServer.server is Ssh) {
-        sshTunneledDnsServers(proxyDnsServers, deviceDnsServers)
-    } else {
-        proxyDnsServers
-    }
+    // Content DNS must be tunneled through the connection for CDN consistency —
+    // and it must NEVER be "localhost". On a rooted TPROXY device the Xray core
+    // resolves "localhost" via Go's net.DefaultResolver, whose own UDP/53 query
+    // is re-captured by the port-53 hijack rule -> self-reflexion loop -> "context
+    // deadline exceeded". SSH was already fixed by tunneling DNS-over-TCP
+    // (tcp://<resolver>), but the Xray/VLESS path was still on "localhost". Route
+    // every protocol's content DNS through the tunnel as a reachable TCP resolver.
+    val effectiveProxyDnsServers = tunneledDnsServers(proxyDnsServers, deviceDnsServers)
     return appState.buildXrayDnsPlan(
         proxyDnsServers = effectiveProxyDnsServers,
         directDnsServers = directDnsServers,
@@ -45,19 +47,18 @@ internal fun XrayConfigRequest.buildXrayDnsPlan(
 }
 
 /**
- * In SSH mode the tunnel exposes a TCP-only SOCKS proxy: DNS queries cannot ride
- * as UDP (the sshcore daemon's SOCKS5 UDP path is a no-op), and the Xray
- * `localhost` resolver resolves via Go's `net.LookupIP`, which Android blocks
- * (`[::1]:53` -> SELinux EPERM). So content DNS must be tunneled as DNS-over-TCP
- * (`tcp+...`) through the SSH SOCKS outbound, resolved at the SSH exit's network.
+ * In a rooted transparent-proxy the Xray core must not use "localhost" for content
+ * DNS: Go's system resolver fires a raw UDP/53 query that TPROXY re-captures into
+ * the same DNS module -> self-loop -> timeout. Every protocol (SSH, VLESS, VMess,
+ * Trojan, SS, Socks) tunnels content DNS instead.
  *
  * Priority:
- *  1. The SSH profile's own configured proxy DNS servers (tcp+).
- *  2. The device's real DNS servers (tcp+), read from ConnectivityManager —
- *     only public ones are usable, since the SSH server must be able to reach them.
+ *  1. The profile's own configured proxy DNS servers (normalized to tcp://).
+ *  2. The device's real DNS servers (tcp://), read from ConnectivityManager —
+ *     only public ones are usable, since the proxy server must reach them.
  *  3. A well-known public resolver, only as a last resort.
  */
-private fun sshTunneledDnsServers(
+private fun tunneledDnsServers(
     proxyDnsServers: List<String>,
     deviceDnsServers: List<String>,
 ): List<String> {
