@@ -20,11 +20,12 @@ internal fun buildXrayRoutingPlan(
     proxyTarget: XrayRouteTarget,
     balancers: List<JsonObject>,
     dnsHijackInboundTags: List<String>,
-    directDnsRouting: Boolean = false,
+    routeProxyDns: Boolean = true,
+    routeDirectDns: Boolean = false,
 ): XrayRoutingPlan {
     return XrayRoutingPlan(
         domainStrategy = FixedRoutingDomainStrategy,
-        rules = buildFixedXrayRoutingRules(proxyTarget, dnsHijackInboundTags, directDnsRouting),
+        rules = buildFixedXrayRoutingRules(proxyTarget, dnsHijackInboundTags, routeProxyDns, routeDirectDns),
         balancers = balancers,
     )
 }
@@ -42,14 +43,23 @@ internal fun buildXrayRouting(plan: XrayRoutingPlan): JsonObject {
 internal fun buildFixedXrayRoutingRules(
     proxyTarget: XrayRouteTarget,
     dnsHijackInboundTags: List<String>,
-    directDnsRouting: Boolean = false,
+    routeProxyDns: Boolean = true,
+    routeDirectDns: Boolean = false,
 ): JsonArray {
     return buildJsonArray {
         buildXrayDnsHijackRule(dnsHijackInboundTags)?.let(::add)
-        // Direct-DNS fallback rule: device DNS servers tagged dns-direct are
-        // routed to the direct (freedom) outbound, so they always resolve
-        // even when the tunnel or server egress is unreachable.
-        if (directDnsRouting) {
+        // v1.4.3: content DNS module (dns.tag = dns-proxy) goes through the tunnel.
+        if (routeProxyDns) {
+            add(
+                buildJsonObject {
+                    put("type", "field")
+                    put("inboundTag", listOf(XrayTags.PROXY_DNS).toJsonStringArray())
+                    put("network", "tcp,udp")
+                    proxyTarget.applyTo(this)
+                },
+            )
+        }
+        if (routeDirectDns) {
             add(
                 buildJsonObject {
                     put("type", "field")

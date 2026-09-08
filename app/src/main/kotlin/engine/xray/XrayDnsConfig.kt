@@ -24,94 +24,25 @@ internal data class XrayDnsPlan(
     val tag: String,
     val hosts: JsonObject,
     val fakeDns: JsonElement?,
-    val directDnsRouting: Boolean = false,
+    val routeProxyDns: Boolean = true,
+    val routeDirectDns: Boolean = false,
 )
 
 internal fun XrayConfigRequest.buildXrayDnsPlan(
     startupProxyServerDomains: List<String> = emptyList(),
 ): XrayDnsPlan {
-    // Content DNS must be tunneled through the connection for CDN consistency —
-    // and it must NEVER be "localhost". On a rooted TPROXY device the Xray core
-    // resolves "localhost" via Go's net.DefaultResolver, whose own UDP/53 query
-    // is re-captured by the port-53 hijack rule -> self-reflexion loop -> "context
-    // deadline exceeded". SSH was already fixed by tunneling DNS-over-TCP
-    // (tcp://<resolver>), but the Xray/VLESS path was still on "localhost". Route
-    // every protocol's content DNS through the tunnel as a reachable TCP resolver.
-    val effectiveProxyDnsServers = tunneledDnsServers(proxyDnsServers, deviceDnsServers)
-    // Direct device DNS for last-resort fallback: raw IPs from ConnectivityManager,
-    // tagged to route DIRECT (see directDnsRouting rule) so they always resolve
-    // even when the tunnel and server egress are both unreachable.
-    val directDeviceDnsServers = deviceDnsServers.toTrimmedNonEmptyDistinctList()
+    // v1.4.3 path: content DNS is "localhost" (device/system resolver) with
+    // dns.tag = dns-proxy, routed through the tunnel. Do NOT rewrite localhost
+    // to tcp://1.1.1.1 / server-loopback — that is the CDN-mismatch + closed-pipe
+    // regression. Bootstrap is dns.hosts only (Bionic), never a localhost dns-server
+    // object with domains.
     return appState.buildXrayDnsPlan(
-        proxyDnsServers = effectiveProxyDnsServers,
+        proxyDnsServers = proxyDnsServers,
         directDnsServers = directDnsServers,
         directDnsDomains = directDnsDomains,
         dnsHosts = dnsHosts,
         startupProxyServerDomains = startupProxyServerDomains,
-        directDeviceDnsServers = directDeviceDnsServers,
     )
-}
-
-/**
- * In a rooted transparent-proxy the Xray core must not use "localhost" for content
- * DNS: Go's system resolver fires a raw UDP/53 query that TPROXY re-captures into
- * the same DNS module -> self-loop -> timeout. Every protocol (SSH, VLESS, VMess,
- * Trojan, SS, Socks) tunnels content DNS instead.
- *
- * Priority:
- *  1. The profile's own configured proxy DNS servers (normalized to tcp://).
- *  2. The device's real DNS servers (tcp://), read from ConnectivityManager —
- *     only public ones are usable, since the proxy server must reach them.
- *  3. A well-known public resolver, only as a last resort.
- */
-private fun tunneledDnsServers(
-    proxyDnsServers: List<String>,
-    deviceDnsServers: List<String>,
-): List<String> {
-    val configured = proxyDnsServers.toTrimmedNonEmptyDistinctList()
-        .filter { it.isUsableTunnelDns() }
-        .map { server -> server.toTcpDnsServer() }
-    if (configured.isNotEmpty()) return configured
-
-    val device = deviceDnsServers.toTrimmedNonEmptyDistinctList()
-        .filter { it.isUsableTunnelDns() }
-        .map { server -> server.toTcpDnsServer() }
-    if (device.isNotEmpty()) return device
-
-    return listOf("tcp://1.1.1.1", "tcp://8.8.8.8")
-}
-
-/** A tunnel-target DNS address must be a public IP the SSH server can reach. */
-private fun String.isUsableTunnelDns(): Boolean {
-    val trimmed = trim()
-    if (trimmed.isBlank() || trimmed == "localhost" || trimmed == "127.0.0.1" || trimmed == "::1") {
-        return false
-    }
-    if (!isIpAddress(trimmed)) return false
-    return isPublicIpAddress(trimmed)
-}
-
-/** True only for globally routable addresses; rejects loopback/private/link-local/reserved. */
-private fun isPublicIpAddress(ip: String): Boolean {
-    val addr = java.net.InetAddress.getByName(ip.substringBefore('%')) ?: return false
-    return !(addr.isLoopbackAddress || addr.isLinkLocalAddress || addr.isSiteLocalAddress || addr.isAnyLocalAddress)
-}
-
-private fun String.toTcpDnsServer(): String {
-    val value = trim()
-    if (value.startsWith("tcp://") || value.startsWith("https://") || value.startsWith("quic://") || value.startsWith("udp://")) {
-        // Already in core-accepted URL scheme form.
-        return value
-    }
-    // Normalize any bare host / "tcp+"/"https+"/"udp+" prefix to a scheme URL
-    // that the Xray v4-lineage core DNS parser recognizes. The exclave-core
-    // fork's NewServer switches on url.Scheme, so a bare "tcp+1.1.1.1" fails
-    // scheme detection and silently collapses to UDP classic (the DNS-through-
-    // tunnel bug). "tcp://1.1.1.1" is parsed as a DNS-over-TCP remote nameserver.
-    val bare = value
-        .substringAfter("://")
-        .removePrefix("tcp+").removePrefix("https+").removePrefix("quic+").removePrefix("udp+")
-    return "tcp://$bare"
 }
 
 private fun AppState.buildXrayDnsPlan(
@@ -120,22 +51,30 @@ private fun AppState.buildXrayDnsPlan(
     directDnsDomains: List<String>,
     dnsHosts: List<String>,
     startupProxyServerDomains: List<String>,
-    directDeviceDnsServers: List<String> = emptyList(),
 ): XrayDnsPlan {
     val effectiveDirectDnsDomains = xrayDirectDnsDomains(directDnsDomains, startupProxyServerDomains)
+    val contentDns = xrayProxyDnsServers(
+        proxyDnsServers = proxyDnsServers,
+        directDnsServers = if (dnsMode == DnsModeFast || dnsMode == DnsModeTunnel) emptyList() else directDnsServers,
+        directDnsDomains = if (dnsMode == DnsModeFast || dnsMode == DnsModeTunnel) emptyList() else effectiveDirectDnsDomains,
+    )
+    val routeDirect = dnsMode != DnsModeFast &&
+        dnsMode != DnsModeTunnel &&
+        effectiveDirectDnsDomains.isNotEmpty() &&
+        xrayDirectDnsServers(directDnsServers).isNotEmpty()
     return XrayDnsPlan(
         servers = xrayDnsServers(
             proxyDnsServers = proxyDnsServers,
             directDnsServers = directDnsServers,
             effectiveDirectDnsDomains = effectiveDirectDnsDomains,
             startupProxyServerDomains = startupProxyServerDomains,
-            directDeviceDnsServers = directDeviceDnsServers,
         ),
         queryStrategy = if (enableIpv6) "UseIP" else "UseIPv4",
         tag = XrayTags.PROXY_DNS,
         hosts = dnsHosts.toDnsHostsJson(),
         fakeDns = if (effectiveFakeDnsEnabled) buildXrayFakeDnsConfig() else null,
-        directDnsRouting = directDeviceDnsServers.isNotEmpty(),
+        routeProxyDns = contentDns.isNotEmpty(),
+        routeDirectDns = routeDirect,
     )
 }
 
@@ -214,31 +153,13 @@ private fun AppState.xrayDnsServers(
     directDnsServers: List<String>,
     effectiveDirectDnsDomains: List<String>,
     startupProxyServerDomains: List<String>,
-    directDeviceDnsServers: List<String> = emptyList(),
 ): JsonArray {
     return buildJsonArray {
-        // Server-loopback resolvers: dialed THROUGH the tunnel and resolved on
-        // the exit node itself (systemd-resolved on 127.0.0.53, dnsmasq/bind on
-        // 127.0.0.1). Always reachable regardless of the server's egress policy,
-        // and CDN-consistent by definition. This mirrors Exclave's tunneled
-        // Remote DNS behavior without depending on public-resolver egress.
-        ServerLoopbackDnsServers.forEach { server -> add(JsonPrimitive(server)) }
-
         if (effectiveFakeDnsEnabled) {
             add(JsonPrimitive("fakedns"))
         }
         when (dnsMode) {
-            DnsModeFast -> {
-                // DNS through the tunnel for CDN consistency.
-                // Proxy server hostnames are pinned ahead of the tunnel via
-                // dns.hosts (see XrayDnsHosts), not a "localhost" resolver.
-                xrayProxyDnsServers(
-                    proxyDnsServers = proxyDnsServers,
-                    directDnsServers = emptyList(),
-                    directDnsDomains = emptyList(),
-                ).forEach { server -> add(JsonPrimitive(server)) }
-            }
-            DnsModeTunnel -> {
+            DnsModeFast, DnsModeTunnel -> {
                 xrayProxyDnsServers(
                     proxyDnsServers = proxyDnsServers,
                     directDnsServers = emptyList(),
@@ -265,19 +186,6 @@ private fun AppState.xrayDnsServers(
                     directDnsDomains = effectiveDirectDnsDomains,
                 ).forEach { server -> add(JsonPrimitive(server)) }
             }
-        }
-
-        // Last-resort direct resolvers: the device's own DNS servers from
-        // ConnectivityManager, tagged dns-direct and routed to the direct
-        // outbound (see routing rule) so they always resolve even when the
-        // tunnel and server egress are both down.
-        directDeviceDnsServers.forEach { server ->
-            add(
-                buildJsonObject {
-                    put("address", server)
-                    put("tag", XrayTags.DIRECT_DNS)
-                },
-            )
         }
     }
 }
