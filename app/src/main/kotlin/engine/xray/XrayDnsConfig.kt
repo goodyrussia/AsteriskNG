@@ -135,7 +135,6 @@ internal fun buildXrayDnsConfig(plan: XrayDnsPlan): JsonObject {
         put("servers", plan.servers)
         put("queryStrategy", plan.queryStrategy)
         put("tag", plan.tag)
-        put("disableFallbackIfMatch", true)
         putIfNotEmpty("hosts", plan.hosts)
     }
 }
@@ -207,26 +206,20 @@ private fun AppState.xrayDnsServers(
     startupProxyServerDomains: List<String>,
 ): JsonArray {
     return buildJsonArray {
-        // Proxy hostnames must never depend on the tunnel that they start.
-        // Resolve them with the device resolver, then use the tunneled/local
-        // mode for ordinary application DNS according to dnsMode.
-        if (startupProxyServerDomains.isNotEmpty()) {
-            add(
-                buildJsonObject {
-                    put("address", "localhost")
-                    put("domains", startupProxyServerDomains.toJsonStringArray())
-                    put("skipFallback", true)
-                },
-            )
-        }
+        // Proxy server hostnames are pinned ahead of the tunnel via dns.hosts
+        // (Bionic InetAddress pre-resolution in XrayDnsHosts) — matching the
+        // Exclave core's "domain rewriting". Never emit a "localhost" DNS server
+        // here: on a rooted TPROXY device the core resolves it through Go's
+        // system resolver, whose port-53 query is re-captured by our own
+        // dns-hijack rule -> self-loop -> "io: read/write on closed pipe".
         if (effectiveFakeDnsEnabled) {
             add(JsonPrimitive("fakedns"))
         }
         when (dnsMode) {
             DnsModeFast -> {
                 // DNS through the tunnel for CDN consistency.
-                // Proxy server hostnames are resolved via device DNS before
-                // the tunnel starts (see startupProxyServerDomains above).
+                // Proxy server hostnames are pinned ahead of the tunnel via
+                // dns.hosts (see XrayDnsHosts), not a "localhost" resolver.
                 xrayProxyDnsServers(
                     proxyDnsServers = proxyDnsServers,
                     directDnsServers = emptyList(),
