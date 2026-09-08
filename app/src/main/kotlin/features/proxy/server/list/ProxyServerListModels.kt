@@ -7,16 +7,11 @@ internal enum class ProxyServerListAddAction {
     ScanQrCode,
     Clipboard,
     File,
-    StrategyGroup,
-    ChainProxy,
-    Custom,
-    HTTP,
     VMess,
     VLESS,
     Trojan,
     Shadowsocks,
     Socks,
-    Wireguard,
     Ssh,
 }
 

@@ -6,7 +6,6 @@ package engine.xray
 import app.AppState
 import app.ProxyServerState
 import features.logs.AndroidAppLogger
-import features.proxy.server.model.Custom
 import features.proxy.server.model.ProxyServer
 import kotlinx.serialization.json.JsonObject
 
@@ -32,11 +31,6 @@ internal data class XrayProxyOutboundServer(
 
 internal object XrayConfigFactory {
     fun buildXrayConfig(request: XrayConfigRequest): String {
-        val customServer = request.selectedServer.server as? Custom
-        if (customServer != null) {
-            return buildCustomXrayConfig(request, customServer)
-        }
-
         val config = buildGeneratedXrayConfig(request).toJsonObject()
         logGeneratedXrayConfig(config)
         return XrayConfigJson.encodeToString(config)
@@ -64,15 +58,6 @@ private fun buildGeneratedXrayConfig(request: XrayConfigRequest): GeneratedXrayC
         observatory = buildXrayObservatory(outboundPlan.observatorySelectors),
         burstObservatory = buildXrayBurstObservatory(outboundPlan.burstObservatorySelectors),
     )
-}
-
-private fun buildCustomXrayConfig(
-    request: XrayConfigRequest,
-    server: Custom,
-): String {
-    val config = CustomXrayConfigRewriter.rewrite(request, server)
-    logGeneratedXrayConfig(config)
-    return XrayConfigJson.encodeToString(config)
 }
 
 private fun logGeneratedXrayConfig(config: JsonObject) {

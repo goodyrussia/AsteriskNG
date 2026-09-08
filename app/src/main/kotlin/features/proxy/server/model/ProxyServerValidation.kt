@@ -18,7 +18,6 @@ private val UrlSafeBase64Regex = Regex("[A-Za-z0-9_-]+={0,2}")
 private val UuidRegex = Regex(
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}",
 )
-private val WireguardKeyRegex = Regex("[A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=")
 private val HysteriaBandwidthRegex =
     Regex("0|[1-9][0-9]*(?:\\.[0-9]+)?(?:\\s*(?:[kKmMgGtT](?:[bB](?:[pP][sS])?)?|[bB](?:[pP][sS])?))?")
 private const val XrayUserIdMaxBytes = 30
@@ -26,8 +25,6 @@ private const val KcpMtuMin = 576
 private const val KcpMtuMax = 1460
 private const val KcpTtiMin = 10
 private const val KcpTtiMax = 100
-private const val WireguardMtuMin = 576
-private const val WireguardMtuMax = 9000
 private const val RealityPublicKeyBytes = 32
 private const val RealityMldsa65VerifyBytes = 1952
 
@@ -162,67 +159,6 @@ internal fun validateV2RayParameters(params: V2RayParameters) {
                 proxyValidationError(ProxyServerValidationError.RealityShortIdInvalid)
             }
         }
-    }
-}
-
-internal fun validateWireguardKey(value: String, fieldName: String, required: Boolean = true) {
-    if (value.isBlank()) {
-        if (required) {
-            proxyValidationError(ProxyServerValidationError.RequiredField, fieldName)
-        }
-        return
-    }
-    if (!WireguardKeyRegex.matches(value.trim())) {
-        proxyValidationError(ProxyServerValidationError.WireguardKeyInvalid, fieldName)
-    }
-}
-
-internal fun validateWireguardReserved(reserved: String) {
-    if (reserved.isBlank()) return
-    val parts = reserved.split(",")
-    if (parts.size != 3) {
-        proxyValidationError(ProxyServerValidationError.WireguardReservedCountInvalid)
-    }
-    parts.forEach { part ->
-        if (part.toIntInRangeOrNull(NetworkLimits.IPV4_OCTET_MIN..NetworkLimits.IPV4_OCTET_MAX) == null) {
-            proxyValidationError(
-                ProxyServerValidationError.WireguardReservedValueInvalid,
-                NetworkLimits.IPV4_OCTET_MIN,
-                NetworkLimits.IPV4_OCTET_MAX,
-            )
-        }
-    }
-}
-
-internal fun validateWireguardAddresses(addresses: String) {
-    if (addresses.isBlank()) return
-    addresses.split(",").forEach { address ->
-        val value = address.trim()
-        val slashIndex = value.lastIndexOf('/')
-        if (value.isBlank() || slashIndex <= 0 || slashIndex == value.lastIndex) {
-            proxyValidationError(ProxyServerValidationError.LocalAddressCidrRequired)
-        }
-        val host = value.substring(0, slashIndex)
-        val prefix = value.substring(slashIndex + 1).toIntOrNull()
-            ?: proxyValidationError(ProxyServerValidationError.LocalAddressPrefixNumberRequired)
-        val validPrefix = when {
-            isValidIpv4(host) -> prefix in 0..32
-            isValidIpv6(host) -> prefix in 0..128
-            else -> false
-        }
-        if (!validPrefix) {
-            proxyValidationError(ProxyServerValidationError.InvalidLocalAddressCidr)
-        }
-    }
-}
-
-internal fun validateMtu(mtu: String) {
-    if (mtu.isBlank()) return
-    if (mtu.toIntOrNull() == null) {
-        proxyValidationError(ProxyServerValidationError.MtuNumberRequired)
-    }
-    if (mtu.toIntInRangeOrNull(WireguardMtuMin..WireguardMtuMax) == null) {
-        proxyValidationError(ProxyServerValidationError.MtuOutOfRange, WireguardMtuMin, WireguardMtuMax)
     }
 }
 

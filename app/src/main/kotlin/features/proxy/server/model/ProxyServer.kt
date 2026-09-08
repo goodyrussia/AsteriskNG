@@ -14,7 +14,6 @@ import utils.encodeUrlSafeBase64OptionalPadding
 import utils.toProxyUrlRemarks
 
 object ProxyServerConstants {
-    const val PROTOCOL_HTTP = "http"
     const val PROTOCOL_SOCKS = "socks"
     const val PROTOCOL_SOCKS4 = "socks4"
     const val PROTOCOL_SOCKS5 = "socks5"
@@ -22,11 +21,7 @@ object ProxyServerConstants {
     const val PROTOCOL_VMESS = "vmess"
     const val PROTOCOL_VLESS = "vless"
     const val PROTOCOL_TROJAN = "trojan"
-    const val PROTOCOL_WIREGUARD = "wireguard"
     const val PROTOCOL_SSH = "ssh"
-    const val PROTOCOL_STRATEGY_GROUP = "strategy-group"
-    const val PROTOCOL_CHAIN_PROXY = "chain-proxy"
-    const val PROTOCOL_CUSTOM = "custom"
 }
 
 @Serializable
@@ -52,7 +47,6 @@ interface ProxyServer<T : ProxyServer<T>> {
 
             val url = Url(value)
             val server = when (url.protocol.name) {
-                ProxyServerConstants.PROTOCOL_HTTP -> HTTP().parse(url)
                 ProxyServerConstants.PROTOCOL_SOCKS,
                 ProxyServerConstants.PROTOCOL_SOCKS4,
                 ProxyServerConstants.PROTOCOL_SOCKS5 -> Socks().parse(url)
@@ -68,7 +62,6 @@ interface ProxyServer<T : ProxyServer<T>> {
 
                 ProxyServerConstants.PROTOCOL_VLESS -> VLESS().parse(url)
                 ProxyServerConstants.PROTOCOL_TROJAN -> Trojan().parse(url)
-                ProxyServerConstants.PROTOCOL_WIREGUARD -> Wireguard().parse(url)
                 ProxyServerConstants.PROTOCOL_SSH -> Ssh().parse(url)
                 else -> {
                     unsupportedProxyServerUrl(url)
@@ -123,21 +116,12 @@ interface UrlProxyServer<T : UrlProxyServer<T>> : ProxyServer<T> {
     fun getUrl(): String
 }
 
-fun ProxyServer<*>.isCompositeProxyServer(): Boolean {
-    return this is StrategyGroup || this is ChainProxy
-}
-
-fun ProxyServer<*>.isCustomProxyServer(): Boolean {
-    return this is Custom
-}
-
 fun ProxyServer<*>.getUrlOrNull(): String? {
     return (this as? UrlProxyServer<*>)?.getUrl()
 }
 
 fun ProxyServer<*>.getCopyTextOrNull(): String? {
     return when (this) {
-        is Custom -> configJson
         is UrlProxyServer<*> -> getUrl()
         else -> null
     }

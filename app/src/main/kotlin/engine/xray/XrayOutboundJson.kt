@@ -121,18 +121,6 @@ private fun buildProxyOutbound(appState: AppState, outboundServer: XrayProxyOutb
 }
 
 internal fun JsonObject.applyFixedProxyOutboundDomainStrategy(appState: AppState): JsonObject {
-    if (stringValue("protocol") == ProxyServerConstants.PROTOCOL_WIREGUARD) {
-        val settings = objectValue("settings") ?: buildJsonObject {}
-        return updated {
-            put(
-                "settings",
-                settings.updated {
-                    put("domainStrategy", appState.wireguardDomainStrategy())
-                },
-            )
-        }
-    }
-
     // SSH and SOCKS tunnels are TCP-only and resolve destination domains
     // server-side. Force the destination domain through unchanged (AsIs) so the
     // SSH/SOCKS server resolves it, instead of forcing Xray to resolve it
@@ -208,14 +196,6 @@ private fun JsonObject.withDialerProxyTag(tag: String): JsonObject {
 
 private fun JsonObject.withSockopt(block: JsonObjectBuilder.() -> Unit): JsonObject {
     return updatedNestedObject("streamSettings", "sockopt", block)
-}
-
-private fun AppState.wireguardDomainStrategy(): String {
-    return when {
-        enableIpv6 && enableIpv6Prefer -> "ForceIPv6v4"
-        enableIpv6 -> "ForceIP"
-        else -> "ForceIPv4"
-    }
 }
 
 private fun String.toMuxConcurrency(): Int {

@@ -118,13 +118,11 @@ private fun MihomoYamlMap.toMihomoProxyServerOrNull(
 
 private fun MihomoYamlMap.toMihomoProxyServer(): ProxyServer<*> {
     return when (requiredString("type").lowercase()) {
-        "http" -> toMihomoHttpProxyServer()
         "socks", "socks5" -> toMihomoSocksProxyServer()
         "ss", "shadowsocks" -> toMihomoShadowsocksProxyServer()
         "vmess" -> toMihomoVMessProxyServer()
         "vless" -> toMihomoVlessProxyServer()
         "trojan" -> toMihomoTrojanProxyServer()
-        "wg", "wireguard" -> toMihomoWireguardProxyServer()
         else -> unsupported("unsupported proxy type")
     }.also { server -> server.check() }
 }
@@ -259,7 +257,6 @@ private fun newMihomoYamlParser(): Load {
 }
 
 private val SupportedMihomoProxyTypes = setOf(
-    "http",
     "socks",
     "socks5",
     "ss",
@@ -267,8 +264,6 @@ private val SupportedMihomoProxyTypes = setOf(
     "vmess",
     "vless",
     "trojan",
-    "wg",
-    "wireguard",
 )
 
 private data class MihomoProxyProvider(

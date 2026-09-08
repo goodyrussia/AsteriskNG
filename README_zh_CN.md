@@ -12,7 +12,7 @@
 
 - 使用 Xray-core、iptables 和策略路由的 ROOT TPROXY 透明代理运行时
 - 应用代理 Global、Blacklist 和 Whitelist 策略
-- VMess、VLESS、Trojan、Shadowsocks、Socks、HTTP、Hysteria2、WireGuard、策略组和链式代理支持
+- VMess、VLESS、Trojan、Shadowsocks、Socks 和 SSH 支持
 - v2rayNG、mihomo 订阅格式支持
 - 管理 `geoip.dat`、`geosite.dat`、`geoip-only-cn-private.dat` 和 Xray 可执行文件等资源文件
 - 通过 Magisk `service.d` 脚本支持 ROOT 开机自启

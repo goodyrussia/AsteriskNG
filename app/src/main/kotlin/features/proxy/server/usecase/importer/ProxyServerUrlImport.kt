@@ -89,7 +89,6 @@ private fun String.startsWithProxyServerScheme(): Boolean {
 }
 
 private val ProxyServerUrlPrefixes = listOf(
-    "${ProxyServerConstants.PROTOCOL_HTTP}://",
     "${ProxyServerConstants.PROTOCOL_SOCKS}://",
     "${ProxyServerConstants.PROTOCOL_SOCKS4}://",
     "${ProxyServerConstants.PROTOCOL_SOCKS5}://",
@@ -97,12 +96,11 @@ private val ProxyServerUrlPrefixes = listOf(
     "${ProxyServerConstants.PROTOCOL_VMESS}://",
     "${ProxyServerConstants.PROTOCOL_VLESS}://",
     "${ProxyServerConstants.PROTOCOL_TROJAN}://",
-    "${ProxyServerConstants.PROTOCOL_WIREGUARD}://",
     "${ProxyServerConstants.PROTOCOL_SSH}://",
 )
 
 private val ProxyServerUrlRegex = Regex(
-    "(?i)\\b(?:http|socks|socks4|socks5|ss|vmess|vless|trojan|wireguard)://[^\\s<>\"']+",
+    "(?i)\\b(?:socks|socks4|socks5|ss|vmess|vless|trojan)://[^\\s<>\"']+",
 )
 
 private const val ProxyServerImportLogTag = "ProxyServerImport"

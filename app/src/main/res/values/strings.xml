@@ -290,17 +290,11 @@
     <string name="proxy_server_list_scan_qr_code">Scan QR code</string>
     <string name="proxy_server_list_import_clipboard">Import from clipboard</string>
     <string name="proxy_server_list_import_file">Import from file</string>
-    <string name="proxy_server_list_add_strategy_group">Add Strategy group</string>
-    <string name="proxy_server_list_add_chain_proxy">Add Chain proxy</string>
-    <string name="proxy_server_list_add_custom">Add Custom</string>
-    <string name="proxy_server_list_add_http">Add HTTP</string>
     <string name="proxy_server_list_add_vmess">Add VMess</string>
     <string name="proxy_server_list_add_vless">Add VLESS</string>
     <string name="proxy_server_list_add_trojan">Add Trojan</string>
     <string name="proxy_server_list_add_shadowsocks">Add Shadowsocks</string>
     <string name="proxy_server_list_add_socks">Add Socks</string>
-    <string name="proxy_server_list_add_hysteria2">Add Hysteria2</string>
-    <string name="proxy_server_list_add_wireguard">Add Wireguard</string>
     <string name="proxy_server_list_restart_service">Restart service</string>
     <string name="proxy_server_list_update_subscriptions">Update subscriptions</string>
     <string name="proxy_server_list_saved">{name} saved</string>
@@ -312,9 +306,6 @@
 
     <string name="proxy_server_list_subscription_update_result">Updated {groupCount} subscription groups, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">Updated {groupCount} subscription groups, {failedCount} failed, imported {serverCount} proxy servers</string>
-    <string name="proxy_server_list_strategy_group_summary">{strategy} · {group}</string>
-    <string name="proxy_server_list_strategy_group_summary_with_filter">{strategy} · {group} · Filter: {filter}</string>
-    <string name="proxy_server_list_chain_proxy_summary">{count} hops</string>
     <string name="proxy_server_list_no_subscription_updates">No subscriptions to update</string>
     <string name="proxy_server_list_service_started">Proxy service started</string>
     <string name="proxy_server_list_service_stopped">Proxy service stopped</string>
@@ -328,9 +319,6 @@
 
     <!-- Proxy editor -->
     <string name="proxy_editor_validation_failed">Configuration validation failed</string>
-    <string name="proxy_editor_strategy_group_title">Strategy group</string>
-    <string name="proxy_editor_chain_proxy_title">Chain proxy</string>
-    <string name="proxy_editor_custom_title">Custom</string>
     <string name="proxy_editor_properties">Properties</string>
     <string name="proxy_editor_remarks">Remarks</string>
     <string name="proxy_editor_server">Server address</string>
@@ -343,9 +331,6 @@
     <string name="proxy_editor_encryption">Encryption</string>
     <string name="proxy_editor_flow">Flow</string>
     <string name="proxy_editor_preshared_key_optional">PreSharedKey (optional)</string>
-    <string name="proxy_editor_reserved_optional">Reserved (optional, comma-separated)</string>
-    <string name="proxy_editor_local_address_optional">Local address (optional IPv4/IPv6, comma-separated)</string>
-    <string name="proxy_editor_mtu_optional">MTU (optional, default 1420)</string>
     <string name="proxy_editor_auth">Password (auth)</string>
     <string name="proxy_editor_obfs_password">Obfs password</string>
     <string name="proxy_editor_mport">Hop ports (overrides server port)</string>
@@ -374,24 +359,6 @@
     <string name="proxy_editor_allow_insecure_summary">Skip server certificate verification for this profile</string>
     <string name="proxy_editor_tls_fingerprint">TLS fingerprint</string>
     <string name="proxy_editor_reality_settings">Reality settings</string>
-    <string name="proxy_editor_strategy_group_type">Strategy group type</string>
-    <string name="proxy_editor_strategy_group_least_ping">Least ping</string>
-    <string name="proxy_editor_strategy_group_least_load">Least Load</string>
-    <string name="proxy_editor_strategy_group_random">Random</string>
-    <string name="proxy_editor_strategy_group_round_robin">Round robin</string>
-    <string name="proxy_editor_strategy_group_source_group">Subscription group</string>
-    <string name="proxy_editor_strategy_group_all_groups">All groups</string>
-    <string name="proxy_editor_strategy_group_filter">Remarks regex filter</string>
-    <string name="proxy_editor_chain_members">Proxy chain members</string>
-    <string name="proxy_editor_chain_member">Member {index}</string>
-    <string name="proxy_editor_chain_member_unselected">Select a member</string>
-    <string name="proxy_editor_chain_add_member">Add member</string>
-    <string name="proxy_editor_custom_json">Xray JSON config</string>
-    <string name="proxy_editor_custom_json_outbounds">Xray JSON outbounds</string>
-    <string name="proxy_editor_custom_format_json">Format JSON</string>
-    <string name="proxy_editor_custom_json_invalid">Invalid JSON config</string>
-    <string name="proxy_editor_custom_override_inbound_dns">Override inbound and DNS settings</string>
-    <string name="proxy_editor_custom_override_inbound_dns_summary">Use inbound and DNS settings provided by AsteriskNG</string>
     <string name="proxy_validation_required_field">{field} is required</string>
     <string name="proxy_validation_server_address_contains_invalid_content">Server address must not include protocol, path, whitespace, or user info</string>
     <string name="proxy_validation_invalid_server_address">Invalid server address</string>
@@ -404,14 +371,6 @@
     <string name="proxy_validation_reality_transport_unsupported">REALITY only supports RAW, XHTTP, or gRPC transport</string>
     <string name="proxy_validation_reality_short_id_invalid">Reality ShortId must be even-length hex with at most 16 characters</string>
     <string name="proxy_validation_reality_mldsa65_verify_invalid">Reality Mldsa65Verify must be URL-safe base64 for a 1952-byte public key</string>
-    <string name="proxy_validation_wireguard_key_invalid">WireGuard key must be a valid base64 key</string>
-    <string name="proxy_validation_wireguard_reserved_count_invalid">Reserved must contain three comma-separated numbers</string>
-    <string name="proxy_validation_wireguard_reserved_value_invalid">Each reserved value must be {min}–{max}</string>
-    <string name="proxy_validation_local_address_cidr_required">Local address must use CIDR format</string>
-    <string name="proxy_validation_local_address_prefix_number_required">Local address CIDR prefix must be a number</string>
-    <string name="proxy_validation_invalid_local_address_cidr">Invalid local address CIDR</string>
-    <string name="proxy_validation_mtu_number_required">MTU must be a number</string>
-    <string name="proxy_validation_mtu_out_of_range">MTU must be {min}–{max}</string>
     <string name="proxy_validation_invalid_port_hopping_format">Invalid port hopping format</string>
     <string name="proxy_validation_port_hopping_range_invalid">Port hopping range start must not be greater than end</string>
     <string name="proxy_validation_invalid_bandwidth_format">Invalid bandwidth format</string>
@@ -427,7 +386,6 @@
     <string name="proxy_validation_vless_encryption_verifier_invalid">VLESS encryption verifier must be URL-safe base64</string>
     <string name="proxy_validation_path_must_start_with_slash">Path must start with /</string>
     <string name="proxy_validation_unsupported_alpn">Unsupported ALPN: {value}</string>
-    <string name="proxy_validation_chain_proxy_member_count_invalid">Proxy chain requires at least two members</string>
     <string name="proxy_validation_hysteria_obfs_type_required">Obfs type is required when obfs password is set</string>
     <string name="proxy_validation_hysteria_obfs_unsupported">Hysteria2 obfs only supports salamander</string>
     <string name="proxy_validation_port_hopping_interval_number_required">Port hopping interval must be a number</string>

@@ -7,18 +7,13 @@ import app.AppState
 import app.ProxyServerState
 import app.SubscriptionGroupState
 import features.proxy.server.list.ProxyServerListAddAction
-import features.proxy.server.model.ChainProxy
-import features.proxy.server.model.Custom
-import features.proxy.server.model.HTTP
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
 import features.proxy.server.model.Ssh
-import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
 import features.proxy.server.model.VLESS
 import features.proxy.server.model.VMess
-import features.proxy.server.model.Wireguard
 import features.proxy.server.model.getUrlOrNull
 
 internal data class ProxyServerListSubscriptionUpdate(
@@ -235,12 +230,6 @@ internal fun createProxyServer(action: ProxyServerListAddAction): ProxyServer<*>
 
         ProxyServerListAddAction.Shadowsocks -> Shadowsocks(port = "")
 
-        ProxyServerListAddAction.ChainProxy -> ChainProxy()
-
-        ProxyServerListAddAction.StrategyGroup -> StrategyGroup()
-
-        ProxyServerListAddAction.HTTP -> HTTP(port = "")
-
         ProxyServerListAddAction.VMess -> VMess(port = "")
 
         ProxyServerListAddAction.VLESS -> VLESS()
@@ -249,10 +238,7 @@ internal fun createProxyServer(action: ProxyServerListAddAction): ProxyServer<*>
 
         ProxyServerListAddAction.Socks -> Socks(port = "")
 
-        ProxyServerListAddAction.Wireguard -> Wireguard(port = "", reserved = "", address = "", mtu = "")
         ProxyServerListAddAction.Ssh -> Ssh()
-
-        ProxyServerListAddAction.Custom -> Custom()
     }
 }
 

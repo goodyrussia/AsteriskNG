@@ -5,7 +5,6 @@
 
 package features.proxy.server.editor
 
-import features.subscription.DefaultSubscriptionGroupId
 import app.LocalAppStateStore
 import app.LocalAppServices
 import app.LocalIsWideScreen
@@ -25,10 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import app.R
-import features.proxy.server.model.Custom
 import features.proxy.server.model.ProxyServer
-import features.proxy.server.model.isCustomProxyServer
-import features.proxy.server.model.isCompositeProxyServer
 import features.proxy.server.usecase.proxyServerCopyTextOrNull
 import ui.components.BackNavigationIcon
 import ui.components.NavigationIcon
@@ -43,9 +39,6 @@ import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Copy
 import top.yukonga.miuix.kmp.icon.extended.Ok
 import ui.layout.AdaptiveTopAppBar
-import features.proxy.server.display.displayName
-import features.proxy.server.display.displayNameWithGroup
-import features.proxy.server.display.displayNameById
 import ui.layout.pageContentPaddingWithCutout
 import ui.layout.pageScrollModifiers
 import features.proxy.server.validation.rememberProxyServerValidationMessageResolver
@@ -74,49 +67,12 @@ fun ProxyServerPage(
     val validationMessageOf = rememberProxyServerValidationMessageResolver(validationFailedMessage)
     val copiedMessage = stringResource(R.string.common_copied)
     val unsupportedMessage = stringResource(R.string.common_unsupported)
-    val unknownGroupName = stringResource(R.string.common_unknown_group)
-    val defaultGroupName = stringResource(R.string.subscription_default_group)
-    val allGroupsLabel = stringResource(R.string.proxy_editor_strategy_group_all_groups)
-    val defaultProxyServerTemplate = stringResource(R.string.proxy_default_server)
 
     val psEdit = remember(ps) {
         ps.editableCopy()
     }
-    val groupOptions = remember(appState.subscriptionGroups, allGroupsLabel, defaultGroupName) {
-        listOf(ProxyServerEditorGroupOption(null, allGroupsLabel)) +
-            appState.subscriptionGroups
-                .filter { group -> group.enabled || group.builtIn || group.id == DefaultSubscriptionGroupId }
-                .map { group ->
-                    ProxyServerEditorGroupOption(
-                        id = group.id,
-                        label = group.displayName(defaultGroupName).ifBlank { defaultGroupName },
-                    )
-                }
-    }
-    val memberOptions = remember(appState.proxyServers, appState.subscriptionGroups, serverId, unknownGroupName, defaultGroupName) {
-        val groupNames = appState.subscriptionGroups.displayNameById(defaultGroupName)
-        appState.proxyServers
-            .filter { server ->
-                server.id != serverId &&
-                    !server.server.isCompositeProxyServer() &&
-                    !server.server.isCustomProxyServer()
-            }
-            .map { server ->
-                ProxyServerEditorMemberOption(
-                    id = server.id,
-                    label = server.displayNameWithGroup(
-                        defaultProxyServerTemplate = defaultProxyServerTemplate,
-                        groupNames = groupNames,
-                        unknownGroupName = unknownGroupName,
-                    ),
-                )
-            }
-    }
-    val editorOptions = remember(groupOptions, memberOptions) {
-        ProxyServerEditorOptions(
-            groupOptions = groupOptions,
-            memberOptions = memberOptions,
-        )
+    val editorOptions = remember {
+        ProxyServerEditorOptions(groupOptions = emptyList(), memberOptions = emptyList())
     }
     val title = psEdit.editorTitle()
 
@@ -192,13 +148,6 @@ fun ProxyServerPage(
             outerPadding = padding,
             isWideScreen = isWideScreen,
         )
-        if (psEdit is Custom) {
-            CustomProxyServerEditor(
-                customEdit = psEdit,
-                contentPadding = contentPadding,
-            )
-            return@Scaffold
-        }
         Box(
             modifier = Modifier.imePadding(),
         ) {

@@ -32,9 +32,6 @@ internal fun rememberProxyServerValidationMessageResolver(
             "FinalMask" to "FinalMask",
             "XHTTP Extra" to "XHTTP Extra",
             "encryption method" to stringResource(R.string.proxy_editor_encryption),
-            "strategy group type" to stringResource(R.string.proxy_editor_strategy_group_type),
-            "custom JSON" to stringResource(R.string.proxy_editor_custom_json),
-            "custom JSON outbounds" to stringResource(R.string.proxy_editor_custom_json_outbounds),
         ),
         serverAddressContainsInvalidContent =
             stringResource(R.string.proxy_validation_server_address_contains_invalid_content),
@@ -48,15 +45,6 @@ internal fun rememberProxyServerValidationMessageResolver(
         realityTransportUnsupported = stringResource(R.string.proxy_validation_reality_transport_unsupported),
         realityShortIdInvalid = stringResource(R.string.proxy_validation_reality_short_id_invalid),
         realityMldsa65VerifyInvalid = stringResource(R.string.proxy_validation_reality_mldsa65_verify_invalid),
-        wireguardKeyInvalid = stringResource(R.string.proxy_validation_wireguard_key_invalid),
-        wireguardReservedCountInvalid = stringResource(R.string.proxy_validation_wireguard_reserved_count_invalid),
-        wireguardReservedValueInvalid = stringResource(R.string.proxy_validation_wireguard_reserved_value_invalid),
-        localAddressCidrRequired = stringResource(R.string.proxy_validation_local_address_cidr_required),
-        localAddressPrefixNumberRequired =
-            stringResource(R.string.proxy_validation_local_address_prefix_number_required),
-        invalidLocalAddressCidr = stringResource(R.string.proxy_validation_invalid_local_address_cidr),
-        mtuNumberRequired = stringResource(R.string.proxy_validation_mtu_number_required),
-        mtuOutOfRange = stringResource(R.string.proxy_validation_mtu_out_of_range),
         invalidPortHoppingFormat = stringResource(R.string.proxy_validation_invalid_port_hopping_format),
         portHoppingRangeInvalid = stringResource(R.string.proxy_validation_port_hopping_range_invalid),
         invalidBandwidthFormat = stringResource(R.string.proxy_validation_invalid_bandwidth_format),
@@ -73,7 +61,6 @@ internal fun rememberProxyServerValidationMessageResolver(
             stringResource(R.string.proxy_validation_vless_encryption_verifier_invalid),
         pathMustStartWithSlash = stringResource(R.string.proxy_validation_path_must_start_with_slash),
         unsupportedAlpn = stringResource(R.string.proxy_validation_unsupported_alpn),
-        chainProxyMemberCountInvalid = stringResource(R.string.proxy_validation_chain_proxy_member_count_invalid),
         hysteriaObfsTypeRequired = stringResource(R.string.proxy_validation_hysteria_obfs_type_required),
         hysteriaObfsUnsupported = stringResource(R.string.proxy_validation_hysteria_obfs_unsupported),
         portHoppingIntervalNumberRequired =
@@ -104,14 +91,6 @@ private data class ProxyServerValidationMessages(
     val realityTransportUnsupported: String,
     val realityShortIdInvalid: String,
     val realityMldsa65VerifyInvalid: String,
-    val wireguardKeyInvalid: String,
-    val wireguardReservedCountInvalid: String,
-    val wireguardReservedValueInvalid: String,
-    val localAddressCidrRequired: String,
-    val localAddressPrefixNumberRequired: String,
-    val invalidLocalAddressCidr: String,
-    val mtuNumberRequired: String,
-    val mtuOutOfRange: String,
     val invalidPortHoppingFormat: String,
     val portHoppingRangeInvalid: String,
     val invalidBandwidthFormat: String,
@@ -127,7 +106,6 @@ private data class ProxyServerValidationMessages(
     val vlessEncryptionVerifierInvalid: String,
     val pathMustStartWithSlash: String,
     val unsupportedAlpn: String,
-    val chainProxyMemberCountInvalid: String,
     val hysteriaObfsTypeRequired: String,
     val hysteriaObfsUnsupported: String,
     val portHoppingIntervalNumberRequired: String,
@@ -153,14 +131,6 @@ private data class ProxyServerValidationMessages(
             ProxyServerValidationError.RealityTransportUnsupported -> realityTransportUnsupported
             ProxyServerValidationError.RealityShortIdInvalid -> realityShortIdInvalid
             ProxyServerValidationError.RealityMldsa65VerifyInvalid -> realityMldsa65VerifyInvalid
-            ProxyServerValidationError.WireguardKeyInvalid -> wireguardKeyInvalid
-            ProxyServerValidationError.WireguardReservedCountInvalid -> wireguardReservedCountInvalid
-            ProxyServerValidationError.WireguardReservedValueInvalid -> wireguardReservedValueInvalid.formatRange(values)
-            ProxyServerValidationError.LocalAddressCidrRequired -> localAddressCidrRequired
-            ProxyServerValidationError.LocalAddressPrefixNumberRequired -> localAddressPrefixNumberRequired
-            ProxyServerValidationError.InvalidLocalAddressCidr -> invalidLocalAddressCidr
-            ProxyServerValidationError.MtuNumberRequired -> mtuNumberRequired
-            ProxyServerValidationError.MtuOutOfRange -> mtuOutOfRange.formatRange(values)
             ProxyServerValidationError.InvalidPortHoppingFormat -> invalidPortHoppingFormat
             ProxyServerValidationError.PortHoppingRangeInvalid -> portHoppingRangeInvalid
             ProxyServerValidationError.InvalidBandwidthFormat -> invalidBandwidthFormat
@@ -177,7 +147,6 @@ private data class ProxyServerValidationMessages(
             ProxyServerValidationError.VlessEncryptionVerifierInvalid -> vlessEncryptionVerifierInvalid
             ProxyServerValidationError.PathMustStartWithSlash -> pathMustStartWithSlash
             ProxyServerValidationError.UnsupportedAlpn -> unsupportedAlpn.formatTemplate("value" to values.valueAt(0))
-            ProxyServerValidationError.ChainProxyMemberCountInvalid -> chainProxyMemberCountInvalid
             ProxyServerValidationError.HysteriaObfsTypeRequired -> hysteriaObfsTypeRequired
             ProxyServerValidationError.HysteriaObfsUnsupported -> hysteriaObfsUnsupported
             ProxyServerValidationError.PortHoppingIntervalNumberRequired -> portHoppingIntervalNumberRequired

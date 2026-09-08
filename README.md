@@ -12,7 +12,7 @@ A rooted Android Xray client powered by [Xray-core](https://github.com/XTLS/Xray
 
 - Rooted TPROXY transparent-proxy runtime using Xray-core, iptables, and policy routing
 - Per-app Global, Blacklist, and Whitelist proxy policy
-- VMess, VLESS, Trojan, Shadowsocks, Socks, HTTP, Hysteria2, WireGuard, strategy group, and chain proxy support
+- VMess, VLESS, Trojan, Shadowsocks, Socks, and SSH support
 - v2rayNG and mihomo subscription format support
 - Resource file management for `geoip.dat`, `geosite.dat`, `geoip-only-cn-private.dat`, and the Xray executable
 - ROOT start-on-boot script generation through Magisk `service.d`

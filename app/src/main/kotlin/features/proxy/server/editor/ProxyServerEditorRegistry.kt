@@ -6,18 +6,13 @@ package features.proxy.server.editor
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import app.R
-import features.proxy.server.model.ChainProxy
-import features.proxy.server.model.Custom
-import features.proxy.server.model.HTTP
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Ssh
 import features.proxy.server.model.Socks
-import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
 import features.proxy.server.model.VLESS
 import features.proxy.server.model.VMess
-import features.proxy.server.model.Wireguard
 import androidx.compose.ui.res.stringResource
 
 internal data class ProxyServerEditorOptions(
@@ -27,16 +22,11 @@ internal data class ProxyServerEditorOptions(
 
 internal fun ProxyServer<*>.editableCopy(): ProxyServer<*> {
     return when (this) {
-        is StrategyGroup -> copy()
-        is ChainProxy -> copy()
-        is Custom -> copy()
-        is HTTP -> copy()
         is Socks -> copy()
         is Shadowsocks -> copy(parms = parms.copy())
         is VMess -> copy(parms = parms.copy())
         is Trojan -> copy(parms = parms.copy())
         is VLESS -> copy(parms = parms.copy())
-        is Wireguard -> copy()
         is Ssh -> copy()
         else -> unsupportedProxyServerEditor()
     }
@@ -44,12 +34,7 @@ internal fun ProxyServer<*>.editableCopy(): ProxyServer<*> {
 
 @Composable
 internal fun ProxyServer<*>.editorTitle(): String {
-    return when (this) {
-        is StrategyGroup -> stringResource(R.string.proxy_editor_strategy_group_title)
-        is ChainProxy -> stringResource(R.string.proxy_editor_chain_proxy_title)
-        is Custom -> stringResource(R.string.proxy_editor_custom_title)
-        else -> getInfo().protocol
-    }
+    return getInfo().protocol
 }
 
 internal fun LazyListScope.proxyServerEditorContent(
@@ -57,15 +42,11 @@ internal fun LazyListScope.proxyServerEditorContent(
     options: ProxyServerEditorOptions,
 ) {
     when (proxyServer) {
-        is StrategyGroup -> strategyGroupProxyServer(proxyServer, options.groupOptions)
-        is ChainProxy -> chainProxyServer(proxyServer, options.memberOptions)
-        is HTTP -> httpProxyServer(proxyServer)
         is Socks -> socksProxyServer(proxyServer)
         is Shadowsocks -> shadowsocksProxyServer(proxyServer)
         is VMess -> vmessProxyServer(proxyServer)
         is Trojan -> trojanProxyServer(proxyServer)
         is VLESS -> vlessProxyServer(proxyServer)
-        is Wireguard -> wireguardProxyServer(proxyServer)
         is Ssh -> sshProxyServer(proxyServer)
         else -> proxyServer.unsupportedProxyServerEditor()
     }

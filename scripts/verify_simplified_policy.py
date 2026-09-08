@@ -77,11 +77,6 @@ require(
     "appendPreroutingDnsTproxyRule(variant, prefix, port, config.mark)",
 )
 require(
-    "app/src/main/kotlin/engine/xray/CustomXrayConfigRewriter.kt",
-    "return config.overwriteAsteriskInboundDns(request, server)",
-    "outbound.applyFixedProxyOutboundDomainStrategy(appState)",
-)
-require(
     "app/src/main/kotlin/data/AppSettingsPreferences.kt",
     "enableResolveProxyServerDomain = true",
     "enableSniffing = false",

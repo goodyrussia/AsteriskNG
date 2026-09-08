@@ -5,13 +5,11 @@ package features.proxy.server.model
 
 internal fun ProxyServer<*>.serverHost(): String {
     return when (this) {
-        is HTTP -> server
         is Shadowsocks -> server
         is Socks -> server
         is Trojan -> server
         is VLESS -> server
         is VMess -> server
-        is Wireguard -> server
         is Ssh -> server
         else -> ""
     }

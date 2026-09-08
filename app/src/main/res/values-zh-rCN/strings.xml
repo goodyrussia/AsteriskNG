@@ -290,17 +290,11 @@
     <string name="proxy_server_list_scan_qr_code">扫描二维码</string>
     <string name="proxy_server_list_import_clipboard">从剪贴板导入</string>
     <string name="proxy_server_list_import_file">从文件导入</string>
-    <string name="proxy_server_list_add_strategy_group">添加 策略组</string>
-    <string name="proxy_server_list_add_chain_proxy">添加 链式代理</string>
-    <string name="proxy_server_list_add_custom">添加 Custom</string>
-    <string name="proxy_server_list_add_http">添加 HTTP</string>
     <string name="proxy_server_list_add_vmess">添加 VMess</string>
     <string name="proxy_server_list_add_vless">添加 VLESS</string>
     <string name="proxy_server_list_add_trojan">添加 Trojan</string>
     <string name="proxy_server_list_add_shadowsocks">添加 Shadowsocks</string>
     <string name="proxy_server_list_add_socks">添加 Socks</string>
-    <string name="proxy_server_list_add_hysteria2">添加 Hysteria2</string>
-    <string name="proxy_server_list_add_wireguard">添加 Wireguard</string>
     <string name="proxy_server_list_restart_service">服务重启</string>
     <string name="proxy_server_list_update_subscriptions">更新订阅</string>
     <string name="proxy_server_list_saved">{name} 已保存</string>
@@ -312,9 +306,6 @@
 
     <string name="proxy_server_list_subscription_update_result">已更新 {groupCount} 个订阅分组，导入 {serverCount} 个节点</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">已更新 {groupCount} 个订阅分组，{failedCount} 个失败，导入 {serverCount} 个节点</string>
-    <string name="proxy_server_list_strategy_group_summary">{strategy} · {group}</string>
-    <string name="proxy_server_list_strategy_group_summary_with_filter">{strategy} · {group} · 过滤：{filter}</string>
-    <string name="proxy_server_list_chain_proxy_summary">{count} 跳</string>
     <string name="proxy_server_list_no_subscription_updates">没有可更新的订阅</string>
     <string name="proxy_server_list_service_started">代理服务已启动</string>
     <string name="proxy_server_list_service_stopped">代理服务已停止</string>
@@ -328,9 +319,6 @@
 
     <!-- Proxy editor -->
     <string name="proxy_editor_validation_failed">配置校验失败</string>
-    <string name="proxy_editor_strategy_group_title">策略组</string>
-    <string name="proxy_editor_chain_proxy_title">链式代理</string>
-    <string name="proxy_editor_custom_title">Custom</string>
     <string name="proxy_editor_properties">配置项</string>
     <string name="proxy_editor_remarks">别名</string>
     <string name="proxy_editor_server">服务器地址</string>
@@ -343,9 +331,6 @@
     <string name="proxy_editor_encryption">加密方式</string>
     <string name="proxy_editor_flow">流控</string>
     <string name="proxy_editor_preshared_key_optional">PreSharedKey（可选）</string>
-    <string name="proxy_editor_reserved_optional">Reserved（可选，逗号隔开）</string>
-    <string name="proxy_editor_local_address_optional">本地地址（可选 IPv4/IPv6 逗号隔开）</string>
-    <string name="proxy_editor_mtu_optional">MTU（可选，默认 1420）</string>
     <string name="proxy_editor_auth">密码（auth）</string>
     <string name="proxy_editor_obfs_password">混淆密码</string>
     <string name="proxy_editor_mport">跳跃端口（会覆盖服务器端口）</string>
@@ -372,24 +357,6 @@
     <string name="proxy_editor_tls_settings">传输层加密配置（tlsSettings）</string>
     <string name="proxy_editor_tls_fingerprint">TLS 指纹</string>
     <string name="proxy_editor_reality_settings">传输层加密配置（realitySettings）</string>
-    <string name="proxy_editor_strategy_group_type">策略组类型</string>
-    <string name="proxy_editor_strategy_group_least_ping">最低延迟</string>
-    <string name="proxy_editor_strategy_group_least_load">最低负载</string>
-    <string name="proxy_editor_strategy_group_random">随机选择</string>
-    <string name="proxy_editor_strategy_group_round_robin">轮询</string>
-    <string name="proxy_editor_strategy_group_source_group">订阅分组</string>
-    <string name="proxy_editor_strategy_group_all_groups">全部分组</string>
-    <string name="proxy_editor_strategy_group_filter">别名正则过滤</string>
-    <string name="proxy_editor_chain_members">代理链成员</string>
-    <string name="proxy_editor_chain_member">成员 {index}</string>
-    <string name="proxy_editor_chain_member_unselected">请选择成员</string>
-    <string name="proxy_editor_chain_add_member">添加成员</string>
-    <string name="proxy_editor_custom_json">Xray JSON 配置</string>
-    <string name="proxy_editor_custom_json_outbounds">Xray JSON 出站配置</string>
-    <string name="proxy_editor_custom_format_json">格式化 JSON</string>
-    <string name="proxy_editor_custom_json_invalid">JSON 配置无效</string>
-    <string name="proxy_editor_custom_override_inbound_dns">覆写入站设置和 DNS 设置</string>
-    <string name="proxy_editor_custom_override_inbound_dns_summary">使用 AsteriskNG 提供的入站设置和 DNS 设置</string>
     <string name="proxy_validation_required_field">请填写{field}</string>
     <string name="proxy_validation_server_address_contains_invalid_content">服务器地址不能包含协议、路径、空格或用户信息</string>
     <string name="proxy_validation_invalid_server_address">服务器地址无效</string>
@@ -402,14 +369,6 @@
     <string name="proxy_validation_reality_transport_unsupported">REALITY 仅支持 RAW、XHTTP 或 gRPC 传输</string>
     <string name="proxy_validation_reality_short_id_invalid">Reality ShortId 必须为偶数长度十六进制，且不超过 16 个字符</string>
     <string name="proxy_validation_reality_mldsa65_verify_invalid">Reality Mldsa65Verify 必须是 1952 字节公钥的 URL-safe base64</string>
-    <string name="proxy_validation_wireguard_key_invalid">WireGuard 密钥必须是有效的 base64 密钥</string>
-    <string name="proxy_validation_wireguard_reserved_count_invalid">Reserved 必须包含三个逗号分隔的数字</string>
-    <string name="proxy_validation_wireguard_reserved_value_invalid">每个 Reserved 值范围应为 {min}–{max}</string>
-    <string name="proxy_validation_local_address_cidr_required">本地地址必须使用 CIDR 格式</string>
-    <string name="proxy_validation_local_address_prefix_number_required">本地地址 CIDR 前缀必须是数字</string>
-    <string name="proxy_validation_invalid_local_address_cidr">本地地址 CIDR 无效</string>
-    <string name="proxy_validation_mtu_number_required">MTU 必须是数字</string>
-    <string name="proxy_validation_mtu_out_of_range">MTU 范围应为 {min}–{max}</string>
     <string name="proxy_validation_invalid_port_hopping_format">端口跳跃格式无效</string>
     <string name="proxy_validation_port_hopping_range_invalid">端口跳跃范围起始值不能大于结束值</string>
     <string name="proxy_validation_invalid_bandwidth_format">带宽格式无效</string>
@@ -425,7 +384,6 @@
     <string name="proxy_validation_vless_encryption_verifier_invalid">VLESS 加密校验值必须是 URL-safe base64</string>
     <string name="proxy_validation_path_must_start_with_slash">路径必须以 / 开头</string>
     <string name="proxy_validation_unsupported_alpn">不支持的 ALPN：{value}</string>
-    <string name="proxy_validation_chain_proxy_member_count_invalid">代理链至少需要两个成员</string>
     <string name="proxy_validation_hysteria_obfs_type_required">设置混淆密码时必须填写混淆类型</string>
     <string name="proxy_validation_hysteria_obfs_unsupported">Hysteria2 混淆仅支持 salamander</string>
     <string name="proxy_validation_port_hopping_interval_number_required">端口跳跃间隔必须是数字</string>
