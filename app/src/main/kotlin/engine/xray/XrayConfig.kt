@@ -46,6 +46,7 @@ private fun buildGeneratedXrayConfig(request: XrayConfigRequest): GeneratedXrayC
         proxyTarget = outboundPlan.routeTargets.getValue(XrayTags.PROXY),
         balancers = buildXrayBalancers(outboundPlan.balancers),
         dnsHijackInboundTags = request.dnsHijackInboundTags,
+        directDnsRouting = dnsPlan.directDnsRouting,
     )
 
     return GeneratedXrayConfig(

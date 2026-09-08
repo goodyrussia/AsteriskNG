@@ -24,6 +24,7 @@ internal data class XrayDnsPlan(
     val tag: String,
     val hosts: JsonObject,
     val fakeDns: JsonElement?,
+    val directDnsRouting: Boolean = false,
 )
 
 internal fun XrayConfigRequest.buildXrayDnsPlan(
@@ -37,12 +38,17 @@ internal fun XrayConfigRequest.buildXrayDnsPlan(
     // (tcp://<resolver>), but the Xray/VLESS path was still on "localhost". Route
     // every protocol's content DNS through the tunnel as a reachable TCP resolver.
     val effectiveProxyDnsServers = tunneledDnsServers(proxyDnsServers, deviceDnsServers)
+    // Direct device DNS for last-resort fallback: raw IPs from ConnectivityManager,
+    // tagged to route DIRECT (see directDnsRouting rule) so they always resolve
+    // even when the tunnel and server egress are both unreachable.
+    val directDeviceDnsServers = deviceDnsServers.toTrimmedNonEmptyDistinctList()
     return appState.buildXrayDnsPlan(
         proxyDnsServers = effectiveProxyDnsServers,
         directDnsServers = directDnsServers,
         directDnsDomains = directDnsDomains,
         dnsHosts = dnsHosts,
         startupProxyServerDomains = startupProxyServerDomains,
+        directDeviceDnsServers = directDeviceDnsServers,
     )
 }
 
@@ -114,6 +120,7 @@ private fun AppState.buildXrayDnsPlan(
     directDnsDomains: List<String>,
     dnsHosts: List<String>,
     startupProxyServerDomains: List<String>,
+    directDeviceDnsServers: List<String> = emptyList(),
 ): XrayDnsPlan {
     val effectiveDirectDnsDomains = xrayDirectDnsDomains(directDnsDomains, startupProxyServerDomains)
     return XrayDnsPlan(
@@ -122,11 +129,13 @@ private fun AppState.buildXrayDnsPlan(
             directDnsServers = directDnsServers,
             effectiveDirectDnsDomains = effectiveDirectDnsDomains,
             startupProxyServerDomains = startupProxyServerDomains,
+            directDeviceDnsServers = directDeviceDnsServers,
         ),
         queryStrategy = if (enableIpv6) "UseIP" else "UseIPv4",
         tag = XrayTags.PROXY_DNS,
         hosts = dnsHosts.toDnsHostsJson(),
         fakeDns = if (effectiveFakeDnsEnabled) buildXrayFakeDnsConfig() else null,
+        directDnsRouting = directDeviceDnsServers.isNotEmpty(),
     )
 }
 
@@ -205,14 +214,16 @@ private fun AppState.xrayDnsServers(
     directDnsServers: List<String>,
     effectiveDirectDnsDomains: List<String>,
     startupProxyServerDomains: List<String>,
+    directDeviceDnsServers: List<String> = emptyList(),
 ): JsonArray {
     return buildJsonArray {
-        // Proxy server hostnames are pinned ahead of the tunnel via dns.hosts
-        // (Bionic InetAddress pre-resolution in XrayDnsHosts) — matching the
-        // Exclave core's "domain rewriting". Never emit a "localhost" DNS server
-        // here: on a rooted TPROXY device the core resolves it through Go's
-        // system resolver, whose port-53 query is re-captured by our own
-        // dns-hijack rule -> self-loop -> "io: read/write on closed pipe".
+        // Server-loopback resolvers: dialed THROUGH the tunnel and resolved on
+        // the exit node itself (systemd-resolved on 127.0.0.53, dnsmasq/bind on
+        // 127.0.0.1). Always reachable regardless of the server's egress policy,
+        // and CDN-consistent by definition. This mirrors Exclave's tunneled
+        // Remote DNS behavior without depending on public-resolver egress.
+        ServerLoopbackDnsServers.forEach { server -> add(JsonPrimitive(server)) }
+
         if (effectiveFakeDnsEnabled) {
             add(JsonPrimitive("fakedns"))
         }
@@ -254,6 +265,19 @@ private fun AppState.xrayDnsServers(
                     directDnsDomains = effectiveDirectDnsDomains,
                 ).forEach { server -> add(JsonPrimitive(server)) }
             }
+        }
+
+        // Last-resort direct resolvers: the device's own DNS servers from
+        // ConnectivityManager, tagged dns-direct and routed to the direct
+        // outbound (see routing rule) so they always resolve even when the
+        // tunnel and server egress are both down.
+        directDeviceDnsServers.forEach { server ->
+            add(
+                buildJsonObject {
+                    put("address", server)
+                    put("tag", XrayTags.DIRECT_DNS)
+                },
+            )
         }
     }
 }
