@@ -133,10 +133,13 @@ internal fun JsonObject.applyFixedProxyOutboundDomainStrategy(appState: AppState
         }
     }
 
-    // SSH exposes a TCP-only SOCKS proxy. Let the SSH server resolve destination
-    // domains (server-side) instead of forcing Xray to resolve them client-side
-    // via Go's system resolver, which Android blocks ([::1]:53 -> SELinux EPERM).
-    if (stringValue("protocol") == ProxyServerConstants.PROTOCOL_SOCKS) {
+    // SSH and SOCKS tunnels are TCP-only and resolve destination domains
+    // server-side. Force the destination domain through unchanged (AsIs) so the
+    // SSH/SOCKS server resolves it, instead of forcing Xray to resolve it
+    // client-side via Go's system resolver, which Android blocks ([::1]:53 ->
+    // SELinux EPERM).
+    val protocol = stringValue("protocol")
+    if (protocol == ProxyServerConstants.PROTOCOL_SSH || protocol == ProxyServerConstants.PROTOCOL_SOCKS) {
         return withSockopt {
             put("domainStrategy", "AsIs")
         }

@@ -37,7 +37,6 @@ internal data class AppServices(
     val coreLogRepository: CoreLogRepository,
     val accessLogRepository: CoreLogRepository,
     val logcatRepository: CoreLogRepository,
-    val sshLogRepository: CoreLogRepository,
 )
 
 internal val LocalAppServices = staticCompositionLocalOf<AppServices> {

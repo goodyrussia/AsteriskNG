@@ -90,27 +90,27 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Set up Go 1.24.5 for sshcore
+      - name: Set up Go 1.26.0 for exclave-core
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.5"
+          go-version: "1.26.0"
           cache: false
 
-      - name: Build pinned Eichgee Xray core
+      - name: Build pinned exclave-core fork
         env:
-          EICHGEE_XRAY_COMMIT: 725e55ddabe8431a6e66286823d97d71c1b0947b
+          EXCLAVE_CORE_TAG: v5.50.0-ssh
         run: |
           set -euo pipefail
-          git clone --filter=blob:none --no-checkout https://github.com/eichgee/Xray-core.git /tmp/eichgee-xray
-          git -C /tmp/eichgee-xray checkout --detach "$EICHGEE_XRAY_COMMIT"
-          test "$(git -C /tmp/eichgee-xray rev-parse HEAD)" = "$EICHGEE_XRAY_COMMIT"
+          git clone --filter=blob:none --no-checkout https://github.com/goodyrussia/exclave-core.git /tmp/exclave-core
+          git -C /tmp/exclave-core checkout --detach "$EXCLAVE_CORE_TAG"
+          test "$(git -C /tmp/exclave-core rev-list -n1 "$EXCLAVE_CORE_TAG")" = "278c3d816620e2d3d56fa8239260fab73e2b053d"
           mkdir -p app/build/generated/xrayCoreJniLibs/arm64-v8a
           (
-            cd /tmp/eichgee-xray
-            go build -mod=readonly -trimpath -ldflags='-s -w -buildid=' -o /tmp/xray-linux ./main
-            /tmp/xray-linux version | grep -F 'Xray 25.5.16 (Xray, Penetrates Everything.) Custom ('
+            cd /tmp/exclave-core
+            GOTOOLCHAIN=auto go build -mod=mod -trimpath -ldflags='-s -w -buildid=' -o /tmp/xray-linux ./main
+            /tmp/xray-linux version | grep -F 'Exclave-core 5.50.0'
             CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build \
-              -mod=readonly -trimpath -ldflags='-s -w -buildid=' \
+              -mod=mod -trimpath -ldflags='-s -w -buildid=' \
               -o "$GITHUB_WORKSPACE/app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so" ./main
           )
           file app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so | grep -E 'ARM aarch64|AArch64'
@@ -184,13 +184,6 @@ jobs:
             echo "::error::Missing repository secret RELEASE_KEY_ALIAS."
             exit 1
           fi
-
-      - name: Build sshcore daemon for arm64
-        run: |
-          mkdir -p app/build/generated/sshCoreJniLibs/arm64-v8a
-          cd sshcore
-          CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -trimpath -ldflags='-s -w -buildid=' -o "$GITHUB_WORKSPACE/app/build/generated/sshCoreJniLibs/arm64-v8a/libsshcore.so" .
-          file "$GITHUB_WORKSPACE/app/build/generated/sshCoreJniLibs/arm64-v8a/libsshcore.so" | grep -E 'ARM aarch64|AArch64'
 
       - name: Build release APKs
         run: ./gradlew --no-daemon :app:assembleRelease

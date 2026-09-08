@@ -46,6 +46,7 @@ internal fun buildFixedXrayRoutingRules(
         buildXrayDnsHijackRule(dnsHijackInboundTags)?.let(::add)
         add(
             buildJsonObject {
+                put("type", "field")
                 proxyTarget.applyTo(this)
                 put("network", "tcp,udp")
             },
@@ -57,6 +58,7 @@ internal fun buildXrayDnsHijackRule(inboundTags: List<String>): JsonObject? {
     val tags = inboundTags.toTrimmedNonEmptyDistinctList()
     if (tags.isEmpty()) return null
     return buildJsonObject {
+        put("type", "field")
         put("inboundTag", tags.toJsonStringArray())
         put("network", "tcp,udp")
         put("port", "53")

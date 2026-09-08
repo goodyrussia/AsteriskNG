@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate AsteriskNG's retained config shapes against the pinned Eichgee Xray."""
+"""Validate AsteriskNG's retained config shapes against the pinned core binary.
+
+The core is now the exclave-core fork (goodyrussia/exclave-core, v5.50.0-ssh)
+which is Xray v4-lineage and uses the same `test -c <config>` CLI. This also
+validates the native `ssh` outbound with all 4 transport modes + payload.
+"""
 
 import copy
 import json
@@ -8,7 +13,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-XRAY = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/xray-linux")
+# Accept either the core binary or the original xray binary.
+CORE = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/exclave-linux")
 UUID = "11111111-1111-1111-1111-111111111111"
 
 TPROXY = {
@@ -23,6 +29,30 @@ TLS_WS = {
     "security": "tls",
     "tlsSettings": {"serverName": "example.com", "allowInsecure": True},
     "wsSettings": {"path": "/", "host": "example.com"},
+}
+
+# Native SSH outbound: all 4 modes + payload.
+SSH = {
+    "protocol": "ssh",
+    "settings": {
+        "address": "example.com",
+        "port": 22,
+        "user": "test",
+        "password": "test",
+        "tunnelMode": "tls_proxy",
+        "sni": "example.com",
+        "tlsVersion": "1.2",
+        "tlsAllowInsecure": True,
+        "httpProxy": "proxy.example.com",
+        "httpProxyPort": 8080,
+        "proxyUsername": "u",
+        "proxyPassword": "p",
+        "authenticateProxy": True,
+        "payloadEnabled": True,
+        "payload": "GET http://[host_port]/ HTTP/1.1\r\nHost: [host]\r\n\r\n[split]SSH-2.0-OpenSSH_8.2p1",
+        "payloadSplit": "split_delay",
+        "payloadDelayMs": 100,
+    },
 }
 
 OUTBOUNDS = {
@@ -62,6 +92,7 @@ OUTBOUNDS = {
             "mtu": 1420,
         },
     },
+    "ssh": SSH,
 }
 
 
@@ -97,14 +128,18 @@ def config(outbound: dict) -> dict:
 
 
 def main() -> None:
-    if not XRAY.is_file():
-        raise SystemExit(f"Xray binary not found: {XRAY}")
+    if not CORE.is_file():
+        raise SystemExit(f"Core binary not found: {CORE}")
     with tempfile.TemporaryDirectory(prefix="asteriskng-configs-") as temp:
         for name, outbound in OUTBOUNDS.items():
             path = Path(temp, f"{name}.json")
-            path.write_text(json.dumps(config(outbound)), encoding="utf-8")
+            cfg = config(outbound)
+            # exclave-core (Xray v4-lineage) requires an explicit rule type.
+            for rule in cfg.get("routing", {}).get("rules", []):
+                rule.setdefault("type", "field")
+            path.write_text(json.dumps(cfg), encoding="utf-8")
             result = subprocess.run(
-                [str(XRAY), "run", "-test", "-config", str(path)],
+                [str(CORE), "test", "-c", str(path)],
                 text=True,
                 capture_output=True,
             )

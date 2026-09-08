@@ -15,7 +15,6 @@ import features.proxy.server.model.ProxyServerConstants.PROTOCOL_SSH
 import utils.decodeFlexibleBase64ToStringOrRaw
 import utils.proxyUrlRemarks
 import utils.userInfoOrNull
-import engine.ssh.DefaultSshLocalPort
 
 @Serializable
 data class Ssh(
@@ -50,13 +49,44 @@ data class Ssh(
     override fun toXrayOutbound(tag: String): OutboundObject {
         return OutboundObject(
             tag = tag,
-            protocol = ProxyServerConstants.PROTOCOL_SOCKS,
-            settings = buildLegacyServerSettings(
-                buildJsonObject {
-                    put("address", "127.0.0.1")
-                    put("port", DefaultSshLocalPort)
-                },
-            ),
+            protocol = ProxyServerConstants.PROTOCOL_SSH,
+            settings = buildJsonObject {
+                put("address", server)
+                put("port", port.toIntOrNull() ?: 22)
+                put("user", username)
+                if (password.isNotBlank()) {
+                    put("password", password)
+                }
+                put("tunnelMode", mode)
+                if (httpProxy.isNotBlank()) {
+                    put("httpProxy", httpProxy)
+                    put("httpProxyPort", httpProxyPort.toIntOrNull() ?: 8080)
+                }
+                if (proxyUsername.isNotBlank()) {
+                    put("proxyUsername", proxyUsername)
+                }
+                if (proxyPassword.isNotBlank()) {
+                    put("proxyPassword", proxyPassword)
+                }
+                if (authenticateProxy) {
+                    put("authenticateProxy", true)
+                }
+                if (sni.isNotBlank()) {
+                    put("sni", sni)
+                }
+                if (tlsVersion.isNotBlank()) {
+                    put("tlsVersion", tlsVersion)
+                }
+                if (allowInsecure) {
+                    put("tlsAllowInsecure", true)
+                }
+                if (payloadEnabled && payload.isNotBlank()) {
+                    put("payloadEnabled", true)
+                    put("payload", payload)
+                    put("payloadSplit", payloadSplitMode)
+                    put("payloadDelayMs", payloadDelayMs.toIntOrNull() ?: 300)
+                }
+            },
         )
     }
 

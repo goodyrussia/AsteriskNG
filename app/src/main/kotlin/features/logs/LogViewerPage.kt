@@ -102,22 +102,6 @@ fun LogcatLogsPage(
 }
 
 @Composable
-fun SshLogsPage(
-    padding: PaddingValues,
-) {
-    val services = LocalAppServices.current
-    val context = LocalContext.current
-    LogViewerPage(
-        padding = padding,
-        title = stringResource(R.string.ssh_logs_title),
-        repository = services.sshLogRepository,
-        onClear = {
-            context.clearSshLogFile()
-        },
-    )
-}
-
-@Composable
 private fun LogViewerPage(
     padding: PaddingValues,
     title: String,

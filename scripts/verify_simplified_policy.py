@@ -40,30 +40,11 @@ require(
     "is Ssh -> server",
 )
 require(
-    "app/src/main/kotlin/engine/ssh/SshCoreProcessManager.kt",
-    "RootXrayGid",
-    "setuidgidPath",
-    "refreshed sshcore binary from APK",
-    "kill \"$pid\"",
-)
-require(
-    "app/src/main/kotlin/engine/ssh/SshCoreConfig.kt",
-    "put(\"ssh_resolved_ip\", resolvedIp)",
-    "resolveSshHostIpWithRetry",
-    "activeNetwork",
-    "getAllByName",
-)
-require(
-    "sshcore/tunnel.go",
-    "resolveAndroidHost",
-    "dialTCPWithFallback",
-)
-require(
-    "sshcore/resolver.go",
-    "androidCarrierDNSServers",
-    "getent",
-    "toybox",
-    "profile_fallback_ip",
+    "app/src/main/kotlin/features/proxy/server/model/Ssh.kt",
+    "protocol = ProxyServerConstants.PROTOCOL_SSH",
+    'put("tunnelMode", mode)',
+    'put("payloadSplit", payloadSplitMode)',
+    'put("tlsAllowInsecure", true)',
 )
 
 require(

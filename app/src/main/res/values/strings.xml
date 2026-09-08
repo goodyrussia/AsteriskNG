@@ -487,6 +487,4 @@
     <string name="ssh_editor_http_proxy_port">HTTP Proxy Port</string>
     <string name="ssh_editor_authenticate_proxy">Authenticate Proxy</string>
     <string name="ssh_editor_ssh_type">SSH</string>
-    <string name="ssh_logs_title">SSH Logs</string>
-    <string name="settings_ssh_logs">SSH Logs</string>
 </resources>

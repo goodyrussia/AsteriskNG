@@ -71,7 +71,7 @@ private fun sshTunneledDnsServers(
         .map { server -> server.toTcpDnsServer() }
     if (device.isNotEmpty()) return device
 
-    return listOf("tcp+1.1.1.1", "tcp+8.8.8.8")
+    return listOf("tcp://1.1.1.1", "tcp://8.8.8.8")
 }
 
 /** A tunnel-target DNS address must be a public IP the SSH server can reach. */
@@ -92,10 +92,19 @@ private fun isPublicIpAddress(ip: String): Boolean {
 
 private fun String.toTcpDnsServer(): String {
     val value = trim()
-    if (value.startsWith("tcp+") || value.startsWith("https+") || value.startsWith("quic+") || value.startsWith("udp+")) {
+    if (value.startsWith("tcp://") || value.startsWith("https://") || value.startsWith("quic://") || value.startsWith("udp://")) {
+        // Already in core-accepted URL scheme form.
         return value
     }
-    return "tcp+$value"
+    // Normalize any bare host / "tcp+"/"https+"/"udp+" prefix to a scheme URL
+    // that the Xray v4-lineage core DNS parser recognizes. The exclave-core
+    // fork's NewServer switches on url.Scheme, so a bare "tcp+1.1.1.1" fails
+    // scheme detection and silently collapses to UDP classic (the DNS-through-
+    // tunnel bug). "tcp://1.1.1.1" is parsed as a DNS-over-TCP remote nameserver.
+    val bare = value
+        .substringAfter("://")
+        .removePrefix("tcp+").removePrefix("https+").removePrefix("quic+").removePrefix("udp+")
+    return "tcp://$bare"
 }
 
 private fun AppState.buildXrayDnsPlan(
