@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Validate AsteriskNG's retained config shapes against the pinned core binary.
 
-The core is now the exclave-core fork (goodyrussia/exclave-core, v5.50.0-ssh)
-which is Xray v4-lineage and uses the same `test -c <config>` CLI. This also
-validates the native `ssh` outbound with all 4 transport modes + payload.
+The core is now the Xray-core SSH fork (goodyrussia/Xray-core, v25.5.16-ssh)
+built on eichgee/Xray-core (v25.5.16) with the native `ssh` outbound ported in.
+This validates all transport modes + payload fields of the ssh outbound.
 """
 
 import copy
@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 # Accept either the core binary or the original xray binary.
-CORE = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/exclave-linux")
+CORE = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/xray-ssh-linux")
 UUID = "11111111-1111-1111-1111-111111111111"
 
 TPROXY = {
@@ -134,12 +134,12 @@ def main() -> None:
         for name, outbound in OUTBOUNDS.items():
             path = Path(temp, f"{name}.json")
             cfg = config(outbound)
-            # exclave-core (Xray v4-lineage) requires an explicit rule type.
+            # xray-core requires an explicit rule type.
             for rule in cfg.get("routing", {}).get("rules", []):
                 rule.setdefault("type", "field")
             path.write_text(json.dumps(cfg), encoding="utf-8")
             result = subprocess.run(
-                [str(CORE), "test", "-c", str(path)],
+                [str(CORE), "run", "-test", "-c", str(path)],
                 text=True,
                 capture_output=True,
             )

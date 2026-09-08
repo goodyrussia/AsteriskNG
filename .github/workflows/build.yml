@@ -38,24 +38,24 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Set up Go 1.26.0 for exlave-core
+      - name: Set up Go 1.24.0 for Xray-core
         uses: actions/setup-go@v5
         with:
-          go-version: "1.26.0"
+          go-version: "1.24.0"
           cache: false
 
-      - name: Build pinned exclave-core fork
+      - name: Build pinned Xray-core SSH fork
         env:
-          EXCLAVE_CORE_TAG: v5.50.0-ssh
+          XRAY_CORE_TAG: v25.5.16-ssh
         run: |
-          git clone --filter=blob:none --no-checkout https://github.com/goodyrussia/exclave-core.git /tmp/exclave-core
-          git -C /tmp/exclave-core checkout --detach "$EXCLAVE_CORE_TAG"
-          test "$(git -C /tmp/exclave-core rev-list -n1 "$EXCLAVE_CORE_TAG")" = "278c3d816620e2d3d56fa8239260fab73e2b053d"
+          git clone --filter=blob:none --no-checkout https://github.com/goodyrussia/Xray-core.git /tmp/xray-core
+          git -C /tmp/xray-core checkout --detach "$XRAY_CORE_TAG"
+          test "$(git -C /tmp/xray-core rev-list -n1 "$XRAY_CORE_TAG")" = "6c498d292c1c59fd493d0fd2eabcf061d25c025b"
           mkdir -p app/build/generated/xrayCoreJniLibs/arm64-v8a
           (
-            cd /tmp/exclave-core
+            cd /tmp/xray-core
             GOTOOLCHAIN=auto go build -mod=mod -trimpath -ldflags='-s -w -buildid=' -o /tmp/xray-linux ./main
-            /tmp/xray-linux version | grep -F 'Exclave-core 5.50.0'
+            /tmp/xray-linux version | grep -F 'Xray 25.5.16'
             CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build \
               -mod=mod -trimpath -ldflags='-s -w -buildid=' \
               -o "$GITHUB_WORKSPACE/app/build/generated/xrayCoreJniLibs/arm64-v8a/libxray.so" ./main
@@ -114,7 +114,7 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libsetuidgid.so'
           ! unzip -Z1 "$APK" | grep -F 'libhev-socks5-tunnel.so'
           BADGING=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK")
-          grep -F "package: name='org.asterisk.zcc.ang' versionCode='120' versionName='1.7.0'" <<< "$BADGING"
+          grep -F "package: name='org.asterisk.zcc.ang' versionCode='121' versionName='1.8.0'" <<< "$BADGING"
           grep -F "native-code: 'arm64-v8a'" <<< "$BADGING"
           MANIFEST=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml)
           ! grep -Ei 'VpnService|BIND_VPN_SERVICE|v2rayng|install-sub|clashmeta|flclashx' <<< "$MANIFEST"

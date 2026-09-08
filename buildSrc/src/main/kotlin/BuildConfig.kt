@@ -11,10 +11,10 @@ import org.gradle.api.tasks.TaskAction
 object ProjectConfig {
     const val JVM_VERSION = 26
     const val PROJECT_NAME = "AsteriskNG"
-    const val VERSION_NAME = "1.7.0"
-    const val VERSION_CODE = 120
+    const val VERSION_NAME = "1.8.0"
+    const val VERSION_CODE = 121
     const val PACKAGE_NAME = "org.asterisk.zcc.ang"
-    const val XRAY_CORE_VERSION = "v5.50.0-ssh"
+    const val XRAY_CORE_VERSION = "v25.5.16-ssh"
     const val TARGET_SDK = 37
     const val MIN_SDK = 24
     // This project targets rooted arm64-v8a Android devices only.
