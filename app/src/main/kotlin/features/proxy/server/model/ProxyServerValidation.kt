@@ -136,7 +136,6 @@ internal fun MutableList<ProxyServerValidationIssue>.validateOptionalUserPasswor
 internal fun MutableList<ProxyServerValidationIssue>.validateV2RayParameters(params: V2RayParameters) {
     val type = params.type.ifBlank { "raw" }
     val security = params.security.ifBlank { "none" }
-    validateOptionalJsonObject(params.fm, "FinalMask")
     validateAllowed(
         type,
         "transport protocol",

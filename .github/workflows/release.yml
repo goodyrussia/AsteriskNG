@@ -420,7 +420,7 @@ jobs:
           fi
 
       - name: Validate Telegram secrets
-        if: env.SEND_TO_TELEGRAM == 'true'
+        if: env.SEND_TO_TELEGRAM == 'true' && env.TELEGRAM_BOT_TOKEN != ''
         shell: bash
         run: |
           set -euo pipefail
@@ -434,7 +434,7 @@ jobs:
           fi
 
       - name: Upload arm64-v8a release APKs to Telegram
-        if: env.SEND_TO_TELEGRAM == 'true'
+        if: env.SEND_TO_TELEGRAM == 'true' && env.TELEGRAM_BOT_TOKEN != ''
         shell: bash
         run: |
           set -euo pipefail

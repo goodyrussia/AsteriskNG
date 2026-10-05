@@ -6,7 +6,6 @@ package engine.xray
 import app.AppState
 import app.effectiveLocalDnsEnabled
 import engine.network.NetworkDefaults
-import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServerConstants
 import features.proxy.server.model.Wireguard
 import kotlinx.serialization.json.JsonArray
@@ -117,11 +116,7 @@ private fun buildProxyOutbound(appState: AppState, outboundServer: XrayProxyOutb
         outboundServer.dialerProxyTag
     }
     if (dialerProxyTag != null) {
-        outbound = if (server is Hysteria2 && server.mport.isNotBlank()) {
-            outbound.withHysteriaHopDialerProxyTag(dialerProxyTag)
-        } else {
-            outbound.withDialerProxyTag(dialerProxyTag)
-        }
+        outbound = outbound.withDialerProxyTag(dialerProxyTag)
     }
     if (appState.enableMux) {
         outbound = outbound.updated {
@@ -217,26 +212,6 @@ private fun buildMuxConfig(appState: AppState): JsonObject {
 private fun JsonObject.withDialerProxyTag(tag: String): JsonObject {
     return withSockopt {
         put("dialerProxy", tag)
-    }
-}
-
-private fun JsonObject.withHysteriaHopDialerProxyTag(tag: String): JsonObject {
-    val masks = objectValue("streamSettings")?.objectValue("finalmask")?.get("udp") as? JsonArray
-        ?: error("Hysteria port hopping mask is missing")
-    // udphop requires a real outer socket, then uses its own sockopt for every hop.
-    // Putting dialerProxy on the parent instead produces an unsupported FakePacketConn.
-    val updatedMasks = masks.map { mask ->
-        val udpMask = mask as JsonObject
-        if (udpMask.stringValue("type") == "udphop") {
-            udpMask.updatedNestedObject("settings", "sockopt") {
-                put("dialerProxy", tag)
-            }
-        } else {
-            udpMask
-        }
-    }
-    return updatedNestedObject("streamSettings", "finalmask") {
-        put("udp", JsonArray(updatedMasks))
     }
 }
 

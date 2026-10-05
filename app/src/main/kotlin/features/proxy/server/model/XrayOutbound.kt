@@ -47,6 +47,8 @@ internal fun JsonObjectBuilder.putIfNotBlank(name: String, value: String?) {
     }
 }
 
+internal fun String?.isTruthyFlag(): Boolean = this?.trim()?.lowercase() in setOf("1", "true", "yes", "on")
+
 internal fun JsonObjectBuilder.putJsonArrayIfNotBlank(name: String, value: String?) {
     val values = value.toCsvValues()
     if (values.isNotEmpty()) {
@@ -69,7 +71,8 @@ internal fun V2RayParameters.toXrayStreamSettings(): JsonObject {
                     putJsonArrayIfNotBlank("alpn", alpn)
                     putIfNotBlank("echConfigList", ech)
                     putIfNotBlank("pinnedPeerCertSha256", pcs)
-                    putIfNotBlank("verifyPeerCertByName", vcn)
+                    if (allowInsecure.isTruthyFlag()) put("allowInsecure", true)
+                    putJsonArrayIfNotBlank("verifyPeerCertInNames", vcn)
                 }
             }
 
@@ -92,15 +95,7 @@ internal fun V2RayParameters.toXrayStreamSettings(): JsonObject {
             "grpc" -> putGrpcSettings(this@toXrayStreamSettings)
             "httpupgrade" -> putHttpUpgradeSettings(this@toXrayStreamSettings)
             "xhttp" -> putXhttpSettings(this@toXrayStreamSettings)
-            "mkcp" -> {
-                putKcpSettings(this@toXrayStreamSettings)
-                putKcpFinalMask(this@toXrayStreamSettings)
-            }
-        }
-
-        val finalMask = fm.toXrayJsonObjectOrNull("FinalMask")
-        if (finalMask != null) {
-            put("finalmask", finalMask)
+            "mkcp" -> putKcpSettings(this@toXrayStreamSettings)
         }
     }
 }
@@ -186,40 +181,13 @@ private fun JsonObjectBuilder.putKcpSettings(params: V2RayParameters) {
     putJsonObject("kcpSettings") {
         params.mtu?.toIntOrNull()?.let { put("mtu", it) }
         params.tti?.toIntOrNull()?.let { put("tti", it) }
-    }
-}
-
-private fun JsonObjectBuilder.putKcpFinalMask(params: V2RayParameters) {
-    putJsonObject("finalmask") {
-        putJsonArray("udp") {
-            val headerType = params.headerType.orEmpty()
-            if (headerType.isNotBlank() && headerType != "none") {
-                add(buildJsonObject {
-                    put("type", headerType.toKcpHeaderMaskType())
-                    if (headerType == "dns" && !params.host.isNullOrBlank()) {
-                        putJsonObject("settings") {
-                            put("domain", params.host)
-                        }
-                    }
-                })
+        if (!params.headerType.isNullOrBlank() && params.headerType != "none") {
+            putJsonObject("header") {
+                put("type", params.headerType)
             }
-            add(buildJsonObject {
-                val seed = params.seed.orEmpty()
-                if (seed.isBlank()) {
-                    put("type", "mkcp-original")
-                } else {
-                    put("type", "mkcp-aes128gcm")
-                    putJsonObject("settings") {
-                        put("password", seed)
-                    }
-                }
-            })
         }
+        params.seed?.takeIf { it.isNotBlank() }?.let { put("seed", it) }
     }
-}
-
-private fun String.toKcpHeaderMaskType(): String {
-    return if (this == "wechat-video") "header-wechat" else "header-$this"
 }
 
 internal fun String?.toXrayJsonObjectOrNull(fieldName: String): JsonObject? {

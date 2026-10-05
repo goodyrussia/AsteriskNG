@@ -180,13 +180,13 @@ data class V2RayParameters(
     var mode: String? = null,
     var authority: String? = null,
     var extra: String? = null,
-    var fm: String? = null,
     var fp: String? = null,
     var sni: String? = null,
     var alpn: String? = null,
     var ech: String? = null,
     var pcs: String? = null,
     var vcn: String? = null,
+    var allowInsecure: String? = null,
     var pbk: String? = null,
     var sid: String? = null,
     var pqv: String? = null,
@@ -197,7 +197,6 @@ data class V2RayParameters(
     fun parse(url: Url, defaultType: String, defaultSecurity: String): V2RayParameters {
         this.type = url.parameters["type"].toCanonicalV2RayTransportType(defaultType)
         this.security = url.parameters["security"] ?: defaultSecurity
-        this.fm = url.parameters["fm"]
         when (this.type) {
             V2RayTransportRaw -> {
                 this.headerType = url.parameters["headerType"] ?: "none"
@@ -252,6 +251,7 @@ data class V2RayParameters(
                 this.ech = url.parameters["ech"]
                 this.pcs = url.parameters["pcs"]
                 this.vcn = url.parameters["vcn"]
+                this.allowInsecure = url.parameters["allowInsecure"] ?: url.parameters["insecure"]
             }
 
             "reality" -> {
@@ -274,7 +274,6 @@ data class V2RayParameters(
         return ParametersBuilder().apply {
             appendIfNotBlank("type", transportType)
             appendIfNotBlank("security", securityType)
-            appendIfNotBlank("fm", this@V2RayParameters.fm)
             when (transportType) {
                 "raw" -> {
                     appendIfNotBlank("headerType", this@V2RayParameters.headerType)
@@ -319,6 +318,7 @@ data class V2RayParameters(
                     appendIfNotBlank("ech", this@V2RayParameters.ech)
                     appendIfNotBlank("pcs", this@V2RayParameters.pcs)
                     appendIfNotBlank("vcn", this@V2RayParameters.vcn)
+                    appendIfNotBlank("allowInsecure", this@V2RayParameters.allowInsecure)
                 }
 
                 "reality" -> {

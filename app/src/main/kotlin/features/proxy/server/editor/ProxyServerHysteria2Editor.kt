@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 
 internal fun LazyListScope.hysteria2ProxyServer(hy2Edit: Hysteria2) {
@@ -36,6 +38,9 @@ internal fun LazyListScope.hysteria2ProxyServer(hy2Edit: Hysteria2) {
             mutableIntStateOf(
                 if (securityOptions.indexOf(hy2Edit.security) > -1) securityOptions.indexOf(hy2Edit.security) else 0
             )
+        }
+        val allowInsecure = remember {
+            mutableStateOf(hy2Edit.allowInsecure)
         }
         SmallTitle(text = stringResource(R.string.proxy_editor_properties))
         TextField(
@@ -210,6 +215,17 @@ internal fun LazyListScope.hysteria2ProxyServer(hy2Edit: Hysteria2) {
                         .padding(bottom = 12.dp),
                     onKeyboardAction = { focusManager.clearFocus() },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                )
+                SwitchPreference(
+                    title = "Allow insecure TLS (skip certificate verification)",
+                    checked = allowInsecure.value,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    onCheckedChange = { isChecked ->
+                        allowInsecure.value = isChecked
+                        hy2Edit.allowInsecure = isChecked
+                    },
                 )
             }
         }

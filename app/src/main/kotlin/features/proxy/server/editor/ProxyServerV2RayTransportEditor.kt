@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -30,10 +31,12 @@ import features.proxy.server.model.V2RayTransportOptions
 import features.proxy.server.model.V2RayTransportRaw
 import features.proxy.server.model.V2RayTransportWebSocket
 import features.proxy.server.model.V2RayTransportXhttp
+import features.proxy.server.model.isTruthyFlag
 import features.proxy.server.model.v2RayTransportOptionIndex
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 
 internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
@@ -357,19 +360,6 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
                 )
             }
         }
-        TextField(
-            label = stringResource(R.string.proxy_editor_final_mask),
-            state = rememberTextFieldState(initialText = params.fm ?: ""),
-            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 5, maxHeightInLines = 20),
-            inputTransformation = InputTransformation {
-                params.fm = asCharSequence().toString()
-            },
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .padding(bottom = 12.dp),
-            onKeyboardAction = { focusManager.clearFocus() },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        )
 
         val fingerprintOptions = remember {
             listOf(
@@ -406,6 +396,9 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
             mutableIntStateOf(
                 if (alpnOptions.indexOf(params.alpn) > -1) alpnOptions.indexOf(params.alpn) else 0
             )
+        }
+        val allowInsecure = remember {
+            mutableStateOf(params.allowInsecure.isTruthyFlag())
         }
         OverlayDropdownPreference(
             title = stringResource(R.string.proxy_editor_security),
@@ -502,6 +495,17 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
                         .padding(bottom = 12.dp),
                     onKeyboardAction = { focusManager.clearFocus() },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                )
+                SwitchPreference(
+                    title = "Allow insecure TLS (skip certificate verification)",
+                    checked = allowInsecure.value,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    onCheckedChange = { isChecked ->
+                        allowInsecure.value = isChecked
+                        params.allowInsecure = if (isChecked) "1" else ""
+                    },
                 )
             }
         }

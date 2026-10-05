@@ -27,7 +27,6 @@ internal fun rememberProxyServerValidationMessageResolver(): (ProxyServerValidat
             "gRPC mode" to stringResource(R.string.proxy_editor_grpc_mode),
             "XHTTP mode" to stringResource(R.string.proxy_editor_xhttp_mode),
             "TLS fingerprint" to stringResource(R.string.proxy_editor_tls_fingerprint),
-            "FinalMask" to "FinalMask",
             "XHTTP Extra" to "XHTTP Extra",
             "encryption method" to stringResource(R.string.proxy_editor_encryption),
             "strategy group type" to stringResource(R.string.proxy_editor_strategy_group_type),

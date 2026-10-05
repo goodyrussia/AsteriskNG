@@ -25,6 +25,7 @@ data class Hysteria2(
     var obfsPassword: String = "",
     var sni: String = "",
     var pinSHA256: String = "",
+    var allowInsecure: Boolean = false,
     //v2rayNg
     var mport: String = "",
     var mportHopInt: String = "",
@@ -50,15 +51,23 @@ data class Hysteria2(
                 putJsonObject("hysteriaSettings") {
                     put("version", 2)
                     put("auth", auth)
+                    if (up.isNotBlank() || down.isNotBlank()) {
+                        put("congestion", "brutal")
+                        putIfNotBlank("up", up)
+                        putIfNotBlank("down", down)
+                    }
+                    if (mport.isNotBlank()) {
+                        putJsonObject("udphop") {
+                            put("port", mport)
+                            put("interval", (mportHopInt.toLongOrNull() ?: DefaultHopIntervalSeconds.toLong()))
+                        }
+                    }
                 }
                 put("security", "tls")
                 putJsonObject("tlsSettings") {
                     putIfNotBlank("serverName", sni)
                     putIfNotBlank("pinnedPeerCertSha256", pinSHA256)
-                }
-                val finalMask = toXrayFinalMask()
-                if (finalMask.isNotEmpty()) {
-                    put("finalmask", finalMask)
+                    if (allowInsecure) put("allowInsecure", true)
                 }
             },
         )
@@ -73,9 +82,7 @@ data class Hysteria2(
         this.obfs = url.parameters["obfs"] ?: ""
         this.obfsPassword = url.parameters["obfs-password"] ?: ""
         this.sni = url.parameters["sni"] ?: ""
-        if (url.parameters["insecure"].isEnabledFlag()) {
-            throw IllegalArgumentException("Hysteria2 insecure is not supported")
-        }
+        this.allowInsecure = url.parameters["insecure"].isEnabledFlag()
         this.pinSHA256 = url.parameters["pinSHA256"] ?: ""
         //v2rayNg
         this.mport = url.parameters["mport"] ?: url.parameters["ports"] ?: ""
@@ -105,6 +112,9 @@ data class Hysteria2(
             if (this@Hysteria2.pinSHA256.isNotBlank()) {
                 parameters.append("pinSHA256", this@Hysteria2.pinSHA256)
             }
+            if (this@Hysteria2.allowInsecure) {
+                parameters.append("insecure", "1")
+            }
 
             if (this@Hysteria2.mport.isNotBlank()) {
                 parameters.append("mport", this@Hysteria2.mport)
@@ -133,6 +143,7 @@ data class Hysteria2(
             obfsPassword = other.obfsPassword
             sni = other.sni
             pinSHA256 = other.pinSHA256
+            allowInsecure = other.allowInsecure
             mport = other.mport
             mportHopInt = other.mportHopInt
             up = other.up
@@ -148,10 +159,7 @@ data class Hysteria2(
 
     override fun validateFull(): List<ProxyServerValidationIssue> = buildList {
         addAll(validateBasic())
-        if (obfs.isBlank() && obfsPassword.isNotBlank()) {
-            addIssue(ProxyServerValidationError.HysteriaObfsTypeRequired)
-        }
-        if (obfs.isNotBlank() && obfs != "salamander") {
+        if (obfs.isNotBlank()) {
             addIssue(ProxyServerValidationError.HysteriaObfsUnsupported)
         }
         validateHysteriaMultiPorts(mport)
@@ -167,42 +175,6 @@ private fun String?.isEnabledFlag(): Boolean {
     return when (this?.trim()?.lowercase()) {
         "1", "true", "yes", "on" -> true
         else -> false
-    }
-}
-
-private fun Hysteria2.toXrayFinalMask(): JsonObject {
-    return buildJsonObject {
-        if (up.isNotBlank() || down.isNotBlank()) {
-            putJsonObject("quicParams") {
-                put("congestion", "brutal")
-                putIfNotBlank("brutalUp", up)
-                putIfNotBlank("brutalDown", down)
-            }
-        }
-        val useSalamander = obfs == "salamander" && obfsPassword.isNotBlank()
-        if (useSalamander || mport.isNotBlank()) {
-            putJsonArray("udp") {
-                if (useSalamander) {
-                    add(buildJsonObject {
-                        put("type", "salamander")
-                        putJsonObject("settings") {
-                            put("password", obfsPassword)
-                        }
-                    })
-                }
-                if (mport.isNotBlank()) {
-                    // Xray wraps masks in reverse order; udphop must be outermost.
-                    add(buildJsonObject {
-                        put("type", "udphop")
-                        putJsonObject("settings") {
-                            put("mode", "intervalLocal,intervalRemote")
-                            put("remotePorts", mport)
-                            put("interval", mportHopInt.toIntOrNull() ?: DefaultHopIntervalSeconds)
-                        }
-                    })
-                }
-            }
-        }
     }
 }
 

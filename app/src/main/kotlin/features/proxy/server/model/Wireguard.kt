@@ -27,7 +27,6 @@ data class Wireguard(
     var reserved: String = "0,0,0",
     var address: String = "172.16.0.2/32",
     var mtu: String = "1420",
-    var finalMask: String = "",
     var remoteDNS: String = "",
 ) : UrlProxyServer<Wireguard> {
     override fun getInfo(): ProxyServerInfo {
@@ -67,11 +66,6 @@ data class Wireguard(
                     }
                 }
             },
-            streamSettings = finalMask.toXrayJsonObjectOrNull("FinalMask")?.let { parsedFinalMask ->
-                buildJsonObject {
-                    put("finalmask", parsedFinalMask)
-                }
-            },
         )
     }
 
@@ -86,8 +80,6 @@ data class Wireguard(
         this.address = url.parameters["address"] ?: "172.16.0.2/32"
         this.mtu = url.parameters["mtu"] ?: "1420"
         this.remoteDNS = url.parameters["dns"].orEmpty()
-        this.finalMask = (url.parameters["fm"] ?: url.parameters["finalmask"] ?: url.parameters["finalMask"])
-            ?.takeIf { it.isNotBlank() }.orEmpty()
         return this
     }
 
@@ -114,10 +106,6 @@ data class Wireguard(
             if (this@Wireguard.remoteDNS.isNotBlank()) {
                 parameters.append("dns", this@Wireguard.remoteDNS.toCsvValues().joinToString(","))
             }
-            if (this@Wireguard.finalMask.isNotBlank()) {
-                parameters.append("fm", this@Wireguard.finalMask)
-            }
-
             fragment = this@Wireguard.remarks
         }.buildString()
     }
@@ -136,7 +124,6 @@ data class Wireguard(
             reserved = other.reserved
             address = other.address
             mtu = other.mtu
-            finalMask = other.finalMask
             remoteDNS = other.remoteDNS
         }
     }
@@ -158,7 +145,6 @@ data class Wireguard(
         if (!remoteDNS.toCsvValues().isValidRemoteDns()) {
             add(proxyValidationIssue(ProxyServerValidationError.WireguardRemoteDnsInvalid))
         }
-        validateOptionalJsonObject(finalMask, "FinalMask")
     }
 
     fun remoteDnsAddresses(enableIpv6: Boolean = true): List<String> {
