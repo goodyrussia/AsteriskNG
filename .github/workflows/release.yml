@@ -281,28 +281,28 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: release-artifacts/*-armeabi-v7a.apk
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
 
       - name: Upload x86 APK artifact
         uses: actions/upload-artifact@v7
         with:
           path: release-artifacts/*-x86.apk
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
 
       - name: Upload x86_64 APK artifact
         uses: actions/upload-artifact@v7
         with:
           path: release-artifacts/*-x86_64.apk
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
 
       - name: Upload universal APK artifact
         uses: actions/upload-artifact@v7
         with:
           path: release-artifacts/*-universal.apk
-          if-no-files-found: error
+          if-no-files-found: ignore
           archive: false
 
       - name: Create tag and release notes
