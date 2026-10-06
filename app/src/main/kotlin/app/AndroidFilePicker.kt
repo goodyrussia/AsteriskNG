@@ -1,7 +1,7 @@
 // Copyright 2026, AsteriskNG contributors
 // SPDX-License-Identifier: GPL-3.0
 
-package features.resources.runtime
+package app
 
 import android.net.Uri
 import kotlinx.coroutines.CompletableDeferred
@@ -10,7 +10,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-internal class AndroidResourceFilePicker(
+internal class AndroidFilePicker(
     private val missingLauncherMessage: () -> String,
 ) {
     private val mutex = Mutex()

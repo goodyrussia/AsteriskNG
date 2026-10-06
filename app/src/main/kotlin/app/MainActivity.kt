@@ -24,7 +24,6 @@ import data.AndroidAppStateStore
 import engine.vpn.AndroidVpnPermissionRequester
 import features.logs.AndroidLogFileCreator
 import features.proxy.server.qr.AndroidQrCodeScanRequester
-import features.resources.runtime.AndroidResourceFilePicker
 import features.subscription.SubscriptionInstallConfigUseCase
 import features.subscription.isSubscriptionInstallConfigUri
 import features.subscription.runtime.AndroidSubscriptionFetcher
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
         },
     )
 
-    private val resourceFilePicker = AndroidResourceFilePicker(
+    private val filePicker = AndroidFilePicker(
         missingLauncherMessage = {
             appString(R.string.error_resource_file_picker_missing)
         },
@@ -90,10 +89,10 @@ class MainActivity : ComponentActivity() {
         qrCodeScanRequester.completeScan(result.contents)
     }
 
-    private val resourceFilePickerLauncher = registerForActivityResult(
+    private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument(),
     ) { uri ->
-        resourceFilePicker.complete(uri)
+        filePicker.complete(uri)
     }
 
     private val logFileCreatorLauncher = registerForActivityResult(
@@ -117,8 +116,8 @@ class MainActivity : ComponentActivity() {
         qrCodeScanRequester.registerScanLauncher { options ->
             qrCodeScanLauncher.launch(options)
         }
-        resourceFilePicker.registerLauncher { mimeTypes ->
-            resourceFilePickerLauncher.launch(mimeTypes)
+        filePicker.registerLauncher { mimeTypes ->
+            filePickerLauncher.launch(mimeTypes)
         }
         logFileCreator.registerLauncher { fileName ->
             logFileCreatorLauncher.launch(fileName)
@@ -143,8 +142,8 @@ class MainActivity : ComponentActivity() {
         qrCodeScanRequester.completeScan(null)
         qrCodeScanRequester.registerPermissionLauncher(null)
         qrCodeScanRequester.registerScanLauncher(null)
-        resourceFilePicker.complete(null)
-        resourceFilePicker.registerLauncher(null)
+        filePicker.complete(null)
+        filePicker.registerLauncher(null)
         logFileCreator.complete(null)
         logFileCreator.registerLauncher(null)
         super.onDestroy()
@@ -167,7 +166,7 @@ class MainActivity : ComponentActivity() {
             App(
                 padding = WindowInsets.systemBars.union(WindowInsets.displayCutout).asPaddingValues(),
                 qrCodeScanner = qrCodeScanRequester::scan,
-                resourceFilePicker = resourceFilePicker::pick,
+                filePicker = filePicker::pick,
                 logFileCreator = logFileCreator::create,
                 requestVpnPermission = vpnPermissionRequester::request,
             )

@@ -4,8 +4,8 @@
 package engine.root.publication
 
 import android.content.Context
-import features.resources.runtime.XrayResourceFilePaths
-import features.resources.runtime.xrayResourceFilePaths
+import engine.xray.XrayRuntimePaths
+import engine.xray.xrayRuntimePaths
 import java.io.File
 
 internal data class RootRuntimeLayout(
@@ -33,7 +33,7 @@ internal data class RootRuntimeLayout(
         get() = File(logDirectoryPath, "asteriskd.log").absolutePath
 }
 
-internal fun Context.rootRuntimeLayout(): RootRuntimeLayout = xrayResourceFilePaths().toRootRuntimeLayout()
+internal fun Context.rootRuntimeLayout(): RootRuntimeLayout = xrayRuntimePaths().toRootRuntimeLayout()
 
 internal fun Context.prepareRootPublicationDirectories(): RootRuntimeLayout {
     val layout = rootRuntimeLayout()
@@ -75,7 +75,7 @@ internal fun isSafeRootPublicationDirectoryIdentity(
         absoluteDirectory.name == canonicalDirectory.name
 }
 
-internal fun XrayResourceFilePaths.toRootRuntimeLayout(): RootRuntimeLayout {
+internal fun XrayRuntimePaths.toRootRuntimeLayout(): RootRuntimeLayout {
     val dir = File(dataDir)
     return RootRuntimeLayout(
         configPath = File(dir, "config.json").absolutePath,

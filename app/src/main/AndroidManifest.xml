@@ -118,10 +118,6 @@
             android:windowSoftInputMode="stateAlwaysHidden"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
-        <receiver
-            android:name="features.resources.runtime.AndroidResourceFileDownloadCancelReceiver"
-            android:exported="false" />
-
         <service
             android:name="engine.stats.ProxyTrafficStatsService"
             android:exported="false"

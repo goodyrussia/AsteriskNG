@@ -33,9 +33,6 @@ sealed interface Route : NavKey {
     data object LogcatLogs : Route
 
     @Serializable
-    data object ResourceManagement : Route
-
-    @Serializable
     data object SubscriptionGroupList : Route
 
     @Serializable

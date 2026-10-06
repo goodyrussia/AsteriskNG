@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import app.AppState
-import app.CustomResourceFileState
 import java.util.UUID
 
 internal class AppSettingsPreferences(
@@ -34,14 +33,6 @@ internal class AppSettingsPreferences(
 
     fun load(): AppState {
         val defaults = AppState()
-        val customResourceFiles = preferences.getCustomResourceFileList(
-            KeyCustomResourceFiles,
-            defaults.customResourceFiles,
-        )
-        val nextCustomResourceFileId = maxOf(
-            preferences.getInt(KeyNextCustomResourceFileId, defaults.nextCustomResourceFileId),
-            (customResourceFiles.maxOfOrNull { file -> file.id } ?: 0) + 1,
-        )
         return defaults.copy(
             nextSubscriptionGroupId = preferences.getInt(
                 KeyNextSubscriptionGroupId,
@@ -96,32 +87,6 @@ internal class AppSettingsPreferences(
             proxyServerListSort = preferences.getInt(KeyProxyServerListSort, defaults.proxyServerListSort),
             coreLogLevel = preferences.getInt(KeyCoreLogLevel, defaults.coreLogLevel),
             enableAccessLog = preferences.getBoolean(KeyEnableAccessLog, defaults.enableAccessLog),
-            enableResourceAutoUpdate = preferences.getBoolean(KeyEnableResourceAutoUpdate, defaults.enableResourceAutoUpdate),
-            resourceAutoUpdateInterval = preferences.getString(KeyResourceAutoUpdateInterval, defaults.resourceAutoUpdateInterval)
-                ?: defaults.resourceAutoUpdateInterval,
-            resourceFileSource = preferences.getInt(KeyResourceFileSource, defaults.resourceFileSource),
-            customResourceFileGeoIpUrl = preferences.getString(
-                KeyCustomResourceFileGeoIpUrl,
-                defaults.customResourceFileGeoIpUrl,
-            ) ?: defaults.customResourceFileGeoIpUrl,
-            customResourceFileGeoSiteUrl = preferences.getString(
-                KeyCustomResourceFileGeoSiteUrl,
-                defaults.customResourceFileGeoSiteUrl,
-            ) ?: defaults.customResourceFileGeoSiteUrl,
-            customResourceFileGeoIpOnlyCnPrivateUrl = preferences.getString(
-                KeyCustomResourceFileGeoIpOnlyCnPrivateUrl,
-                defaults.customResourceFileGeoIpOnlyCnPrivateUrl,
-            ) ?: defaults.customResourceFileGeoIpOnlyCnPrivateUrl,
-            customResourceFileDirectCidrIpv4Url = preferences.getString(
-                KeyCustomResourceFileDirectCidrIpv4Url,
-                defaults.customResourceFileDirectCidrIpv4Url,
-            ) ?: defaults.customResourceFileDirectCidrIpv4Url,
-            customResourceFileDirectCidrIpv6Url = preferences.getString(
-                KeyCustomResourceFileDirectCidrIpv6Url,
-                defaults.customResourceFileDirectCidrIpv6Url,
-            ) ?: defaults.customResourceFileDirectCidrIpv6Url,
-            customResourceFiles = customResourceFiles,
-            nextCustomResourceFileId = nextCustomResourceFileId,
             enableSniffing = preferences.getBoolean(KeyEnableSniffing, defaults.enableSniffing),
             enableSniffingRouteOnly = preferences.getBoolean(
                 KeyEnableSniffingRouteOnly,
@@ -223,16 +188,6 @@ internal class AppSettingsPreferences(
             .putInt(KeyProxyServerListSort, state.proxyServerListSort)
             .putInt(KeyCoreLogLevel, state.coreLogLevel)
             .putBoolean(KeyEnableAccessLog, state.enableAccessLog)
-            .putBoolean(KeyEnableResourceAutoUpdate, state.enableResourceAutoUpdate)
-            .putString(KeyResourceAutoUpdateInterval, state.resourceAutoUpdateInterval)
-            .putInt(KeyResourceFileSource, state.resourceFileSource)
-            .putString(KeyCustomResourceFileGeoIpUrl, state.customResourceFileGeoIpUrl)
-            .putString(KeyCustomResourceFileGeoSiteUrl, state.customResourceFileGeoSiteUrl)
-            .putString(KeyCustomResourceFileGeoIpOnlyCnPrivateUrl, state.customResourceFileGeoIpOnlyCnPrivateUrl)
-            .putString(KeyCustomResourceFileDirectCidrIpv4Url, state.customResourceFileDirectCidrIpv4Url)
-            .putString(KeyCustomResourceFileDirectCidrIpv6Url, state.customResourceFileDirectCidrIpv6Url)
-            .putCustomResourceFileList(KeyCustomResourceFiles, state.customResourceFiles)
-            .putInt(KeyNextCustomResourceFileId, state.nextCustomResourceFileId)
             .putBoolean(KeyEnableSniffing, state.enableSniffing)
             .putBoolean(KeyEnableSniffingRouteOnly, state.enableSniffingRouteOnly)
             .putBoolean(KeyEnableMux, state.enableMux)
@@ -273,20 +228,6 @@ internal class AppSettingsPreferences(
     ): SharedPreferences.Editor {
         return putString(key, StringListJson.encode(values))
     }
-
-    private fun SharedPreferences.getCustomResourceFileList(
-        key: String,
-        defaultValue: List<CustomResourceFileState>,
-    ): List<CustomResourceFileState> {
-        return getString(key, null)?.let(CustomResourceFileListJson::decode) ?: defaultValue
-    }
-
-    private fun SharedPreferences.Editor.putCustomResourceFileList(
-        key: String,
-        values: List<CustomResourceFileState>,
-    ): SharedPreferences.Editor {
-        return putString(key, CustomResourceFileListJson.encode(values))
-    }
 }
 
 private const val PreferencesName = "asteriskng_settings"
@@ -314,16 +255,6 @@ private const val KeyProxyServerListLayout = "proxy_server_list_layout"
 private const val KeyProxyServerListSort = "proxy_server_list_sort"
 private const val KeyCoreLogLevel = "core_log_level"
 private const val KeyEnableAccessLog = "enable_access_log"
-private const val KeyEnableResourceAutoUpdate = "enable_resource_auto_update"
-private const val KeyResourceAutoUpdateInterval = "resource_auto_update_interval"
-private const val KeyResourceFileSource = "resource_file_source"
-private const val KeyCustomResourceFileGeoIpUrl = "custom_resource_file_geoip_url"
-private const val KeyCustomResourceFileGeoSiteUrl = "custom_resource_file_geosite_url"
-private const val KeyCustomResourceFileGeoIpOnlyCnPrivateUrl = "custom_resource_file_geoip_only_cn_private_url"
-private const val KeyCustomResourceFileDirectCidrIpv4Url = "custom_resource_file_direct_cidr_ipv4_url"
-private const val KeyCustomResourceFileDirectCidrIpv6Url = "custom_resource_file_direct_cidr_ipv6_url"
-private const val KeyCustomResourceFiles = "custom_resource_files"
-private const val KeyNextCustomResourceFileId = "next_custom_resource_file_id"
 private const val KeyEnableSniffing = "enable_sniffing"
 private const val KeyEnableSniffingRouteOnly = "enable_sniffing_route_only"
 private const val KeyEnableMux = "enable_mux"

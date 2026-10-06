@@ -18,8 +18,8 @@ import engine.xray.XrayCoreLogPaths
 import engine.xray.XrayStatsApiConfig
 import engine.xray.buildXrayOutboundPlan
 import engine.xray.prepareXrayCoreLogPaths
-import features.resources.runtime.XrayResourceFilePaths
-import features.resources.runtime.xrayRootResourceFilePaths
+import engine.xray.XrayRuntimePaths
+import engine.xray.xrayRootRuntimePaths
 import kotlinx.serialization.json.JsonObject
 import java.io.File
 
@@ -27,7 +27,7 @@ internal class RootConfigBuildContext(
     private val androidContext: Context,
     val appState: AppState,
     private val selectedServer: ProxyServerState,
-    val resourceFilePaths: XrayResourceFilePaths,
+    val xrayPaths: XrayRuntimePaths,
     private val coreLogPaths: XrayCoreLogPaths,
     private val dnsHosts: List<String>,
     val statsApiConfig: XrayStatsApiConfig? = null,
@@ -50,7 +50,7 @@ internal class RootConfigBuildContext(
         )
         return appState.toRootStartConfig(
             xrayConfigJson = xrayConfigJson,
-            resourceFilePaths = resourceFilePaths,
+            xrayPaths = xrayPaths,
         )
     }
 
@@ -65,14 +65,14 @@ internal class RootConfigBuildContext(
 
 internal fun Context.prepareRootConfigBuildContext(request: ProxyEngineStartRequest): RootConfigBuildContext {
     val appState = request.appState
-    val resourceFilePaths = xrayRootResourceFilePaths()
+    val xrayPaths = xrayRootRuntimePaths()
     val coreLogPaths = applicationContext.prepareXrayCoreLogPaths()
     val outboundPlan = appState.buildXrayOutboundPlan(request.selectedServer)
     return RootConfigBuildContext(
         androidContext = applicationContext,
         appState = appState,
         selectedServer = request.selectedServer,
-        resourceFilePaths = resourceFilePaths,
+        xrayPaths = xrayPaths,
         coreLogPaths = coreLogPaths,
         dnsHosts = appState.xrayDnsHosts(outboundPlan.dnsHostServers),
         statsApiConfig = request.xrayStatsApiConfig(),
@@ -81,23 +81,21 @@ internal fun Context.prepareRootConfigBuildContext(request: ProxyEngineStartRequ
 
 private fun AppState.toRootStartConfig(
     xrayConfigJson: String,
-    resourceFilePaths: XrayResourceFilePaths,
+    xrayPaths: XrayRuntimePaths,
 ): RootStartConfig {
-    val dataDirectory = File(resourceFilePaths.dataDir)
+    val dataDirectory = File(xrayPaths.dataDir)
     return RootStartConfig(
         xrayConfigJson = xrayConfigJson,
         runtimePaths = RootConfigRuntimePaths(
-            coreExecutablePath = resourceFilePaths.xrayCorePath,
+            coreExecutablePath = xrayPaths.xrayCorePath,
             coreConfigPath = File(dataDirectory, "config.json").absolutePath,
-            matcherExecutablePath = resourceFilePaths.bpfMatcherPath,
-            bpf2SocksExecutablePath = resourceFilePaths.bpf2socksPath,
-            hevSocks5TunnelExecutablePath = resourceFilePaths.hevSocks5TunnelPath,
-            workingDirectory = resourceFilePaths.assetsDir,
+            matcherExecutablePath = xrayPaths.bpfMatcherPath,
+            bpf2SocksExecutablePath = xrayPaths.bpf2socksPath,
+            hevSocks5TunnelExecutablePath = xrayPaths.hevSocks5TunnelPath,
+            workingDirectory = xrayPaths.assetsDir,
             statePath = File(dataDirectory, "asteriskd.state").absolutePath,
             logPath = File(File(dataDirectory, "logs"), "asteriskd.log").absolutePath,
         ),
-        directCidrIpv4Path = resourceFilePaths.directCidrIpv4Path,
-        directCidrIpv6Path = resourceFilePaths.directCidrIpv6Path,
         enableIpv6 = enableIpv6,
         enableRootIpv6Disabler = enableRootIpv6Disabler,
         enableLocalDns = effectiveLocalDnsEnabled,

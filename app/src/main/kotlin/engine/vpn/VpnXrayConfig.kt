@@ -23,7 +23,7 @@ import engine.xray.XrayCoreLogPaths
 import engine.xray.XrayTags
 import engine.xray.buildXrayOutboundPlan
 import engine.xray.prepareXrayCoreLogPaths
-import features.resources.runtime.prepareXrayResourceFilePaths
+import engine.xray.prepareXrayRuntimePaths
 import system.toAndroidUserId
 import java.io.File
 import kotlinx.serialization.json.JsonObject
@@ -56,7 +56,7 @@ internal object VpnXrayConfigFactory {
     fun create(context: Context, request: ProxyEngineStartRequest): VpnServiceStartConfig {
         val appState = request.appState
         val coreLogPaths = context.prepareXrayCoreLogPaths()
-        val resourceFilePaths = context.prepareXrayResourceFilePaths()
+        val xrayPaths = context.prepareXrayRuntimePaths()
         val tunOptions = appState.toTunOptions()
         val localProxyOptions = appState.toLocalProxyOptions()
         val appendHttpProxyOptions = appState.toVpnAppendHttpProxyOptions(localProxyOptions)
@@ -94,9 +94,9 @@ internal object VpnXrayConfigFactory {
             appendHttpProxyOptions = appendHttpProxyOptions,
             coreLogPaths = coreLogPaths,
             enableAccessLog = appState.enableAccessLog,
-            dataDir = resourceFilePaths.dataDir,
+            dataDir = xrayPaths.dataDir,
             hevSocks5TunnelConfig = buildVpnHevSocks5TunnelConfig(
-                dataDir = resourceFilePaths.dataDir,
+                dataDir = xrayPaths.dataDir,
                 coreLogPaths = coreLogPaths,
                 localProxyOptions = localProxyOptions,
                 tunOptions = tunOptions,

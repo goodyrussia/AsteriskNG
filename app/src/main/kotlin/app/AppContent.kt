@@ -61,7 +61,6 @@ import features.logs.AccessLogsPage
 import features.logs.CoreLogsPage
 import features.logs.LogcatLogsPage
 import features.proxy.app.ProxyAppListPage
-import features.resources.ResourceManagementPage
 import features.proxy.server.list.ProxyServerListPage
 import features.proxy.server.editor.ProxyServerPage
 import features.settings.SettingsPage
@@ -166,9 +165,6 @@ fun AppContent(
             }
             entry<Route.LogcatLogs> {
                 LogcatLogsPage(padding = padding)
-            }
-            entry<Route.ResourceManagement> {
-                ResourceManagementPage(padding = padding)
             }
             entry<Route.SubscriptionGroupList> {
                 SubscriptionGroupListPage(padding = padding)

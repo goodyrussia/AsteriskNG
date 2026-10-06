@@ -30,7 +30,6 @@ internal fun SettingsSubscriptionsSection(
     enableAllProxyGroup: Boolean,
     enableDeletionConfirmation: Boolean,
     onOpenGroupManagement: () -> Unit,
-    onOpenResourceManagement: () -> Unit,
     onEnableAllProxyGroupChange: (Boolean) -> Unit,
     onEnableDeletionConfirmationChange: (Boolean) -> Unit,
 ) {
@@ -40,11 +39,6 @@ internal fun SettingsSubscriptionsSection(
             title = stringResource(R.string.settings_group_management),
             summary = stringResource(R.string.settings_group_management_summary),
             onClick = onOpenGroupManagement,
-        )
-        ArrowPreference(
-            title = stringResource(R.string.settings_resource_management),
-            summary = stringResource(R.string.settings_resource_management_summary),
-            onClick = onOpenResourceManagement,
         )
         SwitchPreference(
             title = stringResource(R.string.settings_enable_all_proxy_group),

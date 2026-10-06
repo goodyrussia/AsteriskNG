@@ -440,51 +440,8 @@
     <string name="proxy_app_list_show_system_apps">Show system apps</string>
     <string name="proxy_app_list_title">Proxy app list</string>
 
-    <!-- Resource management -->
-    <string name="deletion_confirmation_delete_resource_file">Delete resource file</string>
+    <!-- File picker -->
     <string name="error_resource_file_picker_missing">Resource file picker is not registered</string>
-    <string name="resource_file_download_notification_cancel">Cancel</string>
-    <string name="resource_file_download_notification_cancelled">Resource file update cancelled</string>
-    <string name="resource_file_download_notification_channel">Resource file updates</string>
-    <string name="resource_file_download_notification_complete">Resource files updated</string>
-    <string name="resource_file_download_notification_failed">Resource file update failed: %1$s</string>
-    <string name="resource_file_download_notification_progress">Downloading %1$s</string>
-    <string name="resource_file_download_notification_title">Updating resource files</string>
-    <string name="settings_resource_file_update_queued">Queued for update</string>
-    <string name="settings_resource_file_updated">{name} updated</string>
-    <string name="settings_resource_file_updating">Updating resource file</string>
-    <string name="settings_resource_files_add_custom">Add custom resource file</string>
-    <string name="settings_resource_files_auto_update_hours">Every %1$s hours</string>
-    <string name="settings_resource_files_auto_update_interval">Update interval (hours)</string>
-    <string name="settings_resource_files_auto_update_interval_title">Update interval</string>
-    <string name="settings_resource_files_auto_update_summary">Periodically update resource files when connected</string>
-    <string name="settings_resource_files_auto_update_title">Automatic resource updates</string>
-    <string name="settings_resource_files_core_files">Core files</string>
-    <string name="settings_resource_files_custom_file">Custom resource file</string>
-    <string name="settings_resource_files_custom_name">File name</string>
-    <string name="settings_resource_files_custom_name_duplicate">File name is already used</string>
-    <string name="settings_resource_files_custom_name_invalid">Invalid file name</string>
-    <string name="settings_resource_files_custom_url">URL</string>
-    <string name="settings_resource_files_deleted">{name} deleted</string>
-    <string name="settings_resource_files_files">Resource files</string>
-    <string name="settings_resource_files_missing">Missing</string>
-    <string name="settings_resource_files_ready">Ready</string>
-    <string name="settings_resource_files_replaced">{name} replaced</string>
-    <string name="settings_resource_files_restored">{name} restored from bundled assets</string>
-    <string name="settings_resource_files_root_only">Only used in ROOT modes</string>
-    <string name="settings_resource_files_size">Size {size}</string>
-    <string name="settings_resource_files_source">Update source</string>
-    <string name="settings_resource_files_source_chocolate4u_github">Chocolate4U (GitHub)</string>
-    <string name="settings_resource_files_source_custom">Custom</string>
-    <string name="settings_resource_files_source_custom_title">Custom geodata URLs</string>
-    <string name="settings_resource_files_source_loyalsoldier_github">Loyalsoldier (GitHub)</string>
-    <string name="settings_resource_files_source_runetfreedom_github">RunetFreedom (GitHub)</string>
-    <string name="settings_resource_files_source_v2fly_github">V2Fly (GitHub)</string>
-    <string name="settings_resource_files_update">Update resource files</string>
-    <string name="settings_resource_files_updated">Resource files updated</string>
-    <string name="settings_resource_files_updated_at">Updated {time}</string>
-    <string name="settings_resource_management">Resource management</string>
-    <string name="settings_resource_management_summary">Manage core files and GEO resource files</string>
 
     <!-- Backup and restore -->
     <string name="error_backup_file_open_failed">Failed to open backup file</string>
@@ -503,13 +460,6 @@
     <string name="settings_restore_read_failed">Failed to read backup file</string>
     <string name="settings_restore_user_data">Restore user data</string>
     <string name="settings_restore_user_data_summary">Restore user data from a backup file</string>
-
-    <!-- Core migration -->
-    <string name="shared_core_migration_keep">Keep</string>
-    <string name="shared_core_migration_message">VPN and ROOT now share the built-in Core. Remove the custom Core to save space? You can still upload a custom Core later.</string>
-    <string name="shared_core_migration_remove">Remove</string>
-    <string name="shared_core_migration_stop_root">Any ROOT service will stop before removal.</string>
-    <string name="shared_core_migration_title">App updated</string>
 
     <!-- QR scanner -->
     <string name="error_qr_camera_permission_denied">Camera permission was not granted. QR code scanning cannot start</string>

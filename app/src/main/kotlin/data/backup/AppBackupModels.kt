@@ -53,15 +53,6 @@ internal data class AppBackupSettings(
     val proxyServerListSort: Int = BackupDefaults.proxyServerListSort,
     val coreLogLevel: Int = BackupDefaults.coreLogLevel,
     val enableAccessLog: Boolean = BackupDefaults.enableAccessLog,
-    val enableResourceAutoUpdate: Boolean = BackupDefaults.enableResourceAutoUpdate,
-    val resourceAutoUpdateInterval: String = BackupDefaults.resourceAutoUpdateInterval,
-    val resourceFileSource: Int = BackupDefaults.resourceFileSource,
-    val customResourceFileGeoIpUrl: String = BackupDefaults.customResourceFileGeoIpUrl,
-    val customResourceFileGeoSiteUrl: String = BackupDefaults.customResourceFileGeoSiteUrl,
-    val customResourceFileGeoIpOnlyCnPrivateUrl: String = BackupDefaults.customResourceFileGeoIpOnlyCnPrivateUrl,
-    val customResourceFileDirectCidrIpv4Url: String = BackupDefaults.customResourceFileDirectCidrIpv4Url,
-    val customResourceFileDirectCidrIpv6Url: String = BackupDefaults.customResourceFileDirectCidrIpv6Url,
-    val customResourceFiles: List<AppBackupCustomResourceFile> = emptyList(),
     val enableSniffing: Boolean = BackupDefaults.enableSniffing,
     val enableSniffingRouteOnly: Boolean = BackupDefaults.enableSniffingRouteOnly,
     val enableMux: Boolean = BackupDefaults.enableMux,
@@ -89,13 +80,6 @@ internal data class AppBackupSettings(
     val socks5ProxyPort: String = BackupDefaults.socks5ProxyPort,
     val externalInterfaces: List<String> = BackupDefaults.externalInterfaces,
     val proxyAppListMode: Int = BackupDefaults.proxyAppListMode,
-)
-
-@Serializable
-internal data class AppBackupCustomResourceFile(
-    val id: Int = 0,
-    val name: String = "",
-    val url: String = "",
 )
 
 @Serializable

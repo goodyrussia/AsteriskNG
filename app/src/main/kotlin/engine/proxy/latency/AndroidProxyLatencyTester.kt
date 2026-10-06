@@ -12,7 +12,7 @@ import engine.xray.XrayConfigRequest
 import engine.xray.XraySpeedTestConfigFactory
 import engine.xray.initializeAndroidXrayCoreEnvironment
 import engine.xray.prepareXrayCoreLogPaths
-import features.resources.runtime.prepareXrayResourceFilePaths
+import engine.xray.prepareXrayRuntimePaths
 import engine.network.NetworkDefaults
 import engine.network.toPortOrNull
 import features.proxy.server.model.HTTP
@@ -67,8 +67,8 @@ internal class AndroidProxyLatencyTester(
 
     private fun realConnectionLatency(appState: AppState, server: ProxyServerState): Long {
         return runCatching {
-            val resourceFilePaths = appContext.prepareXrayResourceFilePaths()
-            appContext.initializeAndroidXrayCoreEnvironment(resourceFilePaths.dataDir)
+            val xrayPaths = appContext.prepareXrayRuntimePaths()
+            appContext.initializeAndroidXrayCoreEnvironment(xrayPaths.dataDir)
             val configJson = XraySpeedTestConfigFactory.buildXraySpeedTestConfig(
                 XrayConfigRequest(
                     appState = appState,

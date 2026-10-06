@@ -35,8 +35,6 @@ internal fun RootStartConfig.buildAsteriskdConfig(
     } else {
         null
     }
-    val useDirectCidrs =
-        iptablesConfig.enableEbpfDirectCidrBypass && (matcher != null || mode == AsteriskdMode.Bpf2Socks)
     return AsteriskdConfig(
         owner = AsteriskdOwner.AsteriskNg,
         coreType = AsteriskdCoreType.Xray,
@@ -73,8 +71,10 @@ internal fun RootStartConfig.buildAsteriskdConfig(
                     .takeUnless { iptablesConfig.proxyAppListMode == ProxyAppListModeGlobal }
                     .orEmpty(),
                 bypassUids = iptablesConfig.forcedBypassUids.distinct().sorted(),
-                directCidrPathV4 = directCidrIpv4Path.takeIf { useDirectCidrs },
-                directCidrPathV6 = directCidrIpv6Path.takeIf { useDirectCidrs },
+                // `directCidrPathV4` and `directCidrPathV6` are kept because the daemon validates `appPolicy`
+                // against a fixed 5-key schema; the resource files were removed, so these keys are always null.
+                directCidrPathV4 = null,
+                directCidrPathV6 = null,
             ),
         ),
         modeOptions = modeOptions,

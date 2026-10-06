@@ -4,7 +4,6 @@
 package data.backup
 
 import app.AppState
-import app.CustomResourceFileState
 import app.ProxyServerState
 import app.SubscriptionGroupState
 import app.modes.RunModeVpnService
@@ -65,15 +64,6 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
         proxyServerListSort = proxyServerListSort,
         coreLogLevel = coreLogLevel,
         enableAccessLog = enableAccessLog,
-        enableResourceAutoUpdate = enableResourceAutoUpdate,
-        resourceAutoUpdateInterval = resourceAutoUpdateInterval,
-        resourceFileSource = resourceFileSource,
-        customResourceFileGeoIpUrl = customResourceFileGeoIpUrl,
-        customResourceFileGeoSiteUrl = customResourceFileGeoSiteUrl,
-        customResourceFileGeoIpOnlyCnPrivateUrl = customResourceFileGeoIpOnlyCnPrivateUrl,
-        customResourceFileDirectCidrIpv4Url = customResourceFileDirectCidrIpv4Url,
-        customResourceFileDirectCidrIpv6Url = customResourceFileDirectCidrIpv6Url,
-        customResourceFiles = customResourceFiles.map(CustomResourceFileState::toBackup),
         enableSniffing = enableSniffing,
         enableSniffingRouteOnly = enableSniffingRouteOnly,
         enableMux = enableMux,
@@ -130,14 +120,6 @@ private fun ProxyServerState.toBackup(): AppBackupProxyServer {
     )
 }
 
-private fun CustomResourceFileState.toBackup(): AppBackupCustomResourceFile {
-    return AppBackupCustomResourceFile(
-        id = id,
-        name = name,
-        url = url,
-    )
-}
-
 private fun AppBackupData.toAppState(): AppState {
     val defaults = AppState()
     val restoredSubscriptionGroups = subscriptionGroups
@@ -157,7 +139,6 @@ private fun AppBackupData.toAppState(): AppState {
         .takeIf { serverId -> restoredProxyServers.any { server -> server.id == serverId } }
         ?: restoredProxyServers.firstOrNull()?.id
         ?: defaults.selectedProxyServerId
-    val restoredCustomResourceFiles = settings.customResourceFiles.map(AppBackupCustomResourceFile::toState)
 
     return defaults.copy(
         subscriptionGroups = restoredSubscriptionGroups,
@@ -192,19 +173,6 @@ private fun AppBackupData.toAppState(): AppState {
         proxyRunning = false,
         coreLogLevel = settings.coreLogLevel,
         enableAccessLog = settings.enableAccessLog,
-        enableResourceAutoUpdate = settings.enableResourceAutoUpdate,
-        resourceAutoUpdateInterval = settings.resourceAutoUpdateInterval,
-        resourceFileSource = settings.resourceFileSource,
-        customResourceFileGeoIpUrl = settings.customResourceFileGeoIpUrl,
-        customResourceFileGeoSiteUrl = settings.customResourceFileGeoSiteUrl,
-        customResourceFileGeoIpOnlyCnPrivateUrl = settings.customResourceFileGeoIpOnlyCnPrivateUrl,
-        customResourceFileDirectCidrIpv4Url = settings.customResourceFileDirectCidrIpv4Url,
-        customResourceFileDirectCidrIpv6Url = settings.customResourceFileDirectCidrIpv6Url,
-        customResourceFiles = restoredCustomResourceFiles,
-        nextCustomResourceFileId = nextId(
-            defaultValue = defaults.nextCustomResourceFileId,
-            ids = restoredCustomResourceFiles.map { file -> file.id },
-        ),
         enableSniffing = settings.enableSniffing,
         enableSniffingRouteOnly = settings.enableSniffingRouteOnly,
         enableMux = settings.enableMux,
@@ -269,14 +237,6 @@ private fun AppBackupProxyServer.toState(
     }.onFailure { error ->
         AndroidAppLogger.warn(LogTag, "Failed to parse backup proxy server id=$id", error)
     }.getOrNull()
-}
-
-private fun AppBackupCustomResourceFile.toState(): CustomResourceFileState {
-    return CustomResourceFileState(
-        id = id,
-        name = name,
-        url = url,
-    )
 }
 
 private fun nextId(defaultValue: Int, ids: List<Int>): Int {

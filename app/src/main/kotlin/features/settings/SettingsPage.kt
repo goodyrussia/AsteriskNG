@@ -165,7 +165,6 @@ private fun SettingsContent(
                     enableAllProxyGroup = appState.enableAllProxyGroup,
                     enableDeletionConfirmation = appState.enableDeletionConfirmation,
                     onOpenGroupManagement = { navigator.push(Route.SubscriptionGroupList) },
-                    onOpenResourceManagement = { navigator.push(Route.ResourceManagement) },
                     onEnableAllProxyGroupChange = { enabled ->
                         updateAppState { state -> state.copy(enableAllProxyGroup = enabled) }
                     },

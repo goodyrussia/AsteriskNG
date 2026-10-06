@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.effects.ProxyStatusSynchronizer
 import app.effects.LauncherIconSynchronizer
-import app.effects.ResourceFileSynchronizer
 import app.effects.RootBootScriptSynchronizer
 import features.logs.AndroidAccessLogRepository
 import features.logs.AndroidAsteriskdLogRepository
@@ -24,7 +23,6 @@ import engine.proxy.AndroidProxyEngine
 import engine.proxy.latency.AndroidProxyLatencyTester
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
-import features.resources.ResourceFileUseCase
 import features.settings.usecase.SwitchRunModeUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.settings.usecase.RootEbpfProbeUseCase
@@ -39,7 +37,7 @@ import ui.feedback.AndroidToastTipNotifier
 fun App(
     padding: PaddingValues = PaddingValues(0.dp),
     qrCodeScanner: suspend () -> String?,
-    resourceFilePicker: suspend () -> Uri?,
+    filePicker: suspend () -> Uri?,
     logFileCreator: suspend (String) -> Uri?,
     requestVpnPermission: suspend (Intent) -> Boolean,
 ) {
@@ -64,28 +62,19 @@ fun App(
     val networkInterfaces = remember(rootAccess) {
         AndroidNetworkInterfaceProvider(rootAccess)
     }
-    val resourceFileUseCase = remember(appContext, resourceFilePicker, rootAccess, stateStore) {
-        ResourceFileUseCase(
-            context = appContext,
-            resourceFilePicker = resourceFilePicker,
-            currentRunMode = { stateStore.state.value.runMode },
-            rootShell = rootAccess,
-        )
-    }
-    val resourceFileUpdateCoordinator = application.resourceFileUpdateCoordinator
-    val appBackupUseCase = remember(appContext, resourceFilePicker, logFileCreator) {
+    val appBackupUseCase = remember(appContext, filePicker, logFileCreator) {
         AppBackupUseCase(
             context = appContext,
-            filePicker = resourceFilePicker,
+            filePicker = filePicker,
             fileCreator = logFileCreator,
         )
     }
     val subscriptionFetcher = remember(application) { application.subscriptionFetcher }
     val qrScanner = remember(qrCodeScanner) { qrCodeScanner }
-    val proxyServerImportFileUseCase = remember(appContext, resourceFilePicker) {
+    val proxyServerImportFileUseCase = remember(appContext, filePicker) {
         ProxyServerImportFileUseCase(
             context = appContext,
-            filePicker = resourceFilePicker,
+            filePicker = filePicker,
         )
     }
     val proxyLatencyTester = remember(appContext) {
@@ -129,8 +118,6 @@ fun App(
         userSpaces,
         packageCatalog,
         networkInterfaces,
-        resourceFileUseCase,
-        resourceFileUpdateCoordinator,
         appBackupUseCase,
         subscriptionFetcher,
         qrScanner,
@@ -150,8 +137,6 @@ fun App(
             userSpaces = userSpaces,
             packageCatalog = packageCatalog,
             networkInterfaces = networkInterfaces,
-            resourceFileUseCase = resourceFileUseCase,
-            resourceFileUpdateCoordinator = resourceFileUpdateCoordinator,
             appBackupUseCase = appBackupUseCase,
             subscriptionFetcher = subscriptionFetcher,
             qrScanner = qrScanner,
@@ -177,10 +162,6 @@ fun App(
         proxyEngine = proxyEngine,
         updateAppState = updateAppState,
     )
-    ResourceFileSynchronizer(
-        resourceFileUseCase = resourceFileUseCase,
-        stateStore = stateStore,
-    )
     LauncherIconSynchronizer(context = appContext)
     RootBootScriptSynchronizer(
         stateStore = stateStore,
@@ -194,7 +175,6 @@ fun App(
             LocalAppServices provides services,
         ) {
             AppContent(padding = padding)
-            features.resources.SharedCoreMigrationPrompt()
         }
     }
 }
