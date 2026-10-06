@@ -53,7 +53,7 @@ internal class SwitchRunModeUseCase(
 
         val targetRequiresRoot = normalizedTargetMode.isRootRunMode()
         val currentRootRequiresShutdown = currentState.runMode.isRootRunMode() &&
-            (currentState.proxyRunning || currentState.serviceControl.enabled)
+            currentState.proxyRunning
         val stopRequiresRoot = currentRootRequiresShutdown
         val needsRootAccess = stopRequiresRoot || currentState.enableRootBootScript || targetRequiresRoot
         if (needsRootAccess && !rootAccess.hasRootAccess()) {

@@ -191,7 +191,6 @@ internal fun SettingsProxyModeSections(
     onEnableRootEbpfDirectCidrBypassChange: (Boolean) -> Unit,
     onEnableRootIpv6DisablerChange: (Boolean) -> Unit,
     onOpenExternalInterfaces: () -> Unit,
-    onOpenServiceControl: () -> Unit,
     onOpenIgnoredInterfaces: () -> Unit,
     onOpenPrivateAddresses: () -> Unit,
 ) {
@@ -264,11 +263,6 @@ internal fun SettingsProxyModeSections(
                         onCheckedChange = onEnableRootBootScriptChange,
                     )
                 }
-                ArrowPreference(
-                    title = stringResource(R.string.settings_service_control),
-                    summary = stringResource(R.string.settings_service_control_summary),
-                    onClick = onOpenServiceControl,
-                )
                 AnimatedVisibility(
                     visible = runMode.supportsRootEbpfMatcher(),
                     enter = fadeIn() + expandVertically(),

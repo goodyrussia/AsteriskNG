@@ -20,7 +20,8 @@ internal object AsteriskdConfigEncoder {
 }
 
 private fun AsteriskdConfig.toJsonObject(): JsonObject = buildJsonObject {
-    put("schemaVersion", 4)
+    // Schema 2 is the daemon schema for configs without a `serviceControl` section; schemas >= 3 require that field.
+    put("schemaVersion", 2)
     put("owner", owner.wireValue)
     put("coreType", coreType.wireValue)
     put("coreExecutablePath", coreExecutablePath)
@@ -33,40 +34,6 @@ private fun AsteriskdConfig.toJsonObject(): JsonObject = buildJsonObject {
     put("modeOptions", modeOptions.toJsonObject())
     put("matcher", matcher?.toJsonObject() ?: JsonNull)
     put("helper", helper?.toJsonObject() ?: JsonNull)
-    put("serviceControl", serviceControl.toJsonObject())
-}
-
-private fun AsteriskdServiceControlConfig.toJsonObject(): JsonObject = buildJsonObject {
-    put("enabled", enabled)
-    put("schedule", schedule.toJsonObject())
-    put("wifi", wifi.toJsonObject())
-    put("keyguard", buildJsonObject {
-        put("enabled", keyguard.enabled)
-        put("lockStart", keyguard.lockStart)
-        put("lockStop", keyguard.lockStop)
-        put("unlockStart", keyguard.unlockStart)
-        put("unlockStop", keyguard.unlockStop)
-    })
-}
-
-private fun AsteriskdScheduleControl.toJsonObject(): JsonObject = buildJsonObject {
-    put("enabled", enabled)
-    put("startCron", startCron)
-    put("stopCron", stopCron)
-}
-
-private fun AsteriskdWifiControl.toJsonObject(): JsonObject = buildJsonObject {
-    put("enabled", enabled)
-    put("connectStart", connectStart.toJsonObject())
-    put("connectStop", connectStop.toJsonObject())
-    put("disconnectStart", disconnectStart.toJsonObject())
-    put("disconnectStop", disconnectStop.toJsonObject())
-}
-
-private fun AsteriskdWifiRule.toJsonObject(): JsonObject = buildJsonObject {
-    put("enabled", enabled)
-    put("ssids", ssids.toJsonArray())
-    put("bssids", bssids.toJsonArray())
 }
 
 private fun AsteriskdCoreConfig.toJsonObject(): JsonObject = buildJsonObject {

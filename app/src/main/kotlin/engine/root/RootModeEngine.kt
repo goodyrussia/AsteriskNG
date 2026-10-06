@@ -136,25 +136,6 @@ internal class RootModeEngine(
         return status()
     }
 
-    suspend fun reconfigureServiceControl(request: ProxyEngineStartRequest): Boolean {
-        if (!rootAccess.hasRootAccess()) error(context.getString(definition.rootRequiredErrorResId))
-        val config = definition.buildConfig(context.prepareRootConfigBuildContext(request))
-        require(config.asteriskdConfig.mode == definition.daemonMode)
-        val wasRunning = controller.reconfigureServiceControl(config.root, config.asteriskdConfig)
-        if (wasRunning) {
-            LocalProxyRuntime.update(config.localProxyOptions)
-        } else {
-            LocalProxyRuntime.clear()
-        }
-        return wasRunning
-    }
-
-    suspend fun disableServiceControlWithoutConfig() {
-        if (!rootAccess.hasRootAccess()) error(context.getString(definition.rootRequiredErrorResId))
-        controller.disableServiceControlWithoutConfig()
-        LocalProxyRuntime.clear()
-    }
-
     suspend fun ownsRuntime(): Boolean {
         return controller.ownsRuntime()
     }

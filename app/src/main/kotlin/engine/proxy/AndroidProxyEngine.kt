@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import app.AppState
 import app.ProxyServerState
-import app.R
 import app.modes.RunModeVpnService
 import engine.stats.ProxyTrafficStatsRuntime
 import engine.stats.ProxyTrafficStatsRuntimeStore
@@ -83,35 +82,6 @@ class AndroidProxyEngine(
         }
         mutableRootStatusWatchGeneration.update { generation -> generation + 1L }
         return status
-    }
-
-    suspend fun reconfigureServiceControl(nextState: AppState): AppState {
-        val appliedState = operationMutex.withLock {
-            val rootEngine = rootEnginesByRunMode[nextState.runMode] ?: return@withLock nextState
-            val resolvedState = nextState.withResolvedDynamicLocalProxyPort()
-            val selectedServer = resolvedState.proxyServers.firstOrNull { server ->
-                server.id == resolvedState.selectedProxyServerId
-            }
-            if (selectedServer == null) {
-                check(!resolvedState.serviceControl.enabled) {
-                    appContext.getString(R.string.settings_service_control_proxy_server_required)
-                }
-                withContext(Dispatchers.Default) {
-                    rootEngine.disableServiceControlWithoutConfig()
-                }
-                activeEngine = null
-                return@withLock resolvedState.copy(proxyRunning = false)
-            }
-            val wasRunning = withContext(Dispatchers.Default) {
-                rootEngine.reconfigureServiceControl(
-                    ProxyEngineStartRequest(resolvedState, selectedServer),
-                )
-            }
-            activeEngine = rootEngine.takeIf { wasRunning }
-            resolvedState.copy(proxyRunning = wasRunning)
-        }
-        mutableRootStatusWatchGeneration.update { generation -> generation + 1L }
-        return appliedState
     }
 
     suspend fun status(

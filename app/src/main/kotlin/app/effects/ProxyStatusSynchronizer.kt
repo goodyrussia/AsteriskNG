@@ -16,7 +16,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import app.AppState
-import app.ServiceControlSettings
 import app.collectAppState
 import app.modes.isRootRunMode
 import data.AndroidAppStateStore
@@ -156,16 +155,14 @@ internal suspend fun synchronizeProxyStatus(
 
 internal data class RootStatusWatchTarget(
     val runMode: Int,
-    val serviceControl: ServiceControlSettings,
     val expectedRunning: Boolean,
     val runtimeGeneration: Long,
 )
 
 internal fun AppState.rootStatusWatchTarget(runtimeGeneration: Long = 0L): RootStatusWatchTarget? {
-    if (!runMode.isRootRunMode() || (!serviceControl.enabled && !proxyRunning)) return null
+    if (!runMode.isRootRunMode() || !proxyRunning) return null
     return RootStatusWatchTarget(
         runMode = runMode,
-        serviceControl = serviceControl,
         expectedRunning = proxyRunning,
         runtimeGeneration = runtimeGeneration,
     )

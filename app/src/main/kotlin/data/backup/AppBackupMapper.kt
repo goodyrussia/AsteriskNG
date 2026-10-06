@@ -4,12 +4,6 @@
 package data.backup
 
 import app.AppState
-import app.ServiceControlSchedule
-import app.ServiceControlKeyguard
-import features.settings.servicecontrol.normalizeServiceControlSettings
-import app.ServiceControlSettings
-import app.ServiceControlWifi
-import app.ServiceControlWifiRule
 import app.CustomResourceFileState
 import app.ProxyServerState
 import app.SubscriptionGroupState
@@ -112,68 +106,9 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
         socks5ProxyPort = socks5ProxyPort,
         externalInterfaces = externalInterfaces,
         ignoredInterfaces = ignoredInterfaces,
-        serviceControl = serviceControl.toBackup(),
         privateAddressCidrs = privateAddressCidrs,
         proxyAppListMode = proxyAppListMode,
     )
-}
-
-private fun ServiceControlSettings.toBackup(): AppBackupServiceControl {
-    return AppBackupServiceControl(
-        enabled = enabled,
-        keyguard = AppBackupServiceControlKeyguard(
-            enabled = keyguard.enabled,
-            lockStart = keyguard.lockStart,
-            lockStop = keyguard.lockStop,
-            unlockStart = keyguard.unlockStart,
-            unlockStop = keyguard.unlockStop,
-        ),
-        schedule = AppBackupServiceControlSchedule(
-            enabled = schedule.enabled,
-            startCron = schedule.startCron,
-            stopCron = schedule.stopCron,
-        ),
-        wifi = AppBackupServiceControlWifi(
-            enabled = wifi.enabled,
-            connectStart = wifi.connectStart.toBackup(),
-            connectStop = wifi.connectStop.toBackup(),
-            disconnectStart = wifi.disconnectStart.toBackup(),
-            disconnectStop = wifi.disconnectStop.toBackup(),
-        ),
-    )
-}
-
-private fun ServiceControlWifiRule.toBackup(): AppBackupServiceControlWifiRule {
-    return AppBackupServiceControlWifiRule(enabled = enabled, ssids = ssids, bssids = bssids)
-}
-
-private fun AppBackupServiceControl.toState(): ServiceControlSettings {
-    return ServiceControlSettings(
-        enabled = enabled,
-        keyguard = ServiceControlKeyguard(
-            enabled = keyguard.enabled,
-            lockStart = keyguard.lockStart,
-            lockStop = keyguard.lockStop,
-            unlockStart = keyguard.unlockStart,
-            unlockStop = keyguard.unlockStop,
-        ),
-        schedule = ServiceControlSchedule(
-            enabled = schedule.enabled,
-            startCron = schedule.startCron,
-            stopCron = schedule.stopCron,
-        ),
-        wifi = ServiceControlWifi(
-            enabled = wifi.enabled,
-            connectStart = wifi.connectStart.toState(),
-            connectStop = wifi.connectStop.toState(),
-            disconnectStart = wifi.disconnectStart.toState(),
-            disconnectStop = wifi.disconnectStop.toState(),
-        ),
-    )
-}
-
-private fun AppBackupServiceControlWifiRule.toState(): ServiceControlWifiRule {
-    return ServiceControlWifiRule(enabled = enabled, ssids = ssids, bssids = bssids)
 }
 
 private fun SubscriptionGroupState.toBackup(): AppBackupSubscriptionGroup {
@@ -328,7 +263,6 @@ private fun AppBackupData.toAppState(): AppState {
         socks5ProxyPort = settings.socks5ProxyPort,
         externalInterfaces = settings.externalInterfaces,
         ignoredInterfaces = settings.ignoredInterfaces,
-        serviceControl = normalizeServiceControlSettings(settings.serviceControl.toState()),
         privateAddressCidrs = settings.privateAddressCidrs,
         proxyAppListMode = settings.proxyAppListMode,
         proxyAppListSelectedApps = proxyAppListSelectedApps,

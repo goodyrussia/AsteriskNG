@@ -4,16 +4,7 @@
 package features.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import app.AppState
-import app.LocalAppServices
-import app.R
-import androidx.compose.ui.res.stringResource
-import features.logs.AndroidAppLogger
 import features.settings.sheets.DnsSettingsBottomSheet
 import features.settings.sheets.ExternalInterfacesBottomSheet
 import features.settings.sheets.FragmentSettingsBottomSheet
@@ -21,7 +12,6 @@ import features.settings.sheets.IgnoredInterfacesBottomSheet
 import features.settings.sheets.LocalProxySettingsBottomSheet
 import features.settings.sheets.MuxSettingsBottomSheet
 import features.settings.sheets.PrivateAddressBottomSheet
-import features.settings.sheets.ServiceControlBottomSheet
 import features.settings.sheets.TunSettingsBottomSheet
 import features.settings.sheets.sanitizeExternalInterfaces
 import features.settings.sheets.sanitizeIgnoredInterfaceSelectors
@@ -31,8 +21,6 @@ import app.modes.RunModeBpf2Socks
 import app.modes.RunModeTun2Socks
 import app.modes.RunModeVpnService
 import app.modes.RunModeTproxy
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingsBottomSheetsHost(
@@ -40,11 +28,6 @@ internal fun SettingsBottomSheetsHost(
     sheetState: SettingsSheetState,
     updateAppState: ((AppState) -> AppState) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    val applyServiceControl = LocalAppServices.current.applyServiceControlUseCase
-    val serviceControlFailedMessage = stringResource(R.string.settings_service_control_save_failed)
-    var serviceControlSaving by remember { mutableStateOf(false) }
-    var serviceControlError by remember { mutableStateOf<String?>(null) }
     LocalProxySettingsBottomSheet(
         show = sheetState.showLocalProxySettings,
         showInboundProxyPort = appState.runMode == RunModeTproxy ||
@@ -277,46 +260,6 @@ internal fun SettingsBottomSheetsHost(
         onSave = { interfaces ->
             updateAppState { state -> state.copy(externalInterfaces = interfaces.sanitizeExternalInterfaces()) }
             sheetState.showExternalInterfaces = false
-        },
-    )
-    ServiceControlBottomSheet(
-        show = sheetState.showServiceControl,
-        saving = serviceControlSaving,
-        draft = sheetState.serviceControlDraft,
-        runtimeError = serviceControlError,
-        onDraftChange = {
-            serviceControlError = null
-            sheetState.serviceControlDraft = it
-        },
-        onDismissRequest = {
-            if (!serviceControlSaving) sheetState.showServiceControl = false
-        },
-        onSave = { draft ->
-            if (!serviceControlSaving) {
-                val baseState = appState
-                serviceControlSaving = true
-                serviceControlError = null
-                scope.launch {
-                    try {
-                        val applied = applyServiceControl.apply(baseState, draft)
-                        updateAppState { current ->
-                            current.copy(
-                                serviceControl = applied.serviceControl,
-                                proxyRunning = applied.proxyRunning,
-                                localProxyPort = applied.localProxyPort,
-                            )
-                        }
-                        sheetState.showServiceControl = false
-                    } catch (error: Throwable) {
-                        if (error is CancellationException) throw error
-                        AndroidAppLogger.error("ServiceControl", "Failed to restart asteriskd", error)
-                        serviceControlError = error.message?.takeIf(String::isNotBlank)
-                            ?: serviceControlFailedMessage
-                    } finally {
-                        serviceControlSaving = false
-                    }
-                }
-            }
         },
     )
     IgnoredInterfacesBottomSheet(

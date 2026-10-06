@@ -14,7 +14,6 @@ import features.proxy.server.usecase.ProxyServiceUseCase
 import features.resources.ResourceFileUpdateCoordinator
 import features.resources.ResourceFileUseCase
 import features.settings.usecase.SwitchRunModeUseCase
-import features.settings.usecase.ApplyServiceControlUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.settings.usecase.RootEbpfProbeUseCase
 import features.subscription.runtime.AndroidSubscriptionFetcher
@@ -41,7 +40,6 @@ internal data class AppServices(
     val proxyLatencyTester: AndroidProxyLatencyTester,
     val proxyServiceUseCase: ProxyServiceUseCase,
     val switchRunModeUseCase: SwitchRunModeUseCase,
-    val applyServiceControlUseCase: ApplyServiceControlUseCase,
     val rootBootScriptUseCase: RootBootScriptUseCase,
     val rootEbpfProbeUseCase: RootEbpfProbeUseCase,
     val tipNotifier: AndroidToastTipNotifier,

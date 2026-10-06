@@ -3,12 +3,6 @@
 
 package engine.root.daemon.config
 
-import android.os.Build
-import app.ServiceControlKeyguard
-import app.supportsKeyguardControl
-import app.ServiceControlSettings
-import features.settings.servicecontrol.normalizeServiceControlSettings
-
 internal enum class AsteriskdOwner(val wireValue: String) {
     AsteriskNg("asteriskng"),
     AsteriskBox("asteriskbox"),
@@ -54,58 +48,7 @@ internal data class AsteriskdConfig(
     val modeOptions: AsteriskdModeOptions,
     val matcher: AsteriskdMatcher?,
     val helper: AsteriskdHelper?,
-    val serviceControl: AsteriskdServiceControlConfig,
 )
-
-internal data class AsteriskdServiceControlConfig(
-    val enabled: Boolean,
-    val schedule: AsteriskdScheduleControl,
-    val wifi: AsteriskdWifiControl,
-    val keyguard: ServiceControlKeyguard = ServiceControlKeyguard(),
-)
-
-internal data class AsteriskdScheduleControl(
-    val enabled: Boolean,
-    val startCron: String,
-    val stopCron: String,
-)
-
-internal data class AsteriskdWifiControl(
-    val enabled: Boolean,
-    val connectStart: AsteriskdWifiRule,
-    val connectStop: AsteriskdWifiRule,
-    val disconnectStart: AsteriskdWifiRule,
-    val disconnectStop: AsteriskdWifiRule,
-)
-
-internal data class AsteriskdWifiRule(
-    val enabled: Boolean,
-    val ssids: List<String>,
-    val bssids: List<String>,
-)
-
-internal fun ServiceControlSettings.toAsteriskdServiceControlConfig(): AsteriskdServiceControlConfig {
-    val value = normalizeServiceControlSettings(this)
-    return AsteriskdServiceControlConfig(
-        enabled = value.enabled,
-        keyguard = value.keyguard.copy(enabled = value.keyguard.enabled && supportsKeyguardControl(Build.VERSION.SDK_INT)),
-        schedule = AsteriskdScheduleControl(
-            enabled = value.schedule.enabled,
-            startCron = value.schedule.startCron,
-            stopCron = value.schedule.stopCron,
-        ),
-        wifi = AsteriskdWifiControl(
-            enabled = value.wifi.enabled,
-            connectStart = value.wifi.connectStart.toAsteriskdWifiRule(),
-            connectStop = value.wifi.connectStop.toAsteriskdWifiRule(),
-            disconnectStart = value.wifi.disconnectStart.toAsteriskdWifiRule(),
-            disconnectStop = value.wifi.disconnectStop.toAsteriskdWifiRule(),
-        ),
-    )
-}
-
-private fun app.ServiceControlWifiRule.toAsteriskdWifiRule(): AsteriskdWifiRule =
-    AsteriskdWifiRule(enabled = enabled, ssids = ssids, bssids = bssids)
 
 internal data class AsteriskdCoreConfig(
     val workingDirectory: String,

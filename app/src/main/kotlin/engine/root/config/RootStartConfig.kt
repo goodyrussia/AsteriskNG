@@ -3,7 +3,6 @@
 
 package engine.root.config
 
-import app.ServiceControlSettings
 import engine.network.NetworkLimits
 import engine.proxy.LocalProxyOptions
 import engine.root.daemon.config.AsteriskdConfig
@@ -32,7 +31,6 @@ internal data class RootStartConfig(
     val enableLocalDns: Boolean,
     val enableFakeDns: Boolean,
     val enableBoot: Boolean,
-    val serviceControl: ServiceControlSettings,
 )
 
 internal data class RootModeStartConfig(

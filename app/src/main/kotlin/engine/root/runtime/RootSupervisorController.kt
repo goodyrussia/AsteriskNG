@@ -93,11 +93,10 @@ internal class RootSupervisorController(
                 root = root,
                 config = config,
                 restartExpectedOwner = snapshot.owner,
-                launchMode = RootPublicationLaunchMode.Service,
             )
         }
 
-        return launch(root, config, restartExpectedOwner = null, RootPublicationLaunchMode.Service)
+        return launch(root, config, restartExpectedOwner = null)
     }
 
     suspend fun restart(
@@ -113,67 +112,18 @@ internal class RootSupervisorController(
             root = root,
             config = config,
             restartExpectedOwner = snapshot?.owner,
-            launchMode = RootPublicationLaunchMode.Service,
         )
-    }
-
-    suspend fun reconfigureServiceControl(
-        root: RootStartConfig,
-        config: AsteriskdConfig,
-    ): Boolean {
-        RootFailureWatcher.beginAttempt()
-        val snapshot = status().boundSnapshot()
-        if (snapshot != null && snapshot.owner != AsteriskdOwner.AsteriskNg) {
-            throw RootRuntimeConflictException(snapshot)
-        }
-        val plan = try {
-            serviceControlReconfigurePlan(snapshot?.phase, config.serviceControl.enabled)
-        } catch (_: IllegalArgumentException) {
-            throw RootRuntimeBusyException(requireNotNull(snapshot))
-        }
-        if (plan.shutdownRequired) shutdownOwn()
-        when (plan.launchMode) {
-            RootPublicationLaunchMode.Service -> launch(
-                root,
-                config,
-                restartExpectedOwner = snapshot?.owner,
-                launchMode = RootPublicationLaunchMode.Service,
-            )
-            RootPublicationLaunchMode.Monitor -> launch(
-                root,
-                config,
-                restartExpectedOwner = snapshot?.owner,
-                launchMode = RootPublicationLaunchMode.Monitor,
-            )
-            RootPublicationLaunchMode.None -> RootFailureWatcher.stop()
-        }
-        return plan.launchMode == RootPublicationLaunchMode.Service
-    }
-
-    suspend fun disableServiceControlWithoutConfig() {
-        val snapshot = status().boundSnapshot() ?: run {
-            RootFailureWatcher.stop()
-            return
-        }
-        if (snapshot.owner != AsteriskdOwner.AsteriskNg) {
-            throw RootRuntimeConflictException(snapshot)
-        }
-        if (snapshot.phase != AsteriskdPhase.Stopped) {
-            throw RootRuntimeBusyException(snapshot)
-        }
-        shutdownOwn()
     }
 
     private suspend fun launch(
         root: RootStartConfig,
         config: AsteriskdConfig,
         restartExpectedOwner: AsteriskdOwner?,
-        launchMode: RootPublicationLaunchMode,
     ): AsteriskdSnapshot {
         // Only an actual ROOT launch may arm diagnostics; constructing engines also happens in VPN.
         RootFailureWatcher.ensureStarted(appContext, shell, runtimeLayout, explicitRootAction = true, running = false)
         var stage = "prepare_directories"
-        runCatching { AndroidAppLogger.info(LogTag, "root_start mode=${config.mode.wireValue} launch=$launchMode stage=$stage") }
+        runCatching { AndroidAppLogger.info(LogTag, "root_start mode=${config.mode.wireValue} stage=$stage") }
         try {
             preparePublication()
             stage = "encode_config"
@@ -181,7 +131,7 @@ internal class RootSupervisorController(
             val publication = RootPublicationBundle(
                 runtimeLayout = runtimeLayout,
                 bootEnabled = root.enableBoot,
-                launchMode = launchMode,
+                launchMode = RootPublicationLaunchMode.Service,
                 restartExpectedOwner = restartExpectedOwner?.wireValue,
             )
             clearInMemoryServiceLogs()
@@ -208,20 +158,11 @@ internal class RootSupervisorController(
             stage = "await_ready"
             runCatching { AndroidAppLogger.info(LogTag, "root_start stage=launch result=sent") }
             val snapshot = withTimeoutOrNull(StartTimeoutMilliseconds.milliseconds) {
-                when (launchMode) {
-                    RootPublicationLaunchMode.Service -> client.awaitRunning(runtimeLayout.asteriskdPath)
-                    RootPublicationLaunchMode.Monitor -> client.awaitStopped(runtimeLayout.asteriskdPath)
-                    RootPublicationLaunchMode.None -> error("A non-launch publication has no runtime snapshot")
-                }
+                client.awaitRunning(runtimeLayout.asteriskdPath)
             } ?: throw IllegalStateException("asteriskd did not reach the requested phase before timeout")
             if (snapshot.owner != AsteriskdOwner.AsteriskNg) throw RootRuntimeConflictException(snapshot)
             require(snapshot.mode == config.mode) { "Unexpected ROOT mode ${snapshot.mode.wireValue}" }
-            if (launchMode == RootPublicationLaunchMode.Service) {
-                observeRunningFailure(snapshot, explicitRootAction = true)
-            } else {
-                // A resident supervisor waiting for a trigger has no running core to monitor.
-                RootFailureWatcher.stop()
-            }
+            observeRunningFailure(snapshot, explicitRootAction = true)
             runCatching { AndroidAppLogger.info(LogTag, "root_start stage=ready phase=${snapshot.phase}") }
             return snapshot
         } catch (error: Exception) {

@@ -92,40 +92,8 @@ internal data class AppBackupSettings(
     val socks5ProxyPort: String = BackupDefaults.socks5ProxyPort,
     val externalInterfaces: List<String> = BackupDefaults.externalInterfaces,
     val ignoredInterfaces: List<String> = BackupDefaults.ignoredInterfaces,
-    val serviceControl: AppBackupServiceControl = AppBackupServiceControl(),
     val privateAddressCidrs: List<String> = BackupDefaults.privateAddressCidrs,
     val proxyAppListMode: Int = BackupDefaults.proxyAppListMode,
-)
-
-@Serializable
-internal data class AppBackupServiceControl(
-    val enabled: Boolean = BackupDefaults.serviceControl.enabled,
-    val schedule: AppBackupServiceControlSchedule = AppBackupServiceControlSchedule(),
-    val wifi: AppBackupServiceControlWifi = AppBackupServiceControlWifi(),
-    val keyguard: AppBackupServiceControlKeyguard = AppBackupServiceControlKeyguard(),
-)
-
-@Serializable
-internal data class AppBackupServiceControlSchedule(
-    val enabled: Boolean = BackupDefaults.serviceControl.schedule.enabled,
-    val startCron: String = BackupDefaults.serviceControl.schedule.startCron,
-    val stopCron: String = BackupDefaults.serviceControl.schedule.stopCron,
-)
-
-@Serializable
-internal data class AppBackupServiceControlWifi(
-    val enabled: Boolean = BackupDefaults.serviceControl.wifi.enabled,
-    val connectStart: AppBackupServiceControlWifiRule = AppBackupServiceControlWifiRule(),
-    val connectStop: AppBackupServiceControlWifiRule = AppBackupServiceControlWifiRule(),
-    val disconnectStart: AppBackupServiceControlWifiRule = AppBackupServiceControlWifiRule(),
-    val disconnectStop: AppBackupServiceControlWifiRule = AppBackupServiceControlWifiRule(),
-)
-
-@Serializable
-internal data class AppBackupServiceControlWifiRule(
-    val enabled: Boolean = false,
-    val ssids: List<String> = emptyList(),
-    val bssids: List<String> = emptyList(),
 )
 
 @Serializable
@@ -192,12 +160,3 @@ internal sealed interface AppBackupWarning {
         val count: Int,
     ) : AppBackupWarning
 }
-
-@Serializable
-internal data class AppBackupServiceControlKeyguard(
-    val enabled: Boolean = false,
-    val lockStart: Boolean = false,
-    val lockStop: Boolean = false,
-    val unlockStart: Boolean = false,
-    val unlockStop: Boolean = false,
-)

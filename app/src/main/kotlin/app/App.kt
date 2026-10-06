@@ -26,7 +26,6 @@ import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
 import features.resources.ResourceFileUseCase
 import features.settings.usecase.SwitchRunModeUseCase
-import features.settings.usecase.ApplyServiceControlUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.settings.usecase.RootEbpfProbeUseCase
 import system.AndroidNetworkInterfaceProvider
@@ -122,9 +121,6 @@ fun App(
     val proxyServiceUseCase = remember(proxyEngine) {
         ProxyServiceUseCase(proxyEngine)
     }
-    val applyServiceControlUseCase = remember(proxyEngine) {
-        ApplyServiceControlUseCase(proxyEngine)
-    }
     val tipNotifier = remember(appContext) { AndroidToastTipNotifier(appContext) }
     val services = remember(
         appScope,
@@ -142,7 +138,6 @@ fun App(
         proxyLatencyTester,
         proxyServiceUseCase,
         switchRunModeUseCase,
-        applyServiceControlUseCase,
         rootBootScriptUseCase,
         rootEbpfProbeUseCase,
         tipNotifier,
@@ -164,7 +159,6 @@ fun App(
             proxyLatencyTester = proxyLatencyTester,
             proxyServiceUseCase = proxyServiceUseCase,
             switchRunModeUseCase = switchRunModeUseCase,
-            applyServiceControlUseCase = applyServiceControlUseCase,
             rootBootScriptUseCase = rootBootScriptUseCase,
             rootEbpfProbeUseCase = rootEbpfProbeUseCase,
             tipNotifier = tipNotifier,
