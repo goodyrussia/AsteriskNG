@@ -143,7 +143,6 @@ internal data class AppBackupRouteRule(
 internal data class AppBackupRestorePreview(
     val backup: AppBackupFile,
     val restoredState: AppState,
-    val warnings: List<AppBackupWarning>,
 ) {
     val subscriptionGroupCount: Int
         get() = restoredState.subscriptionGroups.size
@@ -153,10 +152,4 @@ internal data class AppBackupRestorePreview(
 
     val routeRuleCount: Int
         get() = restoredState.routeRules.size
-}
-
-internal sealed interface AppBackupWarning {
-    data class MissingChainProxyMembers(
-        val count: Int,
-    ) : AppBackupWarning
 }

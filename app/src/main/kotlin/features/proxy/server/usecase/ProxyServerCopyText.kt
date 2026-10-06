@@ -12,10 +12,7 @@ import app.modes.RunModeTproxy
 import engine.proxy.ProxyEngineStartRequest
 import engine.root.RootModeEngine
 import engine.vpn.VpnXrayConfigFactory
-import features.proxy.server.model.ChainProxy
 import features.proxy.server.model.ProxyServer
-import features.proxy.server.model.StrategyGroup
-import features.proxy.server.model.getCopyTextOrNull
 import features.proxy.server.model.getUrlOrNull
 import features.subscription.DefaultSubscriptionGroupId
 import kotlinx.coroutines.Dispatchers
@@ -37,24 +34,7 @@ internal suspend fun ProxyServerState.proxyServerCopyText(
     context: Context,
     appState: AppState,
 ): ProxyServerCopyTextResult {
-    return when (server) {
-        is ChainProxy,
-        is StrategyGroup -> withContext(Dispatchers.IO) {
-            runCatching {
-                context.generatedProxyServerXrayConfig(appState, this@proxyServerCopyText).formatJsonText()
-            }.fold(
-                onSuccess = { text -> ProxyServerCopyTextResult.Success(text) },
-                onFailure = { ProxyServerCopyTextResult.InvalidConfig },
-            )
-        }
-
-        else -> runCatching { server.getCopyTextOrNull() }.fold(
-            onSuccess = { text ->
-                if (text == null) ProxyServerCopyTextResult.Unsupported else ProxyServerCopyTextResult.Success(text)
-            },
-            onFailure = { ProxyServerCopyTextResult.InvalidConfig },
-        )
-    }
+    return proxyServerCopyText(context, appState, ProxyServerCopyTextType.Url)
 }
 
 internal suspend fun ProxyServerState.proxyServerCopyText(

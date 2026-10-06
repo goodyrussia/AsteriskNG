@@ -45,7 +45,6 @@ enum class ProxyServerValidationError {
     VlessEncryptionVerifierInvalid,
     PathMustStartWithSlash,
     UnsupportedAlpn,
-    ChainProxyMemberCountInvalid,
     HysteriaObfsTypeRequired,
     HysteriaObfsUnsupported,
     PortHoppingIntervalNumberRequired,

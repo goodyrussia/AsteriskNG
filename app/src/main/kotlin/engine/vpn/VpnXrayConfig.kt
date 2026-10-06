@@ -25,7 +25,6 @@ import engine.xray.buildXrayOutboundPlan
 import engine.xray.prepareXrayCoreLogPaths
 import engine.xray.validateXrayExternalRoutingResources
 import features.resources.runtime.prepareXrayResourceFilePaths
-import features.proxy.server.model.Custom
 import system.toAndroidUserId
 import java.io.File
 import kotlinx.serialization.json.JsonObject
@@ -59,9 +58,7 @@ internal object VpnXrayConfigFactory {
         val appState = request.appState
         val coreLogPaths = context.prepareXrayCoreLogPaths()
         val resourceFilePaths = context.prepareXrayResourceFilePaths()
-        if (request.selectedServer.server !is Custom) {
-            appState.validateXrayExternalRoutingResources(resourceFilePaths.assetsDir)
-        }
+        appState.validateXrayExternalRoutingResources(resourceFilePaths.assetsDir)
         val tunOptions = appState.toTunOptions()
         val localProxyOptions = appState.toLocalProxyOptions()
         val appendHttpProxyOptions = appState.toVpnAppendHttpProxyOptions(localProxyOptions)

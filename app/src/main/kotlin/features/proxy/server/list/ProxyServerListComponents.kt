@@ -842,12 +842,6 @@ private fun proxyServerListAddMenuEntries() = listOf(
         title = stringResource(R.string.proxy_server_list_manual_input),
         children = proxyServerListManualInputMenuEntries(),
     ),
-    proxyServerListAddMenuEntry(
-        stringResource(R.string.proxy_server_list_add_strategy_group),
-        ProxyServerListAddAction.StrategyGroup,
-    ),
-    proxyServerListAddMenuEntry(stringResource(R.string.proxy_server_list_add_chain_proxy), ProxyServerListAddAction.ChainProxy),
-    proxyServerListAddMenuEntry(stringResource(R.string.proxy_server_list_add_custom), ProxyServerListAddAction.Custom),
 )
 
 @Composable

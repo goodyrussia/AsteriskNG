@@ -5,7 +5,6 @@ package engine.xray
 
 import app.AppState
 import app.ProxyServerState
-import features.proxy.server.model.Custom
 import features.proxy.server.model.ProxyServer
 import kotlinx.serialization.json.JsonObject
 
@@ -31,11 +30,6 @@ internal data class XrayProxyOutboundServer(
 
 internal object XrayConfigFactory {
     fun buildXrayConfig(request: XrayConfigRequest): String {
-        val customServer = request.selectedServer.server as? Custom
-        if (customServer != null) {
-            return buildCustomXrayConfig(request, customServer)
-        }
-
         val config = buildGeneratedXrayConfig(request).toJsonObject()
         return XrayConfigPrettyJson.encodeToString(config).withSingleTrailingLf()
     }
@@ -43,11 +37,6 @@ internal object XrayConfigFactory {
 
 internal object XraySpeedTestConfigFactory {
     fun buildXraySpeedTestConfig(request: XrayConfigRequest): String {
-        val customServer = request.selectedServer.server as? Custom
-        if (customServer != null) {
-            return buildCustomXrayConfig(request, customServer)
-        }
-
         val speedTestState = request.appState.copy(enableMux = false)
         val outboundPlan = speedTestState.buildXrayOutboundPlan(request.selectedServer)
         return GeneratedXrayConfig(
@@ -96,13 +85,4 @@ private fun buildGeneratedXrayConfig(request: XrayConfigRequest): GeneratedXrayC
         burstObservatory = buildXrayBurstObservatory(outboundPlan.burstObservatorySelectors),
         statsApiConfig = request.statsApiConfig,
     )
-}
-
-private fun buildCustomXrayConfig(
-    request: XrayConfigRequest,
-    server: Custom,
-): String {
-    val config = CustomXrayConfigRewriter.rewrite(request, server)
-        .withXrayStatsApiConfig(request.statsApiConfig)
-    return XrayConfigPrettyJson.encodeToString(config).withSingleTrailingLf()
 }

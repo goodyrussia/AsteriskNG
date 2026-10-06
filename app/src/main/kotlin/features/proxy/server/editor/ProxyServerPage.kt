@@ -39,18 +39,11 @@ import app.LocalNavigator
 import app.R
 import app.collectAppState
 import app.navigation.ProxyServerEditResult
-import features.proxy.server.display.displayName
-import features.proxy.server.display.displayNameById
-import features.proxy.server.display.displayNameWithGroup
-import features.proxy.server.model.Custom
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.ProxyServerValidationIssue
-import features.proxy.server.model.isCompositeProxyServer
-import features.proxy.server.model.isCustomProxyServer
 import features.proxy.server.usecase.ProxyServerCopyTextResult
 import features.proxy.server.usecase.proxyServerCopyText
 import features.proxy.server.validation.rememberProxyServerValidationMessageResolver
-import features.subscription.DefaultSubscriptionGroupId
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -96,10 +89,6 @@ fun ProxyServerPage(
     val fullValidationWarningSummary = stringResource(R.string.proxy_editor_full_validation_warning_summary)
     val continueSaveMessage = stringResource(R.string.proxy_editor_continue_save)
     val returnEditMessage = stringResource(R.string.proxy_editor_return_edit)
-    val unknownGroupName = stringResource(R.string.common_unknown_group)
-    val defaultGroupName = stringResource(R.string.subscription_default_group)
-    val allGroupsLabel = stringResource(R.string.proxy_editor_strategy_group_all_groups)
-    val defaultProxyServerTemplate = stringResource(R.string.routing_default_proxy_server)
 
     val psEdit = remember(ps) {
         ps.editableCopy()
@@ -121,48 +110,11 @@ fun ProxyServerPage(
             navigator.pop()
         }
     }
-    val groupOptions = remember(appState.subscriptionGroups, allGroupsLabel, defaultGroupName) {
-        listOf(ProxyServerEditorGroupOption(null, allGroupsLabel)) +
-            appState.subscriptionGroups
-                .filter { group -> group.enabled || group.builtIn || group.id == DefaultSubscriptionGroupId }
-                .map { group ->
-                    ProxyServerEditorGroupOption(
-                        id = group.id,
-                        label = group.displayName(defaultGroupName).ifBlank { defaultGroupName },
-                    )
-                }
-    }
-    val memberOptions = remember(appState.proxyServers, appState.subscriptionGroups, serverId, unknownGroupName, defaultGroupName) {
-        val groupNames = appState.subscriptionGroups.displayNameById(defaultGroupName)
-        appState.proxyServers
-            .filter { server ->
-                server.id != serverId &&
-                    !server.server.isCompositeProxyServer() &&
-                    !server.server.isCustomProxyServer()
-            }
-            .map { server ->
-                ProxyServerEditorMemberOption(
-                    id = server.id,
-                    label = server.displayNameWithGroup(
-                        defaultProxyServerTemplate = defaultProxyServerTemplate,
-                        groupNames = groupNames,
-                        unknownGroupName = unknownGroupName,
-                    ),
-                )
-            }
-    }
-    val editorOptions = remember(groupOptions, memberOptions) {
-        ProxyServerEditorOptions(
-            groupOptions = groupOptions,
-            memberOptions = memberOptions,
-        )
-    }
-    val title = psEdit.editorTitle()
 
     Scaffold(
         topBar = {
             AdaptiveTopAppBar(
-                title = title,
+                title = psEdit.getInfo().protocol,
                 isWideScreen = isWideScreen,
                 scrollBehavior = topAppBarScrollBehavior,
                 navigationIcon = {
@@ -233,13 +185,6 @@ fun ProxyServerPage(
             isWideScreen = isWideScreen,
         )
         val editorContentPadding = pageContentPaddingWithIme(contentPadding)
-        if (psEdit is Custom) {
-            CustomProxyServerEditor(
-                customEdit = psEdit,
-                contentPadding = contentPadding,
-            )
-            return@Scaffold
-        }
         Box {
             LazyColumn(
                 state = lazyListState,
@@ -248,7 +193,7 @@ fun ProxyServerPage(
                 ),
                 contentPadding = editorContentPadding,
             ) {
-                proxyServerEditorContent(psEdit, editorOptions)
+                proxyServerEditorContent(psEdit)
             }
             VerticalScrollBar(
                 adapter = rememberScrollBarAdapter(lazyListState),

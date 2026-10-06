@@ -3,15 +3,12 @@
 
 package data
 
-import features.proxy.server.model.ChainProxy
-import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.ProxyServerConstants
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
-import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
 import features.proxy.server.model.VLESS
 import features.proxy.server.model.VMess
@@ -41,9 +38,6 @@ internal fun ProxyServer<*>.toPersistedProxyServer(): PersistedProxyServer {
         is Trojan -> persisted(ProxyServerConstants.PROTOCOL_TROJAN, this)
         is Hysteria2 -> persisted(ProxyServerConstants.PROTOCOL_HYSTERIA2, this)
         is Wireguard -> persisted(ProxyServerConstants.PROTOCOL_WIREGUARD, this)
-        is StrategyGroup -> persisted(ProxyServerConstants.PROTOCOL_STRATEGY_GROUP, this)
-        is ChainProxy -> persisted(ProxyServerConstants.PROTOCOL_CHAIN_PROXY, this)
-        is Custom -> persisted(ProxyServerConstants.PROTOCOL_CUSTOM, this)
         else -> error("Unsupported proxy server type")
     }
 }
@@ -78,15 +72,6 @@ internal fun PersistedProxyServer.decodeProxyServer(): ProxyServer<*> {
 
         ProxyServerConstants.PROTOCOL_WIREGUARD ->
             ProxyServer.json.decodeFromJsonElement<Wireguard>(payload)
-
-        ProxyServerConstants.PROTOCOL_STRATEGY_GROUP ->
-            ProxyServer.json.decodeFromJsonElement<StrategyGroup>(payload)
-
-        ProxyServerConstants.PROTOCOL_CHAIN_PROXY ->
-            ProxyServer.json.decodeFromJsonElement<ChainProxy>(payload)
-
-        ProxyServerConstants.PROTOCOL_CUSTOM ->
-            ProxyServer.json.decodeFromJsonElement<Custom>(payload)
 
         else -> error("Unsupported persisted proxy server protocol: $protocol")
     }

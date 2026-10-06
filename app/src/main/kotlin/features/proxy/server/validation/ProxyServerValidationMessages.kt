@@ -29,9 +29,6 @@ internal fun rememberProxyServerValidationMessageResolver(): (ProxyServerValidat
             "TLS fingerprint" to stringResource(R.string.proxy_editor_tls_fingerprint),
             "XHTTP Extra" to "XHTTP Extra",
             "encryption method" to stringResource(R.string.proxy_editor_encryption),
-            "strategy group type" to stringResource(R.string.proxy_editor_strategy_group_type),
-            "custom JSON" to stringResource(R.string.proxy_editor_custom_json),
-            "custom JSON outbounds" to stringResource(R.string.proxy_editor_custom_json_outbounds),
         ),
         serverAddressContainsInvalidContent =
             stringResource(R.string.proxy_validation_server_address_contains_invalid_content),
@@ -71,7 +68,6 @@ internal fun rememberProxyServerValidationMessageResolver(): (ProxyServerValidat
             stringResource(R.string.proxy_validation_vless_encryption_verifier_invalid),
         pathMustStartWithSlash = stringResource(R.string.proxy_validation_path_must_start_with_slash),
         unsupportedAlpn = stringResource(R.string.proxy_validation_unsupported_alpn),
-        chainProxyMemberCountInvalid = stringResource(R.string.proxy_validation_chain_proxy_member_count_invalid),
         hysteriaObfsTypeRequired = stringResource(R.string.proxy_validation_hysteria_obfs_type_required),
         hysteriaObfsUnsupported = stringResource(R.string.proxy_validation_hysteria_obfs_unsupported),
         portHoppingIntervalNumberRequired =
@@ -126,7 +122,6 @@ private data class ProxyServerValidationMessages(
     val vlessEncryptionVerifierInvalid: String,
     val pathMustStartWithSlash: String,
     val unsupportedAlpn: String,
-    val chainProxyMemberCountInvalid: String,
     val hysteriaObfsTypeRequired: String,
     val hysteriaObfsUnsupported: String,
     val portHoppingIntervalNumberRequired: String,
@@ -176,7 +171,6 @@ private data class ProxyServerValidationMessages(
             ProxyServerValidationError.VlessEncryptionVerifierInvalid -> vlessEncryptionVerifierInvalid
             ProxyServerValidationError.PathMustStartWithSlash -> pathMustStartWithSlash
             ProxyServerValidationError.UnsupportedAlpn -> unsupportedAlpn.formatTemplate("value" to values.valueAt(0))
-            ProxyServerValidationError.ChainProxyMemberCountInvalid -> chainProxyMemberCountInvalid
             ProxyServerValidationError.HysteriaObfsTypeRequired -> hysteriaObfsTypeRequired
             ProxyServerValidationError.HysteriaObfsUnsupported -> hysteriaObfsUnsupported
             ProxyServerValidationError.PortHoppingIntervalNumberRequired -> portHoppingIntervalNumberRequired

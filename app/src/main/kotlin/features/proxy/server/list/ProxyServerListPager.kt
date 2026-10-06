@@ -121,7 +121,6 @@ internal fun ProxyServerListPager(
         Box(Modifier.fillMaxSize()) {
             ProxyServerLazyGrid(
                 pageServers = pageServers,
-                servers = servers,
                 selectedServerId = selectedServerId,
                 columns = columns,
                 reorderEnabled = reorderEnabled,
@@ -157,7 +156,6 @@ internal fun ProxyServerListPager(
 @Composable
 private fun ProxyServerLazyGrid(
     pageServers: List<ProxyServerState>,
-    servers: List<ProxyServerState>,
     selectedServerId: Int,
     columns: Int,
     reorderEnabled: Boolean,
@@ -247,7 +245,6 @@ private fun ProxyServerLazyGrid(
                     ) { isDragging ->
                         ProxyServerListItem(
                             server = server,
-                            servers = servers,
                             selectedServerId = selectedServerId,
                             pageIsAllGroupsSelected = pageIsAllGroupsSelected,
                             pageGroupId = pageGroupId,
@@ -292,7 +289,6 @@ private fun ProxyServerLazyGrid(
 @Composable
 private fun ProxyServerListItem(
     server: ProxyServerState,
-    servers: List<ProxyServerState>,
     selectedServerId: Int,
     pageIsAllGroupsSelected: Boolean,
     pageGroupId: Int,
@@ -321,7 +317,7 @@ private fun ProxyServerListItem(
         initialLatency = server.latency,
     ).value
     val validationMessageOf = rememberProxyServerValidationMessageResolver()
-    val displayText = itemTextFormatter.displayOf(server, servers)
+    val displayText = itemTextFormatter.displayOf(server)
     val copyActions = if (server.server is UrlProxyServer<*>) {
         listOf(
             ProxyServerListCopyAction.QrCode,

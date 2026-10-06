@@ -7,20 +7,16 @@ import app.AppState
 import app.ProxyServerState
 import app.SubscriptionGroupState
 import features.proxy.server.list.ProxyServerListAddAction
-import features.proxy.server.model.ChainProxy
-import features.proxy.server.model.Custom
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.Hysteria2
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.Shadowsocks
 import features.proxy.server.model.Socks
-import features.proxy.server.model.StrategyGroup
 import features.proxy.server.model.Trojan
 import features.proxy.server.model.VLESS
 import features.proxy.server.model.VMess
 import features.proxy.server.model.Wireguard
 import features.proxy.server.model.getUrlOrNull
-import features.proxy.server.model.isCompositeProxyServer
 
 internal data class ProxyServerListSubscriptionUpdate(
     val groupId: Int,
@@ -166,11 +162,8 @@ internal fun AppState.withUpdatedSubscriptionServers(
             )
         }
     }
-    // Preserve composite proxy servers (strategy groups, chain proxies) even when
-    // their groupId matches an updated subscription group — they are user-created,
-    // not downloaded from the subscription, and should survive subscription updates.
     val nextServers = importedServers + proxyServers.filterNot { server ->
-        server.groupId in updatedGroupIds && !server.server.isCompositeProxyServer()
+        server.groupId in updatedGroupIds
     }
     val selectedServerId = when {
         nextServers.any { server -> server.id == selectedProxyServerId } -> selectedProxyServerId
@@ -272,10 +265,6 @@ internal fun createProxyServer(action: ProxyServerListAddAction): ProxyServer<*>
 
         ProxyServerListAddAction.Shadowsocks -> Shadowsocks(port = "")
 
-        ProxyServerListAddAction.ChainProxy -> ChainProxy()
-
-        ProxyServerListAddAction.StrategyGroup -> StrategyGroup()
-
         ProxyServerListAddAction.HTTP -> HTTP(port = "")
 
         ProxyServerListAddAction.VMess -> VMess(port = "")
@@ -289,8 +278,6 @@ internal fun createProxyServer(action: ProxyServerListAddAction): ProxyServer<*>
         ProxyServerListAddAction.Hysteria2 -> Hysteria2(port = "")
 
         ProxyServerListAddAction.Wireguard -> Wireguard(port = "", reserved = "", address = "", mtu = "")
-
-        ProxyServerListAddAction.Custom -> Custom()
     }
 }
 

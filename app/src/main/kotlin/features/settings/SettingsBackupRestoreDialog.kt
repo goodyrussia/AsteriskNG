@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.R
 import data.backup.AppBackupRestorePreview
-import data.backup.AppBackupWarning
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import ui.components.WarningConfirmDialog
@@ -39,17 +38,9 @@ internal fun SettingsRestoreConfirmDialog(
         onConfirm = onRestore,
         detailsMaxHeight = 220.dp,
     ) {
-        val warningColor = MiuixTheme.colorScheme.error
         RestoreInfoText(backupVersionText(preview))
         RestoreInfoText(backupCreatedAtText(preview))
-        RestoreInfoText(backupCountsText(preview), bottomPadding = if (preview.warnings.isEmpty()) 0.dp else 12.dp)
-        preview.warnings.forEachIndexed { index, warning ->
-            RestoreInfoText(
-                text = warningText(warning),
-                color = warningColor,
-                bottomPadding = if (index == preview.warnings.lastIndex) 0.dp else 10.dp,
-            )
-        }
+        RestoreInfoText(backupCountsText(preview), bottomPadding = 0.dp)
     }
 }
 
@@ -94,15 +85,4 @@ private fun backupCountsText(preview: AppBackupRestorePreview): String {
         "servers" to preview.proxyServerCount,
         "rules" to preview.routeRuleCount,
     )
-}
-
-@Composable
-private fun warningText(warning: AppBackupWarning): String {
-    return when (warning) {
-        is AppBackupWarning.MissingChainProxyMembers -> {
-            stringResource(R.string.settings_restore_warning_missing_chain_members).formatTemplate(
-                "count" to warning.count,
-            )
-        }
-    }
 }

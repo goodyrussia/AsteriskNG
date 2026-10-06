@@ -11,7 +11,7 @@ import app.modes.RunModeVpnService
 import data.PersistedProxyServer
 import data.decodeProxyServer
 import data.toPersistedProxyServer
-import features.proxy.server.model.ChainProxy
+import features.logs.AndroidAppLogger
 import features.routing.model.RouteRule
 import features.subscription.DefaultSubscriptionGroupId
 
@@ -42,7 +42,6 @@ internal fun AppBackupFile.toRestorePreview(): AppBackupRestorePreview {
     return AppBackupRestorePreview(
         backup = migrated,
         restoredState = state,
-        warnings = state.restoreWarnings(),
     )
 }
 
@@ -169,7 +168,7 @@ private fun AppBackupData.toAppState(): AppState {
     val fallbackGroupId = restoredSubscriptionGroups.firstOrNull { group -> group.builtIn }?.id
         ?: restoredSubscriptionGroups.firstOrNull()?.id
         ?: DefaultSubscriptionGroupId
-    val restoredProxyServers = proxyServers.map { server ->
+    val restoredProxyServers = proxyServers.mapNotNull { server ->
         server.toState(
             validGroupIds = groupIds,
             fallbackGroupId = fallbackGroupId,
@@ -288,15 +287,19 @@ private fun AppBackupSubscriptionGroup.toState(): SubscriptionGroupState {
 private fun AppBackupProxyServer.toState(
     validGroupIds: Set<Int>,
     fallbackGroupId: Int,
-): ProxyServerState {
-    return ProxyServerState(
-        id = id,
-        server = PersistedProxyServer(
-            protocol = protocol,
-            payload = payload,
-        ).decodeProxyServer(),
-        groupId = groupId.takeIf { it in validGroupIds } ?: fallbackGroupId,
-    )
+): ProxyServerState? {
+    return runCatching {
+        ProxyServerState(
+            id = id,
+            server = PersistedProxyServer(
+                protocol = protocol,
+                payload = payload,
+            ).decodeProxyServer(),
+            groupId = groupId.takeIf { it in validGroupIds } ?: fallbackGroupId,
+        )
+    }.onFailure { error ->
+        AndroidAppLogger.warn(LogTag, "Failed to parse backup proxy server id=$id", error)
+    }.getOrNull()
 }
 
 private fun AppBackupRouteRule.toState(): RouteRule {
@@ -322,21 +325,8 @@ private fun AppBackupCustomResourceFile.toState(): CustomResourceFileState {
     )
 }
 
-private fun AppState.restoreWarnings(): List<AppBackupWarning> {
-    val serverIds = proxyServers.mapTo(mutableSetOf()) { server -> server.id }
-    val missingChainMemberCount = proxyServers.sumOf { server ->
-        (server.server as? ChainProxy)
-            ?.proxyServerIds
-            ?.count { memberId -> memberId !in serverIds }
-            ?: 0
-    }
-    return buildList {
-        if (missingChainMemberCount > 0) {
-            add(AppBackupWarning.MissingChainProxyMembers(missingChainMemberCount))
-        }
-    }
-}
-
 private fun nextId(defaultValue: Int, ids: List<Int>): Int {
     return maxOf(defaultValue, (ids.maxOrNull() ?: 0) + 1)
 }
+
+private const val LogTag = "AppBackupMapper"

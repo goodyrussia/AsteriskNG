@@ -26,9 +26,6 @@ object ProxyServerConstants {
     const val PROTOCOL_HYSTERIA2 = "hysteria2"
     const val PROTOCOL_HY2 = "hy2"
     const val PROTOCOL_WIREGUARD = "wireguard"
-    const val PROTOCOL_STRATEGY_GROUP = "strategy-group"
-    const val PROTOCOL_CHAIN_PROXY = "chain-proxy"
-    const val PROTOCOL_CUSTOM = "custom"
 }
 
 @Serializable
@@ -124,24 +121,8 @@ interface UrlProxyServer<T : UrlProxyServer<T>> : ProxyServer<T> {
     fun getUrl(): String
 }
 
-fun ProxyServer<*>.isCompositeProxyServer(): Boolean {
-    return this is StrategyGroup || this is ChainProxy
-}
-
-fun ProxyServer<*>.isCustomProxyServer(): Boolean {
-    return this is Custom
-}
-
 fun ProxyServer<*>.getUrlOrNull(): String? {
     return (this as? UrlProxyServer<*>)?.getUrl()
-}
-
-fun ProxyServer<*>.getCopyTextOrNull(): String? {
-    return when (this) {
-        is Custom -> configJson
-        is UrlProxyServer<*> -> getUrl()
-        else -> null
-    }
 }
 
 internal fun URLBuilder.setProxyUrlHost(value: String) {

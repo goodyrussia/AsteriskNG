@@ -45,20 +45,16 @@
     <string name="proxy_server_copy_qr_code">QR code</string>
     <string name="proxy_server_copy_url">Share URL</string>
     <string name="proxy_server_list_add">Add server</string>
-    <string name="proxy_server_list_add_chain_proxy">Add Chain proxy</string>
-    <string name="proxy_server_list_add_custom">Add Custom</string>
     <string name="proxy_server_list_add_http">Add HTTP</string>
     <string name="proxy_server_list_add_hysteria2">Add Hysteria2</string>
     <string name="proxy_server_list_add_shadowsocks">Add Shadowsocks</string>
     <string name="proxy_server_list_add_socks">Add Socks</string>
-    <string name="proxy_server_list_add_strategy_group">Add Strategy group</string>
     <string name="proxy_server_list_add_trojan">Add Trojan</string>
     <string name="proxy_server_list_add_vless">Add VLESS</string>
     <string name="proxy_server_list_add_vmess">Add VMess</string>
     <string name="proxy_server_list_add_wireguard">Add Wireguard</string>
     <string name="proxy_server_list_all">All</string>
     <string name="proxy_server_list_all_deleted">Deleted {count} proxy servers</string>
-    <string name="proxy_server_list_chain_proxy_summary">{count} hops</string>
     <string name="proxy_server_list_copy_all_urls">Copy all server URLs</string>
     <string name="proxy_server_list_delete_all">Delete all proxy servers</string>
     <string name="proxy_server_list_delete_duplicates">Delete duplicate proxy servers</string>
@@ -102,8 +98,6 @@
     <string name="proxy_server_list_service_stopped">Proxy service stopped</string>
     <string name="proxy_server_list_start_proxy">Start proxy</string>
     <string name="proxy_server_list_stop_proxy">Stop proxy</string>
-    <string name="proxy_server_list_strategy_group_summary">{strategy} · {group}</string>
-    <string name="proxy_server_list_strategy_group_summary_with_filter">{strategy} · {group} · Filter: {filter}</string>
     <string name="proxy_server_list_subscription_update_result">Updated {groupCount} subscription groups, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">Updated {groupCount} subscription groups, {failedCount} failed, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_title">Proxy servers</string>
@@ -115,19 +109,7 @@
     <!-- Proxy editor -->
     <string name="proxy_editor_auth">Password (auth)</string>
     <string name="proxy_editor_certificate_fingerprint">Certificate fingerprint (SHA-256)</string>
-    <string name="proxy_editor_chain_add_member">Add member</string>
-    <string name="proxy_editor_chain_member">Member {index}</string>
-    <string name="proxy_editor_chain_member_unselected">Select a member</string>
-    <string name="proxy_editor_chain_members">Proxy chain members</string>
-    <string name="proxy_editor_chain_proxy_title">Chain proxy</string>
     <string name="proxy_editor_continue_save">Continue saving</string>
-    <string name="proxy_editor_custom_format_json">Format JSON</string>
-    <string name="proxy_editor_custom_json">Xray JSON config</string>
-    <string name="proxy_editor_custom_json_invalid">Invalid JSON config</string>
-    <string name="proxy_editor_custom_json_outbounds">Xray JSON outbounds</string>
-    <string name="proxy_editor_custom_override_inbound_dns">Override inbound and DNS settings</string>
-    <string name="proxy_editor_custom_override_inbound_dns_summary">Use inbound and DNS settings provided by AsteriskNG</string>
-    <string name="proxy_editor_custom_title">Custom</string>
     <string name="proxy_editor_down_bandwidth">Download bandwidth (supports k/m/g/t)</string>
     <string name="proxy_editor_encryption">Encryption</string>
     <string name="proxy_editor_final_mask">FinalMask raw JSON, format: { FinalMaskObject }</string>
@@ -156,15 +138,6 @@
     <string name="proxy_editor_return_edit">Return to edit</string>
     <string name="proxy_editor_security">Transport security</string>
     <string name="proxy_editor_server">Server address</string>
-    <string name="proxy_editor_strategy_group_all_groups">All groups</string>
-    <string name="proxy_editor_strategy_group_filter">Remarks regex filter</string>
-    <string name="proxy_editor_strategy_group_least_load">Least Load</string>
-    <string name="proxy_editor_strategy_group_least_ping">Least ping</string>
-    <string name="proxy_editor_strategy_group_random">Random</string>
-    <string name="proxy_editor_strategy_group_round_robin">Round robin</string>
-    <string name="proxy_editor_strategy_group_source_group">Subscription group</string>
-    <string name="proxy_editor_strategy_group_title">Strategy group</string>
-    <string name="proxy_editor_strategy_group_type">Strategy group type</string>
     <string name="proxy_editor_tls_fingerprint">TLS fingerprint</string>
     <string name="proxy_editor_tls_settings">TLS settings</string>
     <string name="proxy_editor_transport">Transport</string>
@@ -180,7 +153,6 @@
     <string name="proxy_editor_username_optional">Username (optional)</string>
     <string name="proxy_editor_xhttp_extra">XHTTP Extra raw JSON, format: { XHTTPObject }</string>
     <string name="proxy_editor_xhttp_mode">XHTTP mode</string>
-    <string name="proxy_validation_chain_proxy_member_count_invalid">Proxy chain requires at least two members</string>
     <string name="proxy_validation_hysteria_obfs_type_required">Obfs type is required when obfs password is set</string>
     <string name="proxy_validation_hysteria_obfs_unsupported">Hysteria2 obfs only supports salamander</string>
     <string name="proxy_validation_invalid_bandwidth_format">Invalid bandwidth format</string>
@@ -593,7 +565,6 @@
     <string name="settings_restore_read_failed">Failed to read backup file</string>
     <string name="settings_restore_user_data">Restore user data</string>
     <string name="settings_restore_user_data_summary">Restore user data from a backup file</string>
-    <string name="settings_restore_warning_missing_chain_members">Warning: {count} chain proxy member references point to missing proxy servers and will be kept as-is.</string>
 
     <!-- Core migration -->
     <string name="shared_core_migration_keep">Keep</string>

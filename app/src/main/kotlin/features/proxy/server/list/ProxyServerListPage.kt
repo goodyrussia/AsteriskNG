@@ -249,10 +249,7 @@ fun ProxyServerListPage(
         allGroupName = allGroupName,
         defaultGroupName = defaultGroupName,
     )
-    val itemTextFormatter = rememberProxyServerListItemTextFormatter(
-        groupNames = groupState.groupNames,
-        unknownGroupName = unknownGroupName,
-    )
+    val itemTextFormatter = rememberProxyServerListItemTextFormatter()
     val groupTabIds = groupState.groupTabs.map { group -> group.id }
     val groupPagerState = key(groupTabIds) {
         rememberPagerState(
