@@ -4,47 +4,37 @@
 package engine.xray
 
 import app.AppState
+import app.DefaultRouteOutboundTag
 import app.effectiveLocalDnsEnabled
-import features.routing.model.RouteRule
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import utils.toDistinctCsvValues
 import utils.toTrimmedNonEmptyDistinctList
 
 internal data class XrayRoutingPlan(
     val domainStrategy: String,
     val rules: JsonArray,
-    val balancers: List<JsonObject>,
     val primaryOutboundTag: String?,
 )
 
 internal fun AppState.buildXrayRoutingPlan(
     routeTargets: Map<String, XrayRouteTarget>,
-    balancers: List<JsonObject>,
     routeProxyDns: Boolean,
     routeDirectDns: Boolean,
     dnsHijackInboundTags: List<String>,
 ): XrayRoutingPlan {
-    val domainStrategy = routeDomainStrategy.toXrayRoutingDomainStrategy()
     val defaultTarget = defaultRouteTarget(routeTargets)
     return XrayRoutingPlan(
-        domainStrategy = domainStrategy,
+        domainStrategy = DefaultRoutingDomainStrategy,
         rules = routingRules(
             routeTargets = routeTargets,
             routeProxyDns = routeProxyDns,
             routeDirectDns = routeDirectDns,
             dnsHijackInboundTags = dnsHijackInboundTags,
-            defaultTarget = defaultTarget,
         ),
-        balancers = balancers,
-        primaryOutboundTag = when (defaultTarget?.kind) {
-            XrayRouteTargetKind.Outbound -> defaultTarget.tag
-            XrayRouteTargetKind.Balancer -> XrayTags.DEFAULT_ROUTE_LOOPBACK
-            null -> null
-        },
+        primaryOutboundTag = defaultTarget?.tag,
     )
 }
 
@@ -52,9 +42,6 @@ internal fun buildXrayRouting(plan: XrayRoutingPlan): JsonObject {
     return buildJsonObject {
         put("domainStrategy", plan.domainStrategy)
         put("rules", plan.rules)
-        if (plan.balancers.isNotEmpty()) {
-            put("balancers", plan.balancers.toJsonObjectArray())
-        }
     }
 }
 
@@ -63,12 +50,8 @@ private fun AppState.routingRules(
     routeProxyDns: Boolean,
     routeDirectDns: Boolean,
     dnsHijackInboundTags: List<String>,
-    defaultTarget: XrayRouteTarget?,
 ): JsonArray {
     return buildJsonArray {
-        defaultTarget
-            ?.takeIf { target -> target.kind == XrayRouteTargetKind.Balancer }
-            ?.let { target -> add(buildDefaultBalancerRoute(target)) }
         if (effectiveLocalDnsEnabled) {
             buildXrayDnsHijackRule(dnsHijackInboundTags)?.let(::add)
         }
@@ -78,22 +61,11 @@ private fun AppState.routingRules(
         if (routeProxyDns) {
             routeTargets[XrayTags.PROXY]?.let { target -> add(buildDnsUpstreamRoute(XrayTags.PROXY_DNS, target)) }
         }
-        routeRules
-            .filter(RouteRule::enabled)
-            .mapNotNull { rule -> rule.toXrayRule(routeTargets) }
-            .forEach(::add)
     }
 }
 
-private fun buildDefaultBalancerRoute(target: XrayRouteTarget): JsonObject {
-    return buildJsonObject {
-        target.applyTo(this)
-        put("inboundTag", listOf(XrayTags.DEFAULT_ROUTE_LOOPBACK_INBOUND).toJsonStringArray())
-    }
-}
-
-private fun AppState.defaultRouteTarget(routeTargets: Map<String, XrayRouteTarget>): XrayRouteTarget? {
-    val defaultOutboundTag = defaultRouteOutboundTag.trim().ifBlank { XrayTags.PROXY }
+private fun defaultRouteTarget(routeTargets: Map<String, XrayRouteTarget>): XrayRouteTarget? {
+    val defaultOutboundTag = DefaultRouteOutboundTag.trim().ifBlank { XrayTags.PROXY }
     val defaultTarget = routeTargets[defaultOutboundTag]?.takeIf {
         defaultOutboundTag !in ReservedDefaultRouteOutboundTags
     }
@@ -121,32 +93,11 @@ private fun buildDnsUpstreamRoute(
     }
 }
 
-private fun RouteRule.toXrayRule(routeTargets: Map<String, XrayRouteTarget>): JsonObject? {
-    val targetOutboundTag = outboundTag.trim().ifBlank { XrayTags.PROXY }
-    val target = routeTargets[targetOutboundTag] ?: return null
-    val rule = buildJsonObject {
-        target.applyTo(this)
-        putJsonStringArrayIfNotEmpty("domain", domain.toTrimmedNonEmptyDistinctList())
-        putJsonStringArrayIfNotEmpty("ip", ip.toTrimmedNonEmptyDistinctList())
-        putJsonStringArrayIfNotEmpty("process", process.toTrimmedNonEmptyDistinctList())
-        putIfNotBlank("port", port)
-        putIfNotBlank("network", network)
-        putJsonStringArrayIfNotEmpty("protocol", protocol.toDistinctCsvValues())
-        putIfNotBlank("ruleTag", remarks)
-    }
-    return if (rule.size > 1) rule else null
-}
-
-private fun Int.toXrayRoutingDomainStrategy(): String {
-    return when (this) {
-        0 -> "AsIs"
-        2 -> "IPOnDemand"
-        else -> "IPIfNonMatch"
-    }
-}
-
 private val ReservedDefaultRouteOutboundTags = setOf(
     XrayTags.DNS_OUT,
     XrayTags.FRAGMENT,
     XrayTags.DEFAULT_ROUTE_LOOPBACK,
 )
+
+// Routing is fixed internally; this is the former domain-strategy default (0 = "AsIs").
+private const val DefaultRoutingDomainStrategy = "AsIs"

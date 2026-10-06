@@ -4,6 +4,7 @@
 package engine.xray
 
 import app.AppState
+import app.DefaultRouteOutboundTag
 import app.effectiveLocalDnsEnabled
 import engine.network.NetworkDefaults
 import features.proxy.server.model.ProxyServerConstants
@@ -21,7 +22,7 @@ import utils.toIntCoercedInOrDefault
 internal fun buildXrayOutbounds(
     appState: AppState,
     proxyOutbounds: List<XrayProxyOutboundServer>,
-    primaryOutboundTag: String? = appState.defaultRouteOutboundTag,
+    primaryOutboundTag: String? = DefaultRouteOutboundTag,
 ): JsonArray {
     val outbounds = buildJsonArray {
         if (primaryOutboundTag?.trim() == XrayTags.DEFAULT_ROUTE_LOOPBACK) {
@@ -49,21 +50,6 @@ internal fun buildXrayOutbounds(
             if (index != primaryIndex) {
                 add(outbound)
             }
-        }
-    }
-}
-
-internal fun buildXrayBalancers(plans: List<XrayBalancerPlan>): List<JsonObject> {
-    return plans.map { plan ->
-        buildJsonObject {
-            put("tag", plan.tag)
-            put("selector", listOf(plan.selector).toJsonStringArray())
-            put(
-                "strategy",
-                buildJsonObject {
-                    put("type", plan.strategy)
-                },
-            )
         }
     }
 }

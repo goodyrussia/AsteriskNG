@@ -18,7 +18,6 @@ import engine.xray.XrayCoreLogPaths
 import engine.xray.XrayStatsApiConfig
 import engine.xray.buildXrayOutboundPlan
 import engine.xray.prepareXrayCoreLogPaths
-import engine.xray.validateXrayExternalRoutingResources
 import features.resources.runtime.XrayResourceFilePaths
 import features.resources.runtime.xrayRootResourceFilePaths
 import kotlinx.serialization.json.JsonObject
@@ -67,7 +66,6 @@ internal class RootConfigBuildContext(
 internal fun Context.prepareRootConfigBuildContext(request: ProxyEngineStartRequest): RootConfigBuildContext {
     val appState = request.appState
     val resourceFilePaths = xrayRootResourceFilePaths()
-    appState.validateXrayExternalRoutingResources(resourceFilePaths.assetsDir)
     val coreLogPaths = applicationContext.prepareXrayCoreLogPaths()
     val outboundPlan = appState.buildXrayOutboundPlan(request.selectedServer)
     return RootConfigBuildContext(

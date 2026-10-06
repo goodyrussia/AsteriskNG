@@ -14,10 +14,9 @@ internal const val AsteriskDatabaseName = "asteriskng.db"
     entities = [
         SubscriptionGroupEntity::class,
         ProxyServerEntity::class,
-        RouteRuleEntity::class,
         ProxyAppListSelectedAppEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 internal abstract class AsteriskAppDatabase : RoomDatabase() {
@@ -31,6 +30,14 @@ internal val Migration1To2 = object : Migration(1, 2) {
         )
         db.execSQL(
             "ALTER TABLE subscription_groups ADD COLUMN ageSecretKey TEXT NOT NULL DEFAULT ''",
+        )
+    }
+}
+
+internal val Migration2To3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "DROP TABLE IF EXISTS `routing_rules`",
         )
     }
 }

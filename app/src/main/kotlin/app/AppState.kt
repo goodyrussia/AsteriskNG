@@ -23,7 +23,6 @@ import features.resources.ResourceFileLoyalsoldierGeoSiteUrl
 import features.resources.ResourceFileDirectCidrIpv4Url
 import features.resources.ResourceFileDirectCidrIpv6Url
 import features.resources.ResourceFileV2FlyGeoIpOnlyCnPrivateUrl
-import features.routing.model.RouteRule
 
 data class AppState(
     val subscriptionGroups: List<SubscriptionGroupState> = DefaultSubscriptionGroups,
@@ -53,11 +52,6 @@ data class AppState(
     val proxyServerListLayout: Int = ProxyServerListLayoutSingle,
     val proxyServerListSort: Int = ProxyServerListSortDefault,
     val proxyRunning: Boolean = false,
-
-    val routeDomainStrategy: Int = 0,
-    val defaultRouteOutboundTag: String = DefaultRouteOutboundTag,
-    val routeRules: List<RouteRule> = DefaultRouteRules,
-    val nextRouteRuleId: Int = 10,
 
     val coreLogLevel: Int = 3,
     val enableAccessLog: Boolean = false,

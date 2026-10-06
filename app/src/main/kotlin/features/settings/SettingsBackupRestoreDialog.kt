@@ -83,6 +83,5 @@ private fun backupCountsText(preview: AppBackupRestorePreview): String {
     return stringResource(R.string.settings_restore_backup_counts).formatTemplate(
         "groups" to preview.subscriptionGroupCount,
         "servers" to preview.proxyServerCount,
-        "rules" to preview.routeRuleCount,
     )
 }

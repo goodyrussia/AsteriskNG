@@ -28,7 +28,6 @@ internal data class AppBackupData(
     val settings: AppBackupSettings = AppBackupSettings(),
     val subscriptionGroups: List<AppBackupSubscriptionGroup> = emptyList(),
     val proxyServers: List<AppBackupProxyServer> = emptyList(),
-    val routeRules: List<AppBackupRouteRule> = emptyList(),
     val proxyAppListSelectedApps: List<String> = emptyList(),
 )
 
@@ -52,8 +51,6 @@ internal data class AppBackupSettings(
     val selectedProxyServerId: Int = BackupDefaults.selectedProxyServerId,
     val proxyServerListLayout: Int = BackupDefaults.proxyServerListLayout,
     val proxyServerListSort: Int = BackupDefaults.proxyServerListSort,
-    val routeDomainStrategy: Int = BackupDefaults.routeDomainStrategy,
-    val defaultRouteOutboundTag: String = BackupDefaults.defaultRouteOutboundTag,
     val coreLogLevel: Int = BackupDefaults.coreLogLevel,
     val enableAccessLog: Boolean = BackupDefaults.enableAccessLog,
     val enableResourceAutoUpdate: Boolean = BackupDefaults.enableResourceAutoUpdate,
@@ -124,20 +121,6 @@ internal data class AppBackupProxyServer(
     val payload: JsonElement = JsonObject(emptyMap()),
 )
 
-@Serializable
-internal data class AppBackupRouteRule(
-    val id: Int = 0,
-    val remarks: String = "",
-    val outboundTag: String = BackupDefaults.defaultRouteOutboundTag,
-    val domain: List<String> = emptyList(),
-    val ip: List<String> = emptyList(),
-    val process: List<String> = emptyList(),
-    val port: String = "",
-    val protocol: String = "",
-    val network: String = "",
-    val enabled: Boolean = true,
-)
-
 internal data class AppBackupRestorePreview(
     val backup: AppBackupFile,
     val restoredState: AppState,
@@ -147,7 +130,4 @@ internal data class AppBackupRestorePreview(
 
     val proxyServerCount: Int
         get() = restoredState.proxyServers.size
-
-    val routeRuleCount: Int
-        get() = restoredState.routeRules.size
 }

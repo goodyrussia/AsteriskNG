@@ -17,7 +17,6 @@ internal abstract class AppStateDao {
         return PersistedAppState(
             subscriptionGroups = findSubscriptionGroups(),
             proxyServers = findProxyServerList(),
-            routingRules = findRoutingRules(),
             proxyAppListSelectedApps = findProxyAppListSelectedApps(),
         )
     }
@@ -40,12 +39,6 @@ internal abstract class AppStateDao {
             })
         }
 
-        if (replaceAll || previousState.routeRules != nextState.routeRules) {
-            replaceRoutingRules(nextState.routeRules.mapIndexed { index, rule ->
-                RouteRuleEntity.from(index, rule)
-            })
-        }
-
         if (replaceAll || previousState.proxyAppListSelectedApps != nextState.proxyAppListSelectedApps) {
             replaceProxyAppListSelectedApps(nextState.proxyAppListSelectedApps.mapIndexed { index, packageKey ->
                 ProxyAppListSelectedAppEntity(position = index, packageKey = packageKey)
@@ -59,9 +52,6 @@ internal abstract class AppStateDao {
     @Query("SELECT * FROM proxy_servers ORDER BY position ASC")
     protected abstract suspend fun findProxyServerList(): List<ProxyServerEntity>
 
-    @Query("SELECT * FROM routing_rules ORDER BY position ASC")
-    protected abstract suspend fun findRoutingRules(): List<RouteRuleEntity>
-
     @Query("SELECT * FROM proxy_app_list_selected_apps ORDER BY position ASC")
     protected abstract suspend fun findProxyAppListSelectedApps(): List<ProxyAppListSelectedAppEntity>
 
@@ -72,9 +62,6 @@ internal abstract class AppStateDao {
     protected abstract suspend fun insertProxyServerList(entities: List<ProxyServerEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract suspend fun insertRoutingRules(entities: List<RouteRuleEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertProxyAppListSelectedApps(entities: List<ProxyAppListSelectedAppEntity>)
 
     @Query("DELETE FROM subscription_groups")
@@ -82,9 +69,6 @@ internal abstract class AppStateDao {
 
     @Query("DELETE FROM proxy_servers")
     protected abstract suspend fun deleteProxyServerList()
-
-    @Query("DELETE FROM routing_rules")
-    protected abstract suspend fun deleteRoutingRules()
 
     @Query("DELETE FROM proxy_app_list_selected_apps")
     protected abstract suspend fun deleteProxyAppListSelectedApps()
@@ -97,11 +81,6 @@ internal abstract class AppStateDao {
     private suspend fun replaceProxyServerList(entities: List<ProxyServerEntity>) {
         deleteProxyServerList()
         insertProxyServerList(entities)
-    }
-
-    private suspend fun replaceRoutingRules(entities: List<RouteRuleEntity>) {
-        deleteRoutingRules()
-        insertRoutingRules(entities)
     }
 
     private suspend fun replaceProxyAppListSelectedApps(entities: List<ProxyAppListSelectedAppEntity>) {

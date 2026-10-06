@@ -11,7 +11,6 @@ internal enum class ClipboardImportMode {
 internal enum class ClipboardImportFailure {
     EmptyClipboard,
     UnsupportedFormat,
-    NoValidRoutingRules,
     NoValidApps,
     InvalidAppEntry,
     InvalidAppUserId,

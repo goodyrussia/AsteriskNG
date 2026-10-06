@@ -12,7 +12,6 @@ import data.PersistedProxyServer
 import data.decodeProxyServer
 import data.toPersistedProxyServer
 import features.logs.AndroidAppLogger
-import features.routing.model.RouteRule
 import features.subscription.DefaultSubscriptionGroupId
 
 internal fun AppState.toAppBackupFile(
@@ -30,7 +29,6 @@ internal fun AppState.toAppBackupFile(
             settings = toBackupSettings(),
             subscriptionGroups = subscriptionGroups.map(SubscriptionGroupState::toBackup),
             proxyServers = proxyServers.map(ProxyServerState::toBackup),
-            routeRules = routeRules.map(RouteRule::toBackup),
             proxyAppListSelectedApps = proxyAppListSelectedApps,
         ),
     )
@@ -65,8 +63,6 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
         selectedProxyServerId = selectedProxyServerId,
         proxyServerListLayout = proxyServerListLayout,
         proxyServerListSort = proxyServerListSort,
-        routeDomainStrategy = routeDomainStrategy,
-        defaultRouteOutboundTag = defaultRouteOutboundTag,
         coreLogLevel = coreLogLevel,
         enableAccessLog = enableAccessLog,
         enableResourceAutoUpdate = enableResourceAutoUpdate,
@@ -134,21 +130,6 @@ private fun ProxyServerState.toBackup(): AppBackupProxyServer {
     )
 }
 
-private fun RouteRule.toBackup(): AppBackupRouteRule {
-    return AppBackupRouteRule(
-        id = id,
-        remarks = remarks,
-        outboundTag = outboundTag,
-        domain = domain,
-        ip = ip,
-        process = process,
-        port = port,
-        protocol = protocol,
-        network = network,
-        enabled = enabled,
-    )
-}
-
 private fun CustomResourceFileState.toBackup(): AppBackupCustomResourceFile {
     return AppBackupCustomResourceFile(
         id = id,
@@ -177,7 +158,6 @@ private fun AppBackupData.toAppState(): AppState {
         ?: restoredProxyServers.firstOrNull()?.id
         ?: defaults.selectedProxyServerId
     val restoredCustomResourceFiles = settings.customResourceFiles.map(AppBackupCustomResourceFile::toState)
-    val restoredRouteRules = routeRules.map(AppBackupRouteRule::toState)
 
     return defaults.copy(
         subscriptionGroups = restoredSubscriptionGroups,
@@ -210,13 +190,6 @@ private fun AppBackupData.toAppState(): AppState {
         proxyServerListLayout = settings.proxyServerListLayout,
         proxyServerListSort = settings.proxyServerListSort,
         proxyRunning = false,
-        routeDomainStrategy = settings.routeDomainStrategy,
-        defaultRouteOutboundTag = settings.defaultRouteOutboundTag,
-        routeRules = restoredRouteRules,
-        nextRouteRuleId = nextId(
-            defaultValue = defaults.nextRouteRuleId,
-            ids = restoredRouteRules.map { rule -> rule.id },
-        ),
         coreLogLevel = settings.coreLogLevel,
         enableAccessLog = settings.enableAccessLog,
         enableResourceAutoUpdate = settings.enableResourceAutoUpdate,
@@ -296,21 +269,6 @@ private fun AppBackupProxyServer.toState(
     }.onFailure { error ->
         AndroidAppLogger.warn(LogTag, "Failed to parse backup proxy server id=$id", error)
     }.getOrNull()
-}
-
-private fun AppBackupRouteRule.toState(): RouteRule {
-    return RouteRule(
-        id = id,
-        remarks = remarks,
-        outboundTag = outboundTag,
-        domain = domain,
-        ip = ip,
-        process = process,
-        port = port,
-        protocol = protocol,
-        network = network,
-        enabled = enabled,
-    )
 }
 
 private fun AppBackupCustomResourceFile.toState(): CustomResourceFileState {

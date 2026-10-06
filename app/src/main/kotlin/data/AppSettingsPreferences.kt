@@ -94,12 +94,6 @@ internal class AppSettingsPreferences(
                 defaults.proxyServerListLayout,
             ),
             proxyServerListSort = preferences.getInt(KeyProxyServerListSort, defaults.proxyServerListSort),
-            routeDomainStrategy = preferences.getInt(KeyRouteDomainStrategy, defaults.routeDomainStrategy),
-            defaultRouteOutboundTag = preferences.getString(
-                KeyDefaultRouteOutboundTag,
-                defaults.defaultRouteOutboundTag,
-            ) ?: defaults.defaultRouteOutboundTag,
-            nextRouteRuleId = preferences.getInt(KeyNextRouteRuleId, defaults.nextRouteRuleId),
             coreLogLevel = preferences.getInt(KeyCoreLogLevel, defaults.coreLogLevel),
             enableAccessLog = preferences.getBoolean(KeyEnableAccessLog, defaults.enableAccessLog),
             enableResourceAutoUpdate = preferences.getBoolean(KeyEnableResourceAutoUpdate, defaults.enableResourceAutoUpdate),
@@ -227,9 +221,6 @@ internal class AppSettingsPreferences(
             .putInt(KeySelectedProxyServerId, state.selectedProxyServerId)
             .putInt(KeyProxyServerListLayout, state.proxyServerListLayout)
             .putInt(KeyProxyServerListSort, state.proxyServerListSort)
-            .putInt(KeyRouteDomainStrategy, state.routeDomainStrategy)
-            .putString(KeyDefaultRouteOutboundTag, state.defaultRouteOutboundTag)
-            .putInt(KeyNextRouteRuleId, state.nextRouteRuleId)
             .putInt(KeyCoreLogLevel, state.coreLogLevel)
             .putBoolean(KeyEnableAccessLog, state.enableAccessLog)
             .putBoolean(KeyEnableResourceAutoUpdate, state.enableResourceAutoUpdate)
@@ -321,9 +312,6 @@ private const val KeyNextProxyServerId = "next_proxy_server_id"
 private const val KeySelectedProxyServerId = "selected_proxy_server_id"
 private const val KeyProxyServerListLayout = "proxy_server_list_layout"
 private const val KeyProxyServerListSort = "proxy_server_list_sort"
-private const val KeyRouteDomainStrategy = "route_domain_strategy"
-private const val KeyDefaultRouteOutboundTag = "default_route_outbound_tag"
-private const val KeyNextRouteRuleId = "next_route_rule_id"
 private const val KeyCoreLogLevel = "core_log_level"
 private const val KeyEnableAccessLog = "enable_access_log"
 private const val KeyEnableResourceAutoUpdate = "enable_resource_auto_update"

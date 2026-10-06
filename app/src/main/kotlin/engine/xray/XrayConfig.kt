@@ -64,7 +64,6 @@ private fun buildGeneratedXrayConfig(request: XrayConfigRequest): GeneratedXrayC
     val dnsPlan = request.buildXrayDnsPlan(startupProxyServerDomains)
     val routingPlan = request.appState.buildXrayRoutingPlan(
         routeTargets = outboundPlan.routeTargets,
-        balancers = buildXrayBalancers(outboundPlan.balancers),
         routeProxyDns = dnsPlan.routingOptions.routeProxyDns,
         routeDirectDns = dnsPlan.routingOptions.routeDirectDns,
         dnsHijackInboundTags = request.dnsHijackInboundTags,

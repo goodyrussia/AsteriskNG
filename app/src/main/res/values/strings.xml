@@ -34,7 +34,6 @@
     <!-- Navigation -->
     <string name="nav_apps">Apps</string>
     <string name="nav_proxy">Proxy</string>
-    <string name="nav_routing">Routing</string>
     <string name="nav_settings">Settings</string>
 
     <!-- Proxy management -->
@@ -256,46 +255,6 @@
     <string name="settings_proxy_dns_empty">No proxy DNS added</string>
     <string name="settings_resolve_proxy_server_domain">Resolve proxy server domains</string>
     <string name="settings_resolve_proxy_server_domain_summary">Write proxy server IPs to DNS hosts</string>
-
-    <!-- Routing -->
-    <string name="deletion_confirmation_delete_route">Delete route</string>
-    <string name="routing_add_rule">Add routing rule</string>
-    <string name="routing_default_outbound_subtitle">Default outbound proxy tag: {tag}</string>
-    <string name="routing_default_outbound_tag">Default outbound proxy tag</string>
-    <string name="routing_default_proxy_server">Proxy server {id}</string>
-    <string name="routing_delete">Delete route</string>
-    <string name="routing_deleted">{name} deleted</string>
-    <string name="routing_domain_invalid">Invalid domain rule</string>
-    <string name="routing_domain_label">Domain rules</string>
-    <string name="routing_domain_policy">Domain policy</string>
-    <string name="routing_domain_strategy">Domain strategy</string>
-    <string name="routing_edit">Edit route</string>
-    <string name="routing_edit_rule">Edit routing rule</string>
-    <string name="routing_empty">No routing rules yet. Tap the top-right button to add one.</string>
-    <string name="routing_export_empty">No routing rules to export</string>
-    <string name="routing_import_clipboard_message">Detected {count} routing rules. Choose how to import.</string>
-    <string name="routing_import_clipboard_title">Import routing rules</string>
-    <string name="routing_import_no_valid_rules">No valid routing rules found</string>
-    <string name="routing_imported">Imported {count} routing rules</string>
-    <string name="routing_ip_invalid">Invalid IP rule</string>
-    <string name="routing_ip_label">IP rules</string>
-    <string name="routing_list_empty">No entries added</string>
-    <string name="routing_network_invalid">Network type only supports tcp or udp</string>
-    <string name="routing_network_label">Network type</string>
-    <string name="routing_new_rule">New routing rule</string>
-    <string name="routing_outbound_block">Block</string>
-    <string name="routing_outbound_direct">Direct</string>
-    <string name="routing_outbound_proxy">Proxy</string>
-    <string name="routing_outbound_tag_label">Outbound proxy tag</string>
-    <string name="routing_port_invalid">Invalid port format</string>
-    <string name="routing_port_label">Port</string>
-    <string name="routing_process_invalid">Invalid process rule</string>
-    <string name="routing_process_label">Process rules</string>
-    <string name="routing_protocol_label">Protocol type</string>
-    <string name="routing_rule_name">Rule name</string>
-    <string name="routing_saved">{name} saved</string>
-    <string name="routing_title">Routing rules</string>
-    <string name="routing_unnamed_rule">Unnamed rule</string>
 
     <!-- Run mode and proxy service -->
     <string name="error_android_lib_xray_lite_data_dir_missing">AndroidLibXrayLite data directory is missing</string>
@@ -534,11 +493,11 @@
     <string name="settings_backup_restore">Backup and restore</string>
     <string name="settings_backup_user_data">Back up user data</string>
     <string name="settings_backup_user_data_summary">Export current user data to a backup file</string>
-    <string name="settings_restore_backup_counts">{groups} groups, {servers} proxy servers, {rules} routing rules</string>
+    <string name="settings_restore_backup_counts">{groups} groups, {servers} proxy servers</string>
     <string name="settings_restore_backup_created_at">Created: {time}</string>
     <string name="settings_restore_backup_version">Backup version {version}, app {appVersion}</string>
     <string name="settings_restore_completed">User data restored</string>
-    <string name="settings_restore_confirm_summary">Current settings, proxy servers, subscriptions, routing rules, and app proxy data will be replaced. The current proxy will be stopped, ROOT boot script will be disabled, and run mode will switch to VPN Service.</string>
+    <string name="settings_restore_confirm_summary">Current settings, proxy servers, subscriptions, and app proxy data will be replaced. The current proxy will be stopped, ROOT boot script will be disabled, and run mode will switch to VPN Service.</string>
     <string name="settings_restore_confirm_title">Restore user data?</string>
     <string name="settings_restore_failed">Failed to restore user data</string>
     <string name="settings_restore_read_failed">Failed to read backup file</string>
@@ -567,7 +526,7 @@
 
     <!-- General preferences -->
     <string name="settings_deletion_confirmation">Deletion confirmation</string>
-    <string name="settings_deletion_confirmation_summary">Require confirmation before deleting servers, routes, groups, or resources</string>
+    <string name="settings_deletion_confirmation_summary">Require confirmation before deleting servers, groups, or resources</string>
 
     <!-- Logs -->
     <string name="access_logs_title">Access logs</string>
