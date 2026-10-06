@@ -94,8 +94,6 @@
     <string name="proxy_server_list_service_stopped">Proxy service stopped</string>
     <string name="proxy_server_list_start_proxy">Start proxy</string>
     <string name="proxy_server_list_stop_proxy">Stop proxy</string>
-    <string name="proxy_server_list_subscription_update_result">Updated {groupCount} subscription groups, imported {serverCount} proxy servers</string>
-    <string name="proxy_server_list_subscription_update_result_with_failed">Updated {groupCount} subscription groups, {failedCount} failed, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_title">Proxy servers</string>
     <string name="proxy_server_qr_generate_failed">Unable to generate QR code</string>
 
@@ -189,8 +187,6 @@
     <string name="proxy_validation_wireguard_reserved_count_invalid">Reserved must contain three comma-separated numbers</string>
     <string name="proxy_validation_wireguard_reserved_value_invalid">Each reserved value must be {min}–{max}</string>
     <string name="proxy_validation_xray_user_id_invalid">User ID must be a UUID or shorter than {max} bytes</string>
-
-    <string name="subscription_install_existing_url">A matching subscription URL already exists in {name}; updating that group</string>
 
     <!-- DNS -->
     <string name="settings_direct_dns">Direct DNS</string>
@@ -411,7 +407,7 @@
     <string name="settings_restore_backup_created_at">Created: {time}</string>
     <string name="settings_restore_backup_version">Backup version {version}, app {appVersion}</string>
     <string name="settings_restore_completed">User data restored</string>
-    <string name="settings_restore_confirm_summary">Current settings, proxy servers, subscriptions, and app proxy data will be replaced. The current proxy will be stopped, ROOT boot script will be disabled, and run mode will switch to VPN Service.</string>
+    <string name="settings_restore_confirm_summary">Current settings, proxy servers, and app proxy data will be replaced. The current proxy will be stopped, ROOT boot script will be disabled, and run mode will switch to VPN Service.</string>
     <string name="settings_restore_confirm_title">Restore user data?</string>
     <string name="settings_restore_failed">Failed to restore user data</string>
     <string name="settings_restore_read_failed">Failed to read backup file</string>
@@ -433,7 +429,7 @@
 
     <!-- General preferences -->
     <string name="settings_deletion_confirmation">Deletion confirmation</string>
-    <string name="settings_deletion_confirmation_summary">Require confirmation before deleting servers, groups, or resources</string>
+    <string name="settings_deletion_confirmation_summary">Require confirmation before deleting servers or resources</string>
 
     <!-- Logs -->
     <string name="access_logs_title">Access logs</string>

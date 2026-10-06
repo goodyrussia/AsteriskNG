@@ -64,12 +64,10 @@ internal suspend fun ProxyServer<*>.proxyServerCopyText(
     context: Context,
     appState: AppState,
     serverId: Int?,
-    groupId: Int?,
 ): ProxyServerCopyTextResult {
     val copyServer = ProxyServerState(
         id = serverId ?: TemporaryCopyServerId,
         server = this,
-        groupId = groupId ?: 0,
     )
     return copyServer.proxyServerCopyText(context, appState)
 }

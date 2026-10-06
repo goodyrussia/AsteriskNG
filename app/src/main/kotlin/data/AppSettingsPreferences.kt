@@ -3,42 +3,19 @@
 
 package data
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import app.AppState
-import java.util.UUID
 
 internal class AppSettingsPreferences(
     context: Context,
 ) {
     private val preferences = context.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE)
 
-    @SuppressLint("UseKtx") // The raw API exposes commit()'s success result for this installation identifier.
-    fun getOrCreateSubscriptionHwid(): String {
-        synchronized(SubscriptionHwidLock) {
-            preferences.getString(KeySubscriptionHwid, null)
-                ?.trim()
-                ?.takeIf(String::isNotEmpty)
-                ?.let { return it }
-
-            val generated = UUID.randomUUID().toString()
-            check(preferences.edit().putString(KeySubscriptionHwid, generated).commit()) {
-                "Failed to persist subscription HWID"
-            }
-            return generated
-        }
-    }
-
     fun load(): AppState {
         val defaults = AppState()
         return defaults.copy(
-            nextSubscriptionGroupId = preferences.getInt(
-                KeyNextSubscriptionGroupId,
-                defaults.nextSubscriptionGroupId,
-            ),
-            enableAllProxyGroup = preferences.getBoolean(KeyEnableAllProxyGroup, defaults.enableAllProxyGroup),
             enableDeletionConfirmation = preferences.getBoolean(
                 KeyEnableDeletionConfirmation,
                 defaults.enableDeletionConfirmation,
@@ -165,9 +142,7 @@ internal class AppSettingsPreferences(
     }
 
     private fun SharedPreferences.Editor.putAppState(state: AppState): SharedPreferences.Editor {
-        return putInt(KeyNextSubscriptionGroupId, state.nextSubscriptionGroupId)
-            .putBoolean(KeyEnableAllProxyGroup, state.enableAllProxyGroup)
-            .putBoolean(KeyEnableDeletionConfirmation, state.enableDeletionConfirmation)
+        return putBoolean(KeyEnableDeletionConfirmation, state.enableDeletionConfirmation)
             .putInt(KeyRunMode, state.runMode)
             .putBoolean(KeyEnableResolveProxyServerDomain, state.enableResolveProxyServerDomain)
             .putBoolean(KeyEnableVpnLocalDns, state.enableVpnLocalDns)
@@ -231,9 +206,6 @@ internal class AppSettingsPreferences(
 }
 
 private const val PreferencesName = "asteriskng_settings"
-private const val KeySubscriptionHwid = "subscription_hwid"
-private const val KeyNextSubscriptionGroupId = "next_subscription_group_id"
-private const val KeyEnableAllProxyGroup = "enable_all_proxy_group"
 private const val KeyEnableDeletionConfirmation = "enable_deletion_confirmation"
 private const val KeyRunMode = "run_mode"
 private const val KeyEnableResolveProxyServerDomain = "enable_resolve_proxy_server_domain"
@@ -283,5 +255,3 @@ private const val KeyBpf2SocksBridgePort = "bpf2socks_bridge_port"
 private const val KeySocks5ProxyPort = "socks5_proxy_port"
 private const val KeyExternalInterfaces = "external_interfaces"
 private const val KeyProxyAppListMode = "proxy_app_list_mode"
-
-private val SubscriptionHwidLock = Any()

@@ -69,8 +69,6 @@ fun ProxyServerPage(
     padding: PaddingValues,
     ps: ProxyServer<*>,
     serverId: Int? = null,
-    groupId: Int? = null,
-    returnGroupId: Int? = null,
     resultKey: String? = null,
 ) {
     val isWideScreen = LocalIsWideScreen.current
@@ -101,8 +99,6 @@ fun ProxyServerPage(
                 ProxyServerEditResult(
                     serverId = serverId,
                     server = psEdit,
-                    groupId = groupId,
-                    returnGroupId = returnGroupId,
                 ),
             )
         } else {
@@ -136,7 +132,6 @@ fun ProxyServerPage(
                                         context = context,
                                         appState = appState,
                                         serverId = serverId,
-                                        groupId = groupId,
                                     )
                                 ) {
                                     is ProxyServerCopyTextResult.Success -> {

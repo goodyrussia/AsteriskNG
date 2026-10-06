@@ -17,7 +17,6 @@ internal enum class ProxyServerImportSource(
     Clipboard(logName = "clipboard", decodeBase64 = false),
     File(logName = "file", decodeBase64 = true),
     QrCode(logName = "qr_code", decodeBase64 = false),
-    SubscriptionUrl(logName = "subscription_url", decodeBase64 = true),
     MihomoProxyProviderUrl(logName = "mihomo_proxy_provider_url", decodeBase64 = true),
 }
 

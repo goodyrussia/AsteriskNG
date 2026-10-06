@@ -28,14 +28,13 @@ internal fun ProxyServerEditResultHandler(
                 val applyResult = state.withSavedProxyServer(
                     serverId = result.serverId,
                     server = result.server,
-                    groupId = result.groupId,
                 )
                 wasExisting = applyResult.wasExisting
                 applyResult.state
             }
             if (wasExisting) {
                 tipNotifier.show(messages.savedTemplate.formatTemplate("name" to result.server.getInfo().remarks))
-            } else if (result.groupId != null) {
+            } else {
                 tipNotifier.show(messages.joinedTemplate.formatTemplate("name" to result.server.getInfo().remarks))
             }
         }

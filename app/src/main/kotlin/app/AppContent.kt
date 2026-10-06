@@ -170,8 +170,6 @@ fun AppContent(
                     padding = padding,
                     ps = it.ps,
                     serverId = it.serverId,
-                    groupId = it.groupId,
-                    returnGroupId = it.returnGroupId,
                     resultKey = it.resultKey,
                 )
             }

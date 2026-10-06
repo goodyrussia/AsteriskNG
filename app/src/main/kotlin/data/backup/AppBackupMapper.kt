@@ -5,13 +5,11 @@ package data.backup
 
 import app.AppState
 import app.ProxyServerState
-import app.SubscriptionGroupState
 import app.modes.RunModeVpnService
 import data.PersistedProxyServer
 import data.decodeProxyServer
 import data.toPersistedProxyServer
 import features.logs.AndroidAppLogger
-import features.subscription.DefaultSubscriptionGroupId
 
 internal fun AppState.toAppBackupFile(
     createdAtMillis: Long,
@@ -26,7 +24,6 @@ internal fun AppState.toAppBackupFile(
         appVersionCode = appVersionCode,
         data = AppBackupData(
             settings = toBackupSettings(),
-            subscriptionGroups = subscriptionGroups.map(SubscriptionGroupState::toBackup),
             proxyServers = proxyServers.map(ProxyServerState::toBackup),
             proxyAppListSelectedApps = proxyAppListSelectedApps,
         ),
@@ -44,7 +41,6 @@ internal fun AppBackupFile.toRestorePreview(): AppBackupRestorePreview {
 
 private fun AppState.toBackupSettings(): AppBackupSettings {
     return AppBackupSettings(
-        enableAllProxyGroup = enableAllProxyGroup,
         enableDeletionConfirmation = enableDeletionConfirmation,
         enableResolveProxyServerDomain = enableResolveProxyServerDomain,
         enableVpnLocalDns = enableVpnLocalDns,
@@ -94,27 +90,10 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
     )
 }
 
-private fun SubscriptionGroupState.toBackup(): AppBackupSubscriptionGroup {
-    return AppBackupSubscriptionGroup(
-        id = id,
-        name = name,
-        url = url,
-        userAgent = userAgent,
-        updateInterval = updateInterval,
-        hwid = hwid,
-        ageSecretKey = ageSecretKey,
-        updateViaProxy = updateViaProxy,
-        enabled = enabled,
-        builtIn = builtIn,
-        lastUpdatedAtMillis = lastUpdatedAtMillis,
-    )
-}
-
 private fun ProxyServerState.toBackup(): AppBackupProxyServer {
     val persistedServer = server.toPersistedProxyServer()
     return AppBackupProxyServer(
         id = id,
-        groupId = groupId,
         protocol = persistedServer.protocol,
         payload = persistedServer.payload,
     )
@@ -122,31 +101,13 @@ private fun ProxyServerState.toBackup(): AppBackupProxyServer {
 
 private fun AppBackupData.toAppState(): AppState {
     val defaults = AppState()
-    val restoredSubscriptionGroups = subscriptionGroups
-        .map(AppBackupSubscriptionGroup::toState)
-        .ifEmpty { defaults.subscriptionGroups }
-    val groupIds = restoredSubscriptionGroups.mapTo(mutableSetOf()) { group -> group.id }
-    val fallbackGroupId = restoredSubscriptionGroups.firstOrNull { group -> group.builtIn }?.id
-        ?: restoredSubscriptionGroups.firstOrNull()?.id
-        ?: DefaultSubscriptionGroupId
-    val restoredProxyServers = proxyServers.mapNotNull { server ->
-        server.toState(
-            validGroupIds = groupIds,
-            fallbackGroupId = fallbackGroupId,
-        )
-    }
+    val restoredProxyServers = proxyServers.mapNotNull { server -> server.toState() }
     val restoredSelectedProxyServerId = settings.selectedProxyServerId
         .takeIf { serverId -> restoredProxyServers.any { server -> server.id == serverId } }
         ?: restoredProxyServers.firstOrNull()?.id
         ?: defaults.selectedProxyServerId
 
     return defaults.copy(
-        subscriptionGroups = restoredSubscriptionGroups,
-        nextSubscriptionGroupId = nextId(
-            defaultValue = defaults.nextSubscriptionGroupId,
-            ids = restoredSubscriptionGroups.map { group -> group.id },
-        ),
-        enableAllProxyGroup = settings.enableAllProxyGroup,
         enableDeletionConfirmation = settings.enableDeletionConfirmation,
         runMode = RunModeVpnService,
         enableResolveProxyServerDomain = settings.enableResolveProxyServerDomain,
@@ -205,26 +166,7 @@ private fun AppBackupData.toAppState(): AppState {
     )
 }
 
-private fun AppBackupSubscriptionGroup.toState(): SubscriptionGroupState {
-    return SubscriptionGroupState(
-        id = id,
-        name = name,
-        url = url,
-        userAgent = userAgent,
-        updateInterval = updateInterval,
-        hwid = hwid,
-        ageSecretKey = ageSecretKey,
-        updateViaProxy = updateViaProxy,
-        enabled = enabled,
-        builtIn = builtIn,
-        lastUpdatedAtMillis = lastUpdatedAtMillis,
-    )
-}
-
-private fun AppBackupProxyServer.toState(
-    validGroupIds: Set<Int>,
-    fallbackGroupId: Int,
-): ProxyServerState? {
+private fun AppBackupProxyServer.toState(): ProxyServerState? {
     return runCatching {
         ProxyServerState(
             id = id,
@@ -232,7 +174,6 @@ private fun AppBackupProxyServer.toState(
                 protocol = protocol,
                 payload = payload,
             ).decodeProxyServer(),
-            groupId = groupId.takeIf { it in validGroupIds } ?: fallbackGroupId,
         )
     }.onFailure { error ->
         AndroidAppLogger.warn(LogTag, "Failed to parse backup proxy server id=$id", error)

@@ -356,7 +356,6 @@ private fun ProxyServerListItem(
                 route = Route.ProxyServerEditor(
                     ps = server.server,
                     serverId = server.id,
-                    groupId = server.groupId,
                     resultKey = resultKey,
                 ),
                 requestKey = resultKey,

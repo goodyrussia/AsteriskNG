@@ -15,7 +15,6 @@ internal abstract class AppStateDao {
     @Transaction
     open suspend fun loadState(): PersistedAppState {
         return PersistedAppState(
-            subscriptionGroups = findSubscriptionGroups(),
             proxyServers = findProxyServerList(),
             proxyAppListSelectedApps = findProxyAppListSelectedApps(),
         )
@@ -27,12 +26,6 @@ internal abstract class AppStateDao {
     }
 
     private suspend fun saveLists(previousState: AppState, nextState: AppState, replaceAll: Boolean) {
-        if (replaceAll || previousState.subscriptionGroups != nextState.subscriptionGroups) {
-            replaceSubscriptionGroups(nextState.subscriptionGroups.mapIndexed { index, group ->
-                SubscriptionGroupEntity.from(index, group)
-            })
-        }
-
         if (replaceAll || !previousState.proxyServers.hasSamePersistedContent(nextState.proxyServers)) {
             replaceProxyServerList(nextState.proxyServers.mapIndexed { index, server ->
                 ProxyServerEntity.from(index, server)
@@ -46,9 +39,6 @@ internal abstract class AppStateDao {
         }
     }
 
-    @Query("SELECT * FROM subscription_groups ORDER BY position ASC")
-    protected abstract suspend fun findSubscriptionGroups(): List<SubscriptionGroupEntity>
-
     @Query("SELECT * FROM proxy_servers ORDER BY position ASC")
     protected abstract suspend fun findProxyServerList(): List<ProxyServerEntity>
 
@@ -56,27 +46,16 @@ internal abstract class AppStateDao {
     protected abstract suspend fun findProxyAppListSelectedApps(): List<ProxyAppListSelectedAppEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract suspend fun insertSubscriptionGroups(entities: List<SubscriptionGroupEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertProxyServerList(entities: List<ProxyServerEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertProxyAppListSelectedApps(entities: List<ProxyAppListSelectedAppEntity>)
-
-    @Query("DELETE FROM subscription_groups")
-    protected abstract suspend fun deleteSubscriptionGroups()
 
     @Query("DELETE FROM proxy_servers")
     protected abstract suspend fun deleteProxyServerList()
 
     @Query("DELETE FROM proxy_app_list_selected_apps")
     protected abstract suspend fun deleteProxyAppListSelectedApps()
-
-    private suspend fun replaceSubscriptionGroups(entities: List<SubscriptionGroupEntity>) {
-        deleteSubscriptionGroups()
-        insertSubscriptionGroups(entities)
-    }
 
     private suspend fun replaceProxyServerList(entities: List<ProxyServerEntity>) {
         deleteProxyServerList()

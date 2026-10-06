@@ -240,7 +240,6 @@ private fun handleProxyServerListAddAction(
                 route = Route.ProxyServerEditor(
                     ps = createProxyServer(action),
                     serverId = serverId,
-                    groupId = 0,
                     resultKey = resultKey,
                 ),
                 requestKey = resultKey,
@@ -283,7 +282,7 @@ private suspend fun importProxyServers(
     )
     if (importResult.servers.isNotEmpty()) {
         updateAppState { state ->
-            state.withImportedProxyServers(importResult, 0)
+            state.withImportedProxyServers(importResult)
         }
     }
     tipNotifier.show(

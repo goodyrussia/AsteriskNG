@@ -6,13 +6,11 @@ package data
 import app.AppState
 
 internal data class PersistedAppState(
-    val subscriptionGroups: List<SubscriptionGroupEntity>,
     val proxyServers: List<ProxyServerEntity>,
     val proxyAppListSelectedApps: List<ProxyAppListSelectedAppEntity>,
 ) {
     fun hasRoomContent(): Boolean {
-        return subscriptionGroups.isNotEmpty() ||
-            proxyServers.isNotEmpty() ||
+        return proxyServers.isNotEmpty() ||
             proxyAppListSelectedApps.isNotEmpty()
     }
 
@@ -24,7 +22,6 @@ internal data class PersistedAppState(
             ?: settings.selectedProxyServerId
 
         return settings.copy(
-            subscriptionGroups = subscriptionGroups.map { group -> group.toState() },
             proxyServers = restoredProxyServerList,
             selectedProxyServerId = restoredSelectedProxyServerId,
             proxyRunning = false,

@@ -103,7 +103,6 @@ private data class RootBootScriptSignature(
 
 private data class RootBootScriptProxyServerState(
     val id: Int,
-    val groupId: Int,
     val server: ProxyServer<*>,
 )
 
@@ -117,7 +116,6 @@ private fun AppState.toRootBootScriptRefresh(): RootBootScriptRefresh {
             proxyServers = proxyServers.map { proxyServer ->
                 RootBootScriptProxyServerState(
                     id = proxyServer.id,
-                    groupId = proxyServer.groupId,
                     server = proxyServer.server,
                 )
             },

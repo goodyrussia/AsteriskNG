@@ -37,8 +37,6 @@ sealed interface Route : NavKey {
         @Serializable(with = ProxyServerRouteSerializer::class)
         val ps: ProxyServer<*>,
         val serverId: Int? = null,
-        val groupId: Int? = null,
-        val returnGroupId: Int? = null,
         val resultKey: String? = null,
         // Keep saved entry state independent of the mutable proxy configuration.
         val entryId: String = UUID.randomUUID().toString(),
@@ -48,6 +46,4 @@ sealed interface Route : NavKey {
 data class ProxyServerEditResult(
     val serverId: Int,
     val server: ProxyServer<*>,
-    val groupId: Int? = null,
-    val returnGroupId: Int? = null,
 )

@@ -26,14 +26,12 @@ internal data class AppBackupFile(
 @Serializable
 internal data class AppBackupData(
     val settings: AppBackupSettings = AppBackupSettings(),
-    val subscriptionGroups: List<AppBackupSubscriptionGroup> = emptyList(),
     val proxyServers: List<AppBackupProxyServer> = emptyList(),
     val proxyAppListSelectedApps: List<String> = emptyList(),
 )
 
 @Serializable
 internal data class AppBackupSettings(
-    val enableAllProxyGroup: Boolean = BackupDefaults.enableAllProxyGroup,
     val enableDeletionConfirmation: Boolean = BackupDefaults.enableDeletionConfirmation,
     val enableResolveProxyServerDomain: Boolean = BackupDefaults.enableResolveProxyServerDomain,
     val enableVpnLocalDns: Boolean = BackupDefaults.enableVpnLocalDns,
@@ -83,24 +81,8 @@ internal data class AppBackupSettings(
 )
 
 @Serializable
-internal data class AppBackupSubscriptionGroup(
-    val id: Int = 0,
-    val name: String = "",
-    val url: String = "",
-    val userAgent: String = "",
-    val updateInterval: String = "",
-    val hwid: String = "",
-    val ageSecretKey: String = "",
-    val updateViaProxy: Boolean = false,
-    val enabled: Boolean = true,
-    val builtIn: Boolean = false,
-    val lastUpdatedAtMillis: Long = 0L,
-)
-
-@Serializable
 internal data class AppBackupProxyServer(
     val id: Int = 0,
-    val groupId: Int = 0,
     val protocol: String = "",
     val payload: JsonElement = JsonObject(emptyMap()),
 )
@@ -109,9 +91,6 @@ internal data class AppBackupRestorePreview(
     val backup: AppBackupFile,
     val restoredState: AppState,
 ) {
-    val subscriptionGroupCount: Int
-        get() = restoredState.subscriptionGroups.size
-
     val proxyServerCount: Int
         get() = restoredState.proxyServers.size
 }

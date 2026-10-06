@@ -30,7 +30,6 @@ internal data class ProxyServerListInvalidDeleteResult(
 
 internal fun AppState.withImportedProxyServers(
     importResult: ProxyServerImportResult,
-    groupId: Int,
 ): AppState {
     if (importResult.servers.isEmpty()) {
         return this
@@ -39,7 +38,6 @@ internal fun AppState.withImportedProxyServers(
     val importedServers = importResult.servers.map { server ->
         ProxyServerState(
             id = nextServerId++,
-            groupId = groupId,
             server = server,
         )
     }
@@ -53,34 +51,26 @@ internal fun AppState.withImportedProxyServers(
 
 internal data class ProxyServerEditApplyResult(
     val state: AppState,
-    val existingGroupId: Int?,
     val wasExisting: Boolean,
 )
 
 internal fun AppState.withSavedProxyServer(
     serverId: Int,
     server: ProxyServer<*>,
-    groupId: Int?,
 ): ProxyServerEditApplyResult {
     val index = proxyServers.indexOfFirst { it.id == serverId }
     val wasExisting = index >= 0
-    var existingGroupId = groupId
     val nextServers = if (index >= 0) {
         proxyServers.toMutableList().also { list ->
-            val oldServer = list[index]
-            existingGroupId = oldServer.groupId
-            list[index] = oldServer.copy(server = server)
+            list[index] = list[index].copy(server = server)
         }
-    } else if (groupId != null) {
+    } else {
         listOf(
             ProxyServerState(
                 id = serverId,
-                groupId = groupId,
                 server = server,
             ),
         ) + proxyServers
-    } else {
-        proxyServers
     }
     return ProxyServerEditApplyResult(
         state = copy(
@@ -88,7 +78,6 @@ internal fun AppState.withSavedProxyServer(
             nextProxyServerId = maxOf(nextProxyServerId, serverId + 1),
             selectedProxyServerId = selectedProxyServerIdOrFirstAvailable(nextServers),
         ),
-        existingGroupId = existingGroupId,
         wasExisting = wasExisting,
     )
 }
