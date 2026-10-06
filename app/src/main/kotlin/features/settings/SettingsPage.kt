@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -21,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import app.LocalAppChromeState
 import app.LocalAppServices
 import app.LocalAppStateStore
 import app.LocalIsWideScreen
@@ -30,8 +28,6 @@ import app.LocalUpdateAppState
 import app.ProjectInfo
 import app.R
 import app.collectAppState
-import app.modes.ColorModeThemeDark
-import app.modes.ColorModeThemeSystem
 import app.modes.RunModeVpnService
 import app.modes.isRootRunMode
 import app.navigation.Route
@@ -56,7 +52,6 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.VerticalScrollBar
 import top.yukonga.miuix.kmp.basic.rememberScrollBarAdapter
 import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
-import ui.KeyColors
 import ui.layout.AdaptiveTopAppBar
 import ui.layout.pageContentPaddingWithCutout
 import ui.layout.pageListPadding
@@ -66,20 +61,17 @@ import ui.layout.pageScrollModifiers
 fun SettingsPage(
     padding: PaddingValues,
 ) {
-    val languageMode = LocalAppChromeState.current.languageMode
     val isWideScreen = LocalIsWideScreen.current
     val topAppBarScrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
         topBar = {
-            key(languageMode) {
-                AdaptiveTopAppBar(
-                    title = stringResource(R.string.settings_title),
-                    isWideScreen = isWideScreen,
-                    scrollBehavior = topAppBarScrollBehavior,
-                    subtitle = "v${ProjectInfo.VERSION_NAME} (${ProjectInfo.VERSION_CODE})",
-                )
-            }
+            AdaptiveTopAppBar(
+                title = stringResource(R.string.settings_title),
+                isWideScreen = isWideScreen,
+                scrollBehavior = topAppBarScrollBehavior,
+                subtitle = "v${ProjectInfo.VERSION_NAME} (${ProjectInfo.VERSION_CODE})",
+            )
         },
     ) { innerPadding ->
         SettingsContent(
@@ -121,39 +113,12 @@ private fun SettingsContent(
     )
     val listPadding = pageListPadding(contentPadding)
 
-    val isThemeColorMode = appState.colorMode in ColorModeThemeSystem..ColorModeThemeDark
-    val colorModeOptions = listOf(
-        stringResource(R.string.option_follow_system),
-        stringResource(R.string.option_light),
-        stringResource(R.string.option_dark),
-        stringResource(R.string.option_theme_system),
-        stringResource(R.string.option_theme_light),
-        stringResource(R.string.option_theme_dark),
-    )
-    val languageOptions = listOf(
-        stringResource(R.string.option_follow_system),
-        stringResource(R.string.option_english),
-        stringResource(R.string.option_simplified_chinese),
-        stringResource(R.string.option_russian),
-        stringResource(R.string.option_vietnamese),
-    )
     val runModeOptions = listOf(
         stringResource(R.string.settings_run_mode_vpn_service),
         stringResource(R.string.settings_run_mode_tproxy),
         stringResource(R.string.settings_run_mode_tun2socks),
         stringResource(R.string.settings_run_mode_bpf2socks),
     )
-    val keyColorOptions = listOf(
-        stringResource(R.string.theme_color_default),
-        stringResource(R.string.theme_color_blue),
-        stringResource(R.string.theme_color_green),
-        stringResource(R.string.theme_color_violet),
-        stringResource(R.string.theme_color_yellow),
-        stringResource(R.string.theme_color_orange),
-        stringResource(R.string.theme_color_sakura),
-        stringResource(R.string.theme_color_cyan),
-        stringResource(R.string.theme_color_coffee),
-    ).take(KeyColors.size + 1)
     val rootRequiredMessage = stringResource(R.string.settings_root_required)
     val rootBootScriptFailedMessage = stringResource(R.string.settings_root_boot_script_failed)
     val serviceStoppedMessage = stringResource(R.string.proxy_server_list_service_stopped)
@@ -199,20 +164,6 @@ private fun SettingsContent(
             ),
             contentPadding = listPadding,
         ) {
-            item(key = "settings_theme") {
-                SettingsThemeSection(
-                    colorModeOptions = colorModeOptions,
-                    colorMode = appState.colorMode,
-                    keyColorOptions = keyColorOptions,
-                    seedIndex = appState.seedIndex,
-                    languageOptions = languageOptions,
-                    languageMode = appState.languageMode,
-                    isThemeColorMode = isThemeColorMode,
-                    onColorModeChange = { index -> updateAppState { state -> state.copy(colorMode = index) } },
-                    onSeedIndexChange = { index -> updateAppState { state -> state.copy(seedIndex = index) } },
-                    onLanguageModeChange = { index -> updateAppState { state -> state.copy(languageMode = index) } },
-                )
-            }
             item(key = "settings_general") {
                 SettingsSubscriptionsSection(
                     enableAllProxyGroup = appState.enableAllProxyGroup,

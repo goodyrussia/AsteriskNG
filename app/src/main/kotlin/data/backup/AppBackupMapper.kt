@@ -54,9 +54,6 @@ internal fun AppBackupFile.toRestorePreview(): AppBackupRestorePreview {
 
 private fun AppState.toBackupSettings(): AppBackupSettings {
     return AppBackupSettings(
-        colorMode = colorMode,
-        languageMode = languageMode,
-        seedIndex = seedIndex,
         enableAllProxyGroup = enableAllProxyGroup,
         enableDeletionConfirmation = enableDeletionConfirmation,
         enableResolveProxyServerDomain = enableResolveProxyServerDomain,
@@ -252,9 +249,6 @@ private fun AppBackupData.toAppState(): AppState {
     val restoredRouteRules = routeRules.map(AppBackupRouteRule::toState)
 
     return defaults.copy(
-        colorMode = settings.colorMode,
-        languageMode = settings.languageMode,
-        seedIndex = settings.seedIndex,
         subscriptionGroups = restoredSubscriptionGroups,
         nextSubscriptionGroupId = nextId(
             defaultValue = defaults.nextSubscriptionGroupId,

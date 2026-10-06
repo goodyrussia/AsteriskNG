@@ -26,48 +26,6 @@ import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
-internal fun SettingsThemeSection(
-    colorModeOptions: List<String>,
-    colorMode: Int,
-    keyColorOptions: List<String>,
-    seedIndex: Int,
-    languageOptions: List<String>,
-    languageMode: Int,
-    isThemeColorMode: Boolean,
-    onColorModeChange: (Int) -> Unit,
-    onSeedIndexChange: (Int) -> Unit,
-    onLanguageModeChange: (Int) -> Unit,
-) {
-    SmallTitle(text = stringResource(R.string.settings_theme))
-    SettingsSectionCard {
-        OverlayDropdownPreference(
-            title = stringResource(R.string.settings_color_mode),
-            items = colorModeOptions,
-            selectedIndex = colorMode,
-            onSelectedIndexChange = onColorModeChange,
-        )
-        AnimatedVisibility(
-            visible = isThemeColorMode,
-            enter = fadeIn() + expandVertically(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            OverlayDropdownPreference(
-                title = stringResource(R.string.settings_theme_color),
-                items = keyColorOptions,
-                selectedIndex = seedIndex,
-                onSelectedIndexChange = onSeedIndexChange,
-            )
-        }
-        OverlayDropdownPreference(
-            title = stringResource(R.string.settings_language),
-            items = languageOptions,
-            selectedIndex = languageMode,
-            onSelectedIndexChange = onLanguageModeChange,
-        )
-    }
-}
-
-@Composable
 internal fun SettingsSubscriptionsSection(
     enableAllProxyGroup: Boolean,
     enableDeletionConfirmation: Boolean,

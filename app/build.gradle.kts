@@ -34,10 +34,7 @@ android {
         targetSdk = ProjectConfig.TARGET_SDK
         versionCode = getGitVersionCode()
         versionName = ProjectConfig.VERSION_NAME
-    }
-
-    androidResources {
-        localeFilters += listOf("en", "zh-rCN", "ru", "vi")
+        resourceConfigurations += "en"
     }
 
     bundle {

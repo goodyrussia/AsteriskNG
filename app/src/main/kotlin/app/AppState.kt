@@ -3,8 +3,6 @@
 
 package app
 
-import app.modes.ColorModeSystem
-import app.modes.LanguageModeSystem
 import app.modes.ProxyAppListModeGlobal
 import app.modes.ProxyServerListLayoutSingle
 import app.modes.ProxyServerListSortDefault
@@ -28,10 +26,6 @@ import features.resources.ResourceFileV2FlyGeoIpOnlyCnPrivateUrl
 import features.routing.model.RouteRule
 
 data class AppState(
-    val colorMode: Int = ColorModeSystem,
-    val languageMode: Int = LanguageModeSystem,
-    val seedIndex: Int = 0,
-
     val subscriptionGroups: List<SubscriptionGroupState> = DefaultSubscriptionGroups,
     val nextSubscriptionGroupId: Int = 4,
     val enableAllProxyGroup: Boolean = false,

@@ -6,19 +6,12 @@ package app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import data.AndroidAppStateStore
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-
-data class AppChromeState(
-    val colorMode: Int,
-    val languageMode: Int,
-    val seedIndex: Int,
-)
 
 data class ProxyServerListState(
     val subscriptionGroups: List<SubscriptionGroupState>,
@@ -40,21 +33,9 @@ val LocalUpdateAppState = staticCompositionLocalOf<((AppState) -> AppState) -> U
     error("No AppState updater provided!")
 }
 
-val LocalAppChromeState = compositionLocalOf<AppChromeState> {
-    error("No AppChromeState provided!")
-}
-
 @Composable
 fun AndroidAppStateStore.collectAppState(): State<AppState> {
     return state.collectAsState()
-}
-
-@Composable
-fun AndroidAppStateStore.collectAppChromeState(): State<AppChromeState> {
-    val appState = state.collectAsState()
-    return remember {
-        derivedStateOf { appState.value.toAppChromeState() }
-    }
 }
 
 @Composable
@@ -78,14 +59,6 @@ fun AndroidAppStateStore.collectProxyServerLatency(
             .distinctUntilChanged()
     }
     return latencyFlow.collectAsState(initial = initialLatency)
-}
-
-private fun AppState.toAppChromeState(): AppChromeState {
-    return AppChromeState(
-        colorMode = colorMode,
-        languageMode = languageMode,
-        seedIndex = seedIndex,
-    )
 }
 
 private fun AppState.toProxyServerListState(): ProxyServerListState {

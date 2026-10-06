@@ -32,7 +32,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -97,13 +96,12 @@ private object MainNavigation {
 
     @Composable
     fun navigationItems(): List<NavigationItem> {
-        val languageMode = LocalAppChromeState.current.languageMode
         val proxy = stringResource(R.string.nav_proxy)
         val routing = stringResource(R.string.nav_routing)
         val apps = stringResource(R.string.nav_apps)
         val settings = stringResource(R.string.nav_settings)
 
-        return remember(languageMode, proxy, routing, apps, settings) {
+        return remember(proxy, routing, apps, settings) {
             listOf(
                 NavigationItem(proxy, MiuixIcons.Layers),
                 NavigationItem(routing, MiuixIcons.MindMap),
@@ -121,7 +119,6 @@ val LocalIsWideScreen = staticCompositionLocalOf { false }
 fun AppContent(
     padding: PaddingValues,
 ) {
-    val languageMode = LocalAppChromeState.current.languageMode
     val pagerState = rememberPagerState(pageCount = { MainNavigation.NAVIGATION_ITEMS_COUNT })
     val mainPagerState = rememberMainPagerState(pagerState)
     LaunchedEffect(mainPagerState.pagerState.currentPage) {
@@ -155,59 +152,41 @@ fun AppContent(
             effects = effects,
         ) {
             entry<Route.Main> {
-                key(languageMode) {
-                    Home(
-                        padding = padding,
-                        mainPagerState = mainPagerState,
-                    )
-                }
+                Home(
+                    padding = padding,
+                    mainPagerState = mainPagerState,
+                )
             }
             entry<Route.About> {
-                key(languageMode) {
-                    AboutPage(padding = padding)
-                }
+                AboutPage(padding = padding)
             }
             entry<Route.License> {
-                key(languageMode) {
-                    LicensePage(padding = padding)
-                }
+                LicensePage(padding = padding)
             }
             entry<Route.CoreLogs> {
-                key(languageMode) {
-                    CoreLogsPage(padding = padding)
-                }
+                CoreLogsPage(padding = padding)
             }
             entry<Route.AccessLogs> {
-                key(languageMode) {
-                    AccessLogsPage(padding = padding)
-                }
+                AccessLogsPage(padding = padding)
             }
             entry<Route.LogcatLogs> {
-                key(languageMode) {
-                    LogcatLogsPage(padding = padding)
-                }
+                LogcatLogsPage(padding = padding)
             }
             entry<Route.ResourceManagement> {
-                key(languageMode) {
-                    ResourceManagementPage(padding = padding)
-                }
+                ResourceManagementPage(padding = padding)
             }
             entry<Route.SubscriptionGroupList> {
-                key(languageMode) {
-                    SubscriptionGroupListPage(padding = padding)
-                }
+                SubscriptionGroupListPage(padding = padding)
             }
             entry<Route.ProxyServerEditor>(contentKey = { it.entryId }) {
-                key(languageMode) {
-                    ProxyServerPage(
-                        padding = padding,
-                        ps = it.ps,
-                        serverId = it.serverId,
-                        groupId = it.groupId,
-                        returnGroupId = it.returnGroupId,
-                        resultKey = it.resultKey,
-                    )
-                }
+                ProxyServerPage(
+                    padding = padding,
+                    ps = it.ps,
+                    serverId = it.serverId,
+                    groupId = it.groupId,
+                    returnGroupId = it.returnGroupId,
+                    resultKey = it.resultKey,
+                )
             }
         }
         features.proxy.ProxyErrorHost()
@@ -342,27 +321,24 @@ fun AppPager(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
 ) {
-    val languageMode = LocalAppChromeState.current.languageMode
     HorizontalPager(
         state = pagerState,
         modifier = modifier,
         userScrollEnabled = false,
         verticalAlignment = Alignment.Top,
         pageContent = { page ->
-            key(languageMode, page) {
-                when (page) {
-                    MainNavigation.PROXY_PAGE_INDEX -> ProxyServerListPage(
-                        padding = padding,
-                    )
+            when (page) {
+                MainNavigation.PROXY_PAGE_INDEX -> ProxyServerListPage(
+                    padding = padding,
+                )
 
-                    MainNavigation.ROUTING_PAGE_INDEX -> RoutingPage(
-                        padding = padding,
-                    )
+                MainNavigation.ROUTING_PAGE_INDEX -> RoutingPage(
+                    padding = padding,
+                )
 
-                    MainNavigation.PROXY_APP_LIST_PAGE_INDEX -> ProxyAppListPage(padding = padding)
+                MainNavigation.PROXY_APP_LIST_PAGE_INDEX -> ProxyAppListPage(padding = padding)
 
-                    MainNavigation.SETTINGS_PAGE_INDEX -> SettingsPage(padding = padding)
-                }
+                MainNavigation.SETTINGS_PAGE_INDEX -> SettingsPage(padding = padding)
             }
         },
     )

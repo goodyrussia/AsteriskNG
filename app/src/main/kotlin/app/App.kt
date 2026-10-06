@@ -8,7 +8,6 @@ import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -26,7 +25,6 @@ import engine.proxy.latency.AndroidProxyLatencyTester
 import features.proxy.server.usecase.ProxyServerImportFileUseCase
 import features.proxy.server.usecase.ProxyServiceUseCase
 import features.resources.ResourceFileUseCase
-import features.settings.locale.ProvideAppLanguage
 import features.settings.usecase.SwitchRunModeUseCase
 import features.settings.usecase.ApplyServiceControlUseCase
 import features.settings.usecase.RootBootScriptUseCase
@@ -37,7 +35,6 @@ import system.AndroidRootShellGateway
 import system.AndroidUserSpaceProvider
 import ui.AppTheme
 import ui.feedback.AndroidToastTipNotifier
-import ui.keyColorFor
 
 @Composable
 fun App(
@@ -48,7 +45,6 @@ fun App(
     requestVpnPermission: suspend (Intent) -> Boolean,
 ) {
     val appContext = LocalContext.current.applicationContext
-    val systemUiSnapshot = appContext.currentSystemUiSnapshot()
     val application = appContext as AsteriskApplication
     val appScope = application.appScope
     val stateStore = remember(application) { application.stateStore }
@@ -179,11 +175,9 @@ fun App(
             logcatRepository = AndroidLogcatRepository,
         )
     }
-    val chromeState by stateStore.collectAppChromeState()
     val updateAppState: ((AppState) -> AppState) -> Unit = remember(stateStore) {
         { transform -> stateStore.update(transform) }
     }
-    val keyColor = keyColorFor(chromeState.seedIndex)
     ProxyStatusSynchronizer(
         stateStore = stateStore,
         proxyEngine = proxyEngine,
@@ -193,33 +187,20 @@ fun App(
         resourceFileUseCase = resourceFileUseCase,
         stateStore = stateStore,
     )
-    LauncherIconSynchronizer(
-        context = appContext,
-        stateStore = stateStore,
-    )
+    LauncherIconSynchronizer(context = appContext)
     RootBootScriptSynchronizer(
         stateStore = stateStore,
         rootBootScriptUseCase = rootBootScriptUseCase,
     )
 
-    ProvideAppLanguage(
-        languageMode = chromeState.languageMode,
-        systemLocale = systemUiSnapshot.locale,
-    ) {
-        AppTheme(
-            colorMode = chromeState.colorMode,
-            keyColor = keyColor,
-            systemDark = systemUiSnapshot.isDark,
+    AppTheme(keyColor = null) {
+        CompositionLocalProvider(
+            LocalAppStateStore provides stateStore,
+            LocalUpdateAppState provides updateAppState,
+            LocalAppServices provides services,
         ) {
-            CompositionLocalProvider(
-                LocalAppStateStore provides stateStore,
-                LocalAppChromeState provides chromeState,
-                LocalUpdateAppState provides updateAppState,
-                LocalAppServices provides services,
-            ) {
-                AppContent(padding = padding)
-                features.resources.SharedCoreMigrationPrompt()
-            }
+            AppContent(padding = padding)
+            features.resources.SharedCoreMigrationPrompt()
         }
     }
 }

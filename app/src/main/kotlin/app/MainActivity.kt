@@ -4,7 +4,6 @@
 package app
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -22,12 +21,10 @@ import androidx.compose.foundation.layout.union
 import androidx.core.view.WindowCompat
 import com.journeyapps.barcodescanner.ScanContract
 import data.AndroidAppStateStore
-import data.AppSettingsPreferences
 import engine.vpn.AndroidVpnPermissionRequester
 import features.logs.AndroidLogFileCreator
 import features.proxy.server.qr.AndroidQrCodeScanRequester
 import features.resources.runtime.AndroidResourceFilePicker
-import features.settings.locale.localizedAppContext
 import features.subscription.SubscriptionInstallConfigUseCase
 import features.subscription.isSubscriptionInstallConfigUri
 import features.subscription.runtime.AndroidSubscriptionFetcher
@@ -106,15 +103,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun appString(@StringRes id: Int, vararg args: Any): String {
-        val languageMode = (application as AsteriskApplication).stateStore.state.value.languageMode
-        return applicationContext.localizedAppContext(languageMode).getString(id, *args)
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        val settings = AppSettingsPreferences(newBase).load()
-        super.attachBaseContext(
-            newBase.localizedAppContext(settings.languageMode, settings.colorMode),
-        )
+        return applicationContext.getString(id, *args)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,7 +162,7 @@ class MainActivity : ComponentActivity() {
     private fun showAppContent() {
         enableEdgeToEdge()
         WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars =
-            !applicationContext.currentSystemUiSnapshot().isDark
+            false
         setContent {
             App(
                 padding = WindowInsets.systemBars.union(WindowInsets.displayCutout).asPaddingValues(),

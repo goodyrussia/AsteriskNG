@@ -14,10 +14,6 @@ import app.ServiceControlKeyguard
 import app.ServiceControlSettings
 import app.ServiceControlWifi
 import app.ServiceControlWifiRule
-import app.modes.ColorModeThemeDark
-import app.modes.ColorModeThemeLight
-import app.modes.ColorModeThemeSystem
-import app.modes.normalizeColorMode
 import features.settings.servicecontrol.normalizeServiceControlSettings
 import java.util.UUID
 
@@ -53,16 +49,6 @@ internal class AppSettingsPreferences(
             (customResourceFiles.maxOfOrNull { file -> file.id } ?: 0) + 1,
         )
         return defaults.copy(
-            colorMode = preferences.getInt(KeyColorMode, defaults.colorMode).let { storedMode ->
-                when (storedMode) {
-                    ColorModeThemeSystem,
-                    ColorModeThemeLight,
-                    ColorModeThemeDark -> storedMode
-                    else -> normalizeColorMode(storedMode)
-                }
-            },
-            languageMode = preferences.getInt(KeyLanguageMode, defaults.languageMode),
-            seedIndex = preferences.getInt(KeySeedIndex, defaults.seedIndex),
             nextSubscriptionGroupId = preferences.getInt(
                 KeyNextSubscriptionGroupId,
                 defaults.nextSubscriptionGroupId,
@@ -233,10 +219,7 @@ internal class AppSettingsPreferences(
     }
 
     private fun SharedPreferences.Editor.putAppState(state: AppState): SharedPreferences.Editor {
-        return putInt(KeyColorMode, state.colorMode)
-            .putInt(KeyLanguageMode, state.languageMode)
-            .putInt(KeySeedIndex, state.seedIndex)
-            .putInt(KeyNextSubscriptionGroupId, state.nextSubscriptionGroupId)
+        return putInt(KeyNextSubscriptionGroupId, state.nextSubscriptionGroupId)
             .putBoolean(KeyEnableAllProxyGroup, state.enableAllProxyGroup)
             .putBoolean(KeyEnableDeletionConfirmation, state.enableDeletionConfirmation)
             .putInt(KeyRunMode, state.runMode)
@@ -441,9 +424,6 @@ internal class AppSettingsPreferences(
 }
 
 private const val PreferencesName = "asteriskng_settings"
-private const val KeyColorMode = "color_mode"
-private const val KeyLanguageMode = "language_mode"
-private const val KeySeedIndex = "seed_index"
 private const val KeySubscriptionHwid = "subscription_hwid"
 private const val KeyNextSubscriptionGroupId = "next_subscription_group_id"
 private const val KeyEnableAllProxyGroup = "enable_all_proxy_group"
