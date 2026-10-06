@@ -161,13 +161,8 @@ private fun SettingsContent(
             contentPadding = listPadding,
         ) {
             item(key = "settings_general") {
-                SettingsSubscriptionsSection(
-                    enableAllProxyGroup = appState.enableAllProxyGroup,
+                SettingsGeneralSection(
                     enableDeletionConfirmation = appState.enableDeletionConfirmation,
-                    onOpenGroupManagement = { navigator.push(Route.SubscriptionGroupList) },
-                    onEnableAllProxyGroupChange = { enabled ->
-                        updateAppState { state -> state.copy(enableAllProxyGroup = enabled) }
-                    },
                     onEnableDeletionConfirmationChange = { enabled ->
                         updateAppState { state -> state.copy(enableDeletionConfirmation = enabled) }
                     },

@@ -18,7 +18,6 @@ internal data class ProxyServerListMessages(
     val subscriptionInstallExistingUrlTemplate: String,
     val subscriptionUpdateResultTemplate: String,
     val subscriptionUpdateResultWithFailedTemplate: String,
-    val noSubscriptionUpdates: String,
     val serviceStarted: String,
     val serviceStopped: String,
     val selectServerFirst: String,
@@ -50,7 +49,6 @@ internal fun proxyServerListMessages(): ProxyServerListMessages {
         subscriptionUpdateResultTemplate = stringResource(R.string.proxy_server_list_subscription_update_result),
         subscriptionUpdateResultWithFailedTemplate =
             stringResource(R.string.proxy_server_list_subscription_update_result_with_failed),
-        noSubscriptionUpdates = stringResource(R.string.proxy_server_list_no_subscription_updates),
         serviceStarted = stringResource(R.string.proxy_server_list_service_started),
         serviceStopped = stringResource(R.string.proxy_server_list_service_stopped),
         selectServerFirst = stringResource(R.string.proxy_server_list_select_first),

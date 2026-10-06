@@ -3,19 +3,4 @@
 
 package app
 
-import features.subscription.DefaultSubscriptionGroupId
-import features.subscription.DefaultSubscriptionUserAgent
-
 const val DefaultRouteOutboundTag = "proxy"
-
-val DefaultSubscriptionGroups = listOf(
-    SubscriptionGroupState(
-        id = DefaultSubscriptionGroupId,
-        name = "默认",
-        url = "",
-        userAgent = DefaultSubscriptionUserAgent,
-        updateInterval = "",
-        enabled = true,
-        builtIn = true,
-    ),
-)

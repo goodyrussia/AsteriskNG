@@ -73,7 +73,6 @@
     <string name="proxy_server_list_no_duplicates">No duplicate proxy servers found</string>
     <string name="proxy_server_list_no_invalid">No invalid proxy servers found</string>
     <string name="proxy_server_list_no_servers_to_delete">No proxy servers to delete</string>
-    <string name="proxy_server_list_no_subscription_updates">No subscriptions to update</string>
     <string name="proxy_server_list_no_testable">No proxy servers to test</string>
     <string name="proxy_server_list_option_layout">Layout</string>
     <string name="proxy_server_list_option_layout_double">Double</string>
@@ -98,10 +97,7 @@
     <string name="proxy_server_list_subscription_update_result">Updated {groupCount} subscription groups, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_subscription_update_result_with_failed">Updated {groupCount} subscription groups, {failedCount} failed, imported {serverCount} proxy servers</string>
     <string name="proxy_server_list_title">Proxy servers</string>
-    <string name="proxy_server_list_update_subscriptions">Update subscriptions</string>
     <string name="proxy_server_qr_generate_failed">Unable to generate QR code</string>
-    <string name="settings_enable_all_proxy_group">Enable "All" group</string>
-    <string name="settings_enable_all_proxy_group_summary">Show the "All" group when multiple groups are enabled</string>
 
     <!-- Proxy editor -->
     <string name="proxy_editor_auth">Password (auth)</string>
@@ -194,44 +190,7 @@
     <string name="proxy_validation_wireguard_reserved_value_invalid">Each reserved value must be {min}–{max}</string>
     <string name="proxy_validation_xray_user_id_invalid">User ID must be a UUID or shorter than {max} bytes</string>
 
-    <!-- Subscription groups -->
-    <string name="deletion_confirmation_delete_subscription_group">Delete subscription group</string>
-    <string name="settings_group_management">Group management</string>
-    <string name="settings_group_management_summary">Edit subscription URLs, group names, and enabled state</string>
-    <string name="subscription_add">Add subscription</string>
-    <string name="subscription_age_secret_key">Mihomo Age secret key</string>
-    <string name="subscription_auto_update_interval">Auto update interval (hours)</string>
-    <string name="subscription_custom_user_agent">Custom User-Agent</string>
-    <string name="subscription_default_group">Default</string>
-    <string name="subscription_delete_group">Delete subscription group</string>
-    <string name="subscription_edit">Edit subscription</string>
-    <string name="subscription_edit_group">Edit subscription group</string>
-    <string name="subscription_group_list">Group list</string>
-    <string name="subscription_group_list_count">{count} groups</string>
-    <string name="subscription_group_list_title">Subscription groups</string>
-    <string name="subscription_group_name">Group name</string>
-    <string name="subscription_http_warning_confirm">Save anyway</string>
-    <string name="subscription_http_warning_message">This subscription URL uses HTTP cleartext transport. The configuration content may be read or modified in transit. Save only if you trust this source.</string>
-    <string name="subscription_http_warning_title">HTTP subscription warning</string>
-    <string name="subscription_hwid">HWID</string>
-    <string name="subscription_install_config_failed">Failed to import subscription</string>
-    <string name="subscription_install_config_invalid">Invalid subscription link</string>
     <string name="subscription_install_existing_url">A matching subscription URL already exists in {name}; updating that group</string>
-    <string name="subscription_invalid_url">Invalid subscription URL</string>
-    <string name="subscription_manual_group">Manual proxy server group</string>
-    <string name="subscription_new_group">New subscription group</string>
-    <string name="subscription_unnamed_group">Unnamed group</string>
-    <string name="subscription_update_group">Update subscription group</string>
-    <string name="subscription_update_interval">Update every {interval} hours</string>
-    <string name="subscription_update_via_proxy">Update via proxy</string>
-    <string name="subscription_update_via_proxy_summary">Use the local proxy for subscription requests</string>
-    <string name="subscription_url">Subscription URL, leave empty for manual groups</string>
-    <string name="subscription_user_agent">User-Agent</string>
-    <string name="subscription_user_agent_clash_meta">Clash Meta</string>
-    <string name="subscription_user_agent_custom">Custom</string>
-    <string name="subscription_user_agent_custom_summary">Enter a custom value</string>
-    <string name="subscription_user_agent_v2rayng">v2rayNG</string>
-    <string name="subscription_user_agent_value">User-Agent: {userAgent}</string>
 
     <!-- DNS -->
     <string name="settings_direct_dns">Direct DNS</string>
@@ -448,7 +407,7 @@
     <string name="settings_backup_restore">Backup and restore</string>
     <string name="settings_backup_user_data">Back up user data</string>
     <string name="settings_backup_user_data_summary">Export current user data to a backup file</string>
-    <string name="settings_restore_backup_counts">{groups} groups, {servers} proxy servers</string>
+    <string name="settings_restore_backup_counts">{servers} proxy servers</string>
     <string name="settings_restore_backup_created_at">Created: {time}</string>
     <string name="settings_restore_backup_version">Backup version {version}, app {appVersion}</string>
     <string name="settings_restore_completed">User data restored</string>

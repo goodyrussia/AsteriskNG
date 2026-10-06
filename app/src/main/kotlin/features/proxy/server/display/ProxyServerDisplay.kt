@@ -3,13 +3,12 @@
 
 package features.proxy.server.display
 
-import features.subscription.DefaultSubscriptionGroupId
 import app.ProxyServerState
 import app.SubscriptionGroupState
 import ui.text.formatTemplate
 
 internal fun SubscriptionGroupState.displayName(defaultGroupName: String): String {
-    return if (builtIn && id == DefaultSubscriptionGroupId) {
+    return if (builtIn && id == 0) {
         defaultGroupName
     } else {
         name
@@ -30,7 +29,7 @@ internal fun ProxyServerState.displayNameWithGroup(
     val proxyServerName = server.getInfo().remarks.ifBlank {
         defaultProxyServerTemplate.formatTemplate("id" to id)
     }
-    if (groupId == DefaultSubscriptionGroupId) {
+    if (groupId == 0) {
         return proxyServerName
     }
     val groupName = groupNames[groupId] ?: unknownGroupName

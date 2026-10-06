@@ -26,26 +26,12 @@ import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
-internal fun SettingsSubscriptionsSection(
-    enableAllProxyGroup: Boolean,
+internal fun SettingsGeneralSection(
     enableDeletionConfirmation: Boolean,
-    onOpenGroupManagement: () -> Unit,
-    onEnableAllProxyGroupChange: (Boolean) -> Unit,
     onEnableDeletionConfirmationChange: (Boolean) -> Unit,
 ) {
     SmallTitle(text = stringResource(R.string.settings_general))
     SettingsSectionCard {
-        ArrowPreference(
-            title = stringResource(R.string.settings_group_management),
-            summary = stringResource(R.string.settings_group_management_summary),
-            onClick = onOpenGroupManagement,
-        )
-        SwitchPreference(
-            title = stringResource(R.string.settings_enable_all_proxy_group),
-            summary = stringResource(R.string.settings_enable_all_proxy_group_summary),
-            checked = enableAllProxyGroup,
-            onCheckedChange = onEnableAllProxyGroupChange,
-        )
         SwitchPreference(
             title = stringResource(R.string.settings_deletion_confirmation),
             summary = stringResource(R.string.settings_deletion_confirmation_summary),

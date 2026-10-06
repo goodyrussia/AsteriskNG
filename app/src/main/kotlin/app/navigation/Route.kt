@@ -33,9 +33,6 @@ sealed interface Route : NavKey {
     data object LogcatLogs : Route
 
     @Serializable
-    data object SubscriptionGroupList : Route
-
-    @Serializable
     data class ProxyServerEditor(
         @Serializable(with = ProxyServerRouteSerializer::class)
         val ps: ProxyServer<*>,

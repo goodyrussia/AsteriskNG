@@ -14,7 +14,6 @@ import engine.root.RootModeEngine
 import engine.vpn.VpnXrayConfigFactory
 import features.proxy.server.model.ProxyServer
 import features.proxy.server.model.getUrlOrNull
-import features.subscription.DefaultSubscriptionGroupId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import utils.formatJsonText
@@ -70,7 +69,7 @@ internal suspend fun ProxyServer<*>.proxyServerCopyText(
     val copyServer = ProxyServerState(
         id = serverId ?: TemporaryCopyServerId,
         server = this,
-        groupId = groupId ?: DefaultSubscriptionGroupId,
+        groupId = groupId ?: 0,
     )
     return copyServer.proxyServerCopyText(context, appState)
 }
