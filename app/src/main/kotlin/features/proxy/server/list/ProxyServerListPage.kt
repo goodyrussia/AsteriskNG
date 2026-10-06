@@ -58,7 +58,6 @@ fun ProxyServerListPage(
     val services = LocalAppServices.current
     val proxyLatencyTester = services.proxyLatencyTester
     val qrScanner = services.qrScanner
-    val subscriptionFetcher = services.subscriptionFetcher
     val proxyEngine = services.proxyEngine
     val proxyServiceUseCase = services.proxyServiceUseCase
     val proxyServerImportFileUseCase = services.proxyServerImportFileUseCase
@@ -237,7 +236,6 @@ fun ProxyServerListPage(
                 navigator = navigator,
                 qrScanner = qrScanner,
                 proxyServerImportFileUseCase = proxyServerImportFileUseCase,
-                subscriptionFetcher = subscriptionFetcher,
                 proxyServiceUseCase = proxyServiceUseCase,
                 clipboard = clipboard,
                 tipNotifier = tipNotifier,

@@ -14,7 +14,6 @@ import features.proxy.server.usecase.ProxyServiceUseCase
 import features.settings.usecase.SwitchRunModeUseCase
 import features.settings.usecase.RootBootScriptUseCase
 import features.settings.usecase.RootEbpfProbeUseCase
-import features.subscription.runtime.AndroidSubscriptionFetcher
 import kotlinx.coroutines.CoroutineScope
 import system.AndroidNetworkInterfaceProvider
 import system.AndroidPackageProvider
@@ -30,7 +29,6 @@ internal data class AppServices(
     val packageCatalog: AndroidPackageProvider,
     val networkInterfaces: AndroidNetworkInterfaceProvider,
     val appBackupUseCase: AppBackupUseCase,
-    val subscriptionFetcher: AndroidSubscriptionFetcher,
     val qrScanner: suspend () -> String?,
     val proxyServerImportFileUseCase: ProxyServerImportFileUseCase,
     val proxyLatencyTester: AndroidProxyLatencyTester,

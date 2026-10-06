@@ -64,7 +64,6 @@ import features.proxy.app.ProxyAppListPage
 import features.proxy.server.list.ProxyServerListPage
 import features.proxy.server.editor.ProxyServerPage
 import features.settings.SettingsPage
-import features.subscription.SubscriptionGroupListPage
 import top.yukonga.miuix.kmp.basic.NavigationBar
 import top.yukonga.miuix.kmp.basic.NavigationBarDisplayMode
 import top.yukonga.miuix.kmp.basic.NavigationBarItem
@@ -165,9 +164,6 @@ fun AppContent(
             }
             entry<Route.LogcatLogs> {
                 LogcatLogsPage(padding = padding)
-            }
-            entry<Route.SubscriptionGroupList> {
-                SubscriptionGroupListPage(padding = padding)
             }
             entry<Route.ProxyServerEditor>(contentKey = { it.entryId }) {
                 ProxyServerPage(

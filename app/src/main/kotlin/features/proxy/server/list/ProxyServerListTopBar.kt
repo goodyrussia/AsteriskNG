@@ -35,19 +35,8 @@ import features.proxy.server.usecase.createProxyServer
 import features.proxy.server.usecase.deleteDuplicateServersInGroup
 import features.proxy.server.usecase.deleteInvalidServersInGroup
 import features.proxy.server.usecase.importProxyServersFromText
-import features.proxy.server.usecase.updatableSubscriptionGroups
 import features.proxy.server.usecase.withDeletedProxyServers
 import features.proxy.server.usecase.withImportedProxyServers
-import features.proxy.server.usecase.withUpdatedSubscriptionServers
-import features.subscription.DefaultSubscriptionGroupId
-import features.subscription.SubscriptionInstallConfigUseCase
-import features.subscription.runtime.AndroidSubscriptionFetchOptions
-import features.subscription.runtime.AndroidSubscriptionFetcher
-import features.subscription.subscriptionInstallMessage
-import features.subscription.usecase.subscriptionUpdateMessage
-import features.subscription.usecase.toSubscriptionFetchOptions
-import features.subscription.usecase.updateSubscriptions
-import features.subscription.toSubscriptionInstallConfigOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
@@ -71,7 +60,6 @@ internal fun ProxyServerListTopBar(
     navigator: Navigator,
     qrScanner: suspend () -> String?,
     proxyServerImportFileUseCase: ProxyServerImportFileUseCase,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
     proxyServiceUseCase: ProxyServiceUseCase,
     clipboard: Clipboard,
     tipNotifier: AndroidToastTipNotifier,
@@ -93,12 +81,10 @@ internal fun ProxyServerListTopBar(
             proxyListState = proxyListState,
             stateStore = stateStore,
             updateAppState = updateAppState,
-            subscriptionFetcher = subscriptionFetcher,
             proxyServiceUseCase = proxyServiceUseCase,
             clipboard = clipboard,
             tipNotifier = tipNotifier,
             scope = scope,
-            backgroundScope = backgroundScope,
             messages = messages,
             serviceOperationInProgress = serviceOperationInProgress,
             runProxyServiceOperation = runProxyServiceOperation,
@@ -123,12 +109,10 @@ internal fun ProxyServerListTopBar(
                 handleProxyServerListAddAction(
                     action = action,
                     proxyListState = proxyListState,
-                    stateStore = stateStore,
                     updateAppState = updateAppState,
                     navigator = navigator,
                     qrScanner = qrScanner,
                     proxyServerImportFileUseCase = proxyServerImportFileUseCase,
-                    subscriptionFetcher = subscriptionFetcher,
                     clipboard = clipboard,
                     tipNotifier = tipNotifier,
                     scope = scope,
@@ -187,12 +171,10 @@ private val ProxyServerListToolAction.deletionConfirmationTitleResId: Int
 private fun handleProxyServerListAddAction(
     action: ProxyServerListAddAction,
     proxyListState: ProxyServerListState,
-    stateStore: AndroidAppStateStore,
     updateAppState: ((AppState) -> AppState) -> Unit,
     navigator: Navigator,
     qrScanner: suspend () -> String?,
     proxyServerImportFileUseCase: ProxyServerImportFileUseCase,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
     clipboard: Clipboard,
     tipNotifier: AndroidToastTipNotifier,
     scope: CoroutineScope,
@@ -209,8 +191,6 @@ private fun handleProxyServerListAddAction(
                         importProxyServersInBackground(
                             text = scanText,
                             source = ProxyServerImportSource.QrCode,
-                            stateStore = stateStore,
-                            subscriptionFetcher = subscriptionFetcher,
                             updateAppState = updateAppState,
                             tipNotifier = tipNotifier,
                             backgroundScope = backgroundScope,
@@ -227,8 +207,6 @@ private fun handleProxyServerListAddAction(
                 importProxyServersInBackground(
                     text = text,
                     source = ProxyServerImportSource.Clipboard,
-                    stateStore = stateStore,
-                    subscriptionFetcher = subscriptionFetcher,
                     updateAppState = updateAppState,
                     tipNotifier = tipNotifier,
                     backgroundScope = backgroundScope,
@@ -245,8 +223,6 @@ private fun handleProxyServerListAddAction(
                             importProxyServersInBackground(
                                 text = it,
                                 source = ProxyServerImportSource.File,
-                                stateStore = stateStore,
-                                subscriptionFetcher = subscriptionFetcher,
                                 updateAppState = updateAppState,
                                 tipNotifier = tipNotifier,
                                 backgroundScope = backgroundScope,
@@ -264,7 +240,7 @@ private fun handleProxyServerListAddAction(
                 route = Route.ProxyServerEditor(
                     ps = createProxyServer(action),
                     serverId = serverId,
-                    groupId = DefaultSubscriptionGroupId,
+                    groupId = 0,
                     resultKey = resultKey,
                 ),
                 requestKey = resultKey,
@@ -276,8 +252,6 @@ private fun handleProxyServerListAddAction(
 private fun importProxyServersInBackground(
     text: String,
     source: ProxyServerImportSource,
-    stateStore: AndroidAppStateStore,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
     updateAppState: ((AppState) -> AppState) -> Unit,
     tipNotifier: AndroidToastTipNotifier,
     backgroundScope: CoroutineScope,
@@ -285,21 +259,9 @@ private fun importProxyServersInBackground(
 ) {
     backgroundScope.launch {
         runCatching {
-            if (
-                installSubscriptionFromText(
-                    text = text,
-                    stateStore = stateStore,
-                    subscriptionFetcher = subscriptionFetcher,
-                    tipNotifier = tipNotifier,
-                    messages = messages,
-                )
-            ) {
-                return@runCatching
-            }
             importProxyServers(
                 text = text,
                 source = source,
-                subscriptionFetcher = subscriptionFetcher,
                 updateAppState = updateAppState,
                 tipNotifier = tipNotifier,
                 messages = messages,
@@ -308,38 +270,9 @@ private fun importProxyServersInBackground(
     }
 }
 
-private suspend fun installSubscriptionFromText(
-    text: String,
-    stateStore: AndroidAppStateStore,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
-    tipNotifier: AndroidToastTipNotifier,
-    messages: ProxyServerListMessages,
-): Boolean {
-    val config = text.toSubscriptionInstallConfigOrNull() ?: return false
-    runCatching {
-        SubscriptionInstallConfigUseCase(
-            stateStore = stateStore,
-            subscriptionFetcher = subscriptionFetcher,
-        ).install(config)
-    }.onSuccess { result ->
-        tipNotifier.show(
-            subscriptionInstallMessage(
-                result = result,
-                existingUrlTemplate = messages.subscriptionInstallExistingUrlTemplate,
-                successTemplate = messages.subscriptionUpdateResultTemplate,
-                failedTemplate = messages.subscriptionUpdateResultWithFailedTemplate,
-            ),
-        )
-    }.onFailure { error ->
-        tipNotifier.showError(error)
-    }
-    return true
-}
-
 private suspend fun importProxyServers(
     text: String,
     source: ProxyServerImportSource,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
     updateAppState: ((AppState) -> AppState) -> Unit,
     tipNotifier: AndroidToastTipNotifier,
     messages: ProxyServerListMessages,
@@ -347,17 +280,10 @@ private suspend fun importProxyServers(
     val importResult = importProxyServersFromText(
         text = text,
         source = source,
-        providerUrlFetcher = { providerUrl ->
-            subscriptionFetcher.fetch(
-                url = providerUrl,
-                userAgent = "",
-                options = AndroidSubscriptionFetchOptions(),
-            )
-        },
     )
     if (importResult.servers.isNotEmpty()) {
         updateAppState { state ->
-            state.withImportedProxyServers(importResult, DefaultSubscriptionGroupId)
+            state.withImportedProxyServers(importResult, 0)
         }
     }
     tipNotifier.show(
@@ -374,12 +300,10 @@ private fun handleProxyServerListToolAction(
     proxyListState: ProxyServerListState,
     stateStore: AndroidAppStateStore,
     updateAppState: ((AppState) -> AppState) -> Unit,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
     proxyServiceUseCase: ProxyServiceUseCase,
     clipboard: Clipboard,
     tipNotifier: AndroidToastTipNotifier,
     scope: CoroutineScope,
-    backgroundScope: CoroutineScope,
     messages: ProxyServerListMessages,
     serviceOperationInProgress: Boolean,
     runProxyServiceOperation: (suspend () -> Unit) -> Unit,
@@ -440,17 +364,6 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.SetSortLatency -> {
             updateAppState { state -> state.copy(proxyServerListSort = ProxyServerListSortLatency) }
-        }
-
-        ProxyServerListToolAction.UpdateSubscriptions -> {
-            updateSubscriptionGroups(
-                stateStore = stateStore,
-                updateAppState = updateAppState,
-                subscriptionFetcher = subscriptionFetcher,
-                tipNotifier = tipNotifier,
-                backgroundScope = backgroundScope,
-                messages = messages,
-            )
         }
 
         ProxyServerListToolAction.CopyAllUrls -> {
@@ -540,43 +453,6 @@ private fun restartSelectedProxyService(
                 tipNotifier.showError(result.error, messages.serviceStopped)
             }
         }
-    }
-}
-
-private fun updateSubscriptionGroups(
-    stateStore: AndroidAppStateStore,
-    updateAppState: ((AppState) -> AppState) -> Unit,
-    subscriptionFetcher: AndroidSubscriptionFetcher,
-    tipNotifier: AndroidToastTipNotifier,
-    backgroundScope: CoroutineScope,
-    messages: ProxyServerListMessages,
-) {
-    val subscriptionGroups = stateStore.state.value.subscriptionGroups.updatableSubscriptionGroups()
-    backgroundScope.launch {
-        if (subscriptionGroups.isEmpty()) {
-            tipNotifier.show(messages.noSubscriptionUpdates)
-            return@launch
-        }
-        val result = updateSubscriptions(
-            groups = subscriptionGroups,
-            subscriptionFetcher = subscriptionFetcher,
-            fetchOptions = { group -> stateStore.state.value.toSubscriptionFetchOptions(group) },
-        )
-        if (result.updates.isNotEmpty()) {
-            updateAppState { state ->
-                state.withUpdatedSubscriptionServers(
-                    updates = result.updates,
-                    updatedAtMillis = result.updatedAtMillis,
-                )
-            }
-        }
-        tipNotifier.show(
-            subscriptionUpdateMessage(
-                result = result,
-                successTemplate = messages.subscriptionUpdateResultTemplate,
-                failedTemplate = messages.subscriptionUpdateResultWithFailedTemplate,
-            ),
-        )
     }
 }
 

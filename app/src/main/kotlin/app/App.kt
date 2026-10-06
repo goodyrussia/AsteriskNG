@@ -69,7 +69,6 @@ fun App(
             fileCreator = logFileCreator,
         )
     }
-    val subscriptionFetcher = remember(application) { application.subscriptionFetcher }
     val qrScanner = remember(qrCodeScanner) { qrCodeScanner }
     val proxyServerImportFileUseCase = remember(appContext, filePicker) {
         ProxyServerImportFileUseCase(
@@ -119,7 +118,6 @@ fun App(
         packageCatalog,
         networkInterfaces,
         appBackupUseCase,
-        subscriptionFetcher,
         qrScanner,
         proxyServerImportFileUseCase,
         proxyLatencyTester,
@@ -138,7 +136,6 @@ fun App(
             packageCatalog = packageCatalog,
             networkInterfaces = networkInterfaces,
             appBackupUseCase = appBackupUseCase,
-            subscriptionFetcher = subscriptionFetcher,
             qrScanner = qrScanner,
             proxyServerImportFileUseCase = proxyServerImportFileUseCase,
             proxyLatencyTester = proxyLatencyTester,

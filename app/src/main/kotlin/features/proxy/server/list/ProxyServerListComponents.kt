@@ -717,10 +717,6 @@ private fun proxyServerListToolMenuEntries(
         ProxyServerListToolAction.RestartService,
     ),
     proxyServerListToolMenuEntry(
-        stringResource(R.string.proxy_server_list_update_subscriptions),
-        ProxyServerListToolAction.UpdateSubscriptions,
-    ),
-    proxyServerListToolMenuEntry(
         stringResource(R.string.proxy_server_list_latency_test),
         ProxyServerListToolAction.TestLatency,
     ),

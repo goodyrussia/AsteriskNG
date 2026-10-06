@@ -5,7 +5,6 @@ package features.proxy.server.usecase
 
 import app.AppState
 import app.ProxyServerState
-import app.SubscriptionGroupState
 import features.proxy.server.list.ProxyServerListAddAction
 import features.proxy.server.model.HTTP
 import features.proxy.server.model.Hysteria2
@@ -17,50 +16,6 @@ import features.proxy.server.model.VLESS
 import features.proxy.server.model.VMess
 import features.proxy.server.model.Wireguard
 import features.proxy.server.model.getUrlOrNull
-
-internal data class ProxyServerListSubscriptionUpdate(
-    val groupId: Int,
-    val sourceIdentity: SubscriptionGroupFetchIdentity,
-    val urlCount: Int,
-    val servers: List<ProxyServer<*>>,
-)
-
-internal data class SubscriptionGroupFetchIdentity(
-    val url: String,
-    val userAgent: String,
-    val updateInterval: String,
-    val hwid: String,
-    val ageSecretKey: String,
-    val updateViaProxy: Boolean,
-    val enabled: Boolean,
-)
-
-internal fun SubscriptionGroupState.subscriptionFetchIdentity(): SubscriptionGroupFetchIdentity {
-    return SubscriptionGroupFetchIdentity(
-        url = url,
-        userAgent = userAgent,
-        updateInterval = updateInterval,
-        hwid = hwid,
-        ageSecretKey = ageSecretKey,
-        updateViaProxy = updateViaProxy,
-        enabled = enabled,
-    )
-}
-
-internal data class ProxyServerListSubscriptionFailure(
-    val groupId: Int,
-    val error: Throwable,
-)
-
-internal data class ProxyServerListSubscriptionUpdateResult(
-    val updates: List<ProxyServerListSubscriptionUpdate>,
-    val failures: List<ProxyServerListSubscriptionFailure>,
-    val updatedAtMillis: Long,
-) {
-    val updatedGroupCount: Int = updates.size
-    val failedGroupCount: Int = failures.size
-    val importedServerCount: Int = updates.sumOf { update -> update.servers.size }
-}
 
 internal data class ProxyServerListDuplicateDeleteResult(
     val servers: List<ProxyServerState>,
@@ -136,59 +91,6 @@ internal fun AppState.withSavedProxyServer(
         existingGroupId = existingGroupId,
         wasExisting = wasExisting,
     )
-}
-
-internal fun AppState.withUpdatedSubscriptionServers(
-    updates: List<ProxyServerListSubscriptionUpdate>,
-    updatedAtMillis: Long,
-): AppState {
-    val applicableUpdates = updates.filter { update ->
-        subscriptionGroups.any { group ->
-            group.id == update.groupId &&
-                group.subscriptionFetchIdentity() == update.sourceIdentity
-        }
-    }
-    if (applicableUpdates.isEmpty()) {
-        return this
-    }
-    val updatedGroupIds = applicableUpdates.map { update -> update.groupId }.toSet()
-    var nextServerId = nextProxyServerId
-    val importedServers = applicableUpdates.flatMap { update ->
-        update.servers.map { server ->
-            ProxyServerState(
-                id = nextServerId++,
-                groupId = update.groupId,
-                server = server,
-            )
-        }
-    }
-    val nextServers = importedServers + proxyServers.filterNot { server ->
-        server.groupId in updatedGroupIds
-    }
-    val selectedServerId = when {
-        nextServers.any { server -> server.id == selectedProxyServerId } -> selectedProxyServerId
-        else -> proxyServers.firstOrNull { server -> server.groupId !in updatedGroupIds }?.id
-            ?: nextServers.firstOrNull()?.id
-            ?: selectedProxyServerId
-    }
-    return copy(
-        subscriptionGroups = subscriptionGroups.map { group ->
-            if (group.id in updatedGroupIds) {
-                group.copy(lastUpdatedAtMillis = updatedAtMillis)
-            } else {
-                group
-            }
-        },
-        proxyServers = nextServers,
-        nextProxyServerId = maxOf(nextProxyServerId, nextServerId),
-        selectedProxyServerId = selectedServerId,
-    )
-}
-
-internal fun List<SubscriptionGroupState>.updatableSubscriptionGroups(): List<SubscriptionGroupState> {
-    return filter { group ->
-        group.enabled && group.url.isNotBlank()
-    }
 }
 
 internal fun List<ProxyServerState>.deleteDuplicateServersInGroup(

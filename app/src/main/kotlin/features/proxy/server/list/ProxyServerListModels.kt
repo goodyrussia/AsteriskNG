@@ -21,7 +21,6 @@ internal enum class ProxyServerListToolAction {
     RestartService,
     TestLatency,
     TestRealConnection,
-    UpdateSubscriptions,
     SetLayoutSingle,
     SetLayoutDouble,
     SetLayoutMultiple,

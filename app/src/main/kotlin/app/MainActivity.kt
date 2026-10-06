@@ -20,17 +20,9 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.core.view.WindowCompat
 import com.journeyapps.barcodescanner.ScanContract
-import data.AndroidAppStateStore
 import engine.vpn.AndroidVpnPermissionRequester
 import features.logs.AndroidLogFileCreator
 import features.proxy.server.qr.AndroidQrCodeScanRequester
-import features.subscription.SubscriptionInstallConfigUseCase
-import features.subscription.isSubscriptionInstallConfigUri
-import features.subscription.runtime.AndroidSubscriptionFetcher
-import features.subscription.subscriptionInstallMessage
-import features.subscription.toSubscriptionInstallConfigOrNull
-import kotlinx.coroutines.launch
-import ui.feedback.AndroidToastTipNotifier
 
 class MainActivity : ComponentActivity() {
     private val vpnPermissionRequester = AndroidVpnPermissionRequester {
@@ -60,15 +52,6 @@ class MainActivity : ComponentActivity() {
             appString(R.string.error_log_export_launcher_missing)
         },
     )
-    private val tipNotifier by lazy { AndroidToastTipNotifier(this) }
-
-    private val subscriptionInstallConfigUseCase by lazy {
-        SubscriptionInstallConfigUseCase(
-            stateStore = AndroidAppStateStore.get(this),
-            subscriptionFetcher = AndroidSubscriptionFetcher(this),
-        )
-    }
-
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) {}
@@ -124,15 +107,11 @@ class MainActivity : ComponentActivity() {
         }
         showAppContent()
         requestStartupPermissions()
-        if (savedInstanceState == null) {
-            handleExternalIntent(intent)
-        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleExternalIntent(intent)
     }
 
     override fun onDestroy() {
@@ -173,31 +152,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun handleExternalIntent(intent: Intent?) {
-        val data = intent?.data ?: return
-        if (!data.isSubscriptionInstallConfigUri()) return
-        val config = intent.toSubscriptionInstallConfigOrNull()
-        if (config == null) {
-            (application as AsteriskApplication).appScope.launch {
-                tipNotifier.show(appString(R.string.subscription_install_config_invalid))
-            }
-            return
-        }
-        (application as AsteriskApplication).appScope.launch {
-            runCatching {
-                subscriptionInstallConfigUseCase.install(config)
-            }.onSuccess { result ->
-                tipNotifier.show(
-                    subscriptionInstallMessage(
-                        result = result,
-                        existingUrlTemplate = appString(R.string.subscription_install_existing_url),
-                        successTemplate = appString(R.string.proxy_server_list_subscription_update_result),
-                        failedTemplate = appString(R.string.proxy_server_list_subscription_update_result_with_failed),
-                    ),
-                )
-            }.onFailure { error ->
-                tipNotifier.showError(error, appString(R.string.subscription_install_config_failed))
-            }
-        }
-    }
 }
