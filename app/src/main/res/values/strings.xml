@@ -517,11 +517,6 @@
     <string name="settings_service_control_wifi">Wi-Fi control</string>
     <string name="settings_service_control_wifi_enable">Enable Wi-Fi control</string>
 
-    <!-- Broadcast control -->
-    <string name="broadcast_update_notification_title">Updating subscriptions and resources</string>
-    <string name="settings_broadcast_control">Broadcast control</string>
-    <string name="settings_broadcast_control_summary">Allow external broadcasts to control app services</string>
-
     <!-- Statistics notifications -->
     <string name="proxy_traffic_stats_notification_channel">Proxy traffic statistics</string>
     <string name="proxy_traffic_stats_notification_speed">Speed: ↑ %1$s / ↓ %2$s</string>

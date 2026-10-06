@@ -171,7 +171,7 @@ internal class ResourceFileUpdateCoordinator(
         true
     }
 
-    // Broadcast updates wait for UI work rather than silently dropping a busy All request.
+    // Update requests wait for UI work rather than silently dropping a busy All request.
     suspend fun enqueueAndAwait(
         request: ResourceFileUpdateRequest,
         isStillValid: () -> Boolean = { true },
