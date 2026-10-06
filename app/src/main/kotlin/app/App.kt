@@ -165,7 +165,7 @@ fun App(
         rootBootScriptUseCase = rootBootScriptUseCase,
     )
 
-    AppTheme(keyColor = null) {
+    AppTheme {
         CompositionLocalProvider(
             LocalAppStateStore provides stateStore,
             LocalUpdateAppState provides updateAppState,

@@ -77,7 +77,7 @@ data class AppState(
     val bpf2SocksBridgePort: String = RootModeEngine.DefaultBpf2SocksBridgePort.toString(),
     val socks5ProxyPort: String = RootModeEngine.DefaultTun2SocksProxyPort.toString(),
 
-    val externalInterfaces: List<String> = emptyList(),
+    val externalInterfaces: List<String> = listOf("wlan+", "ap+", "softap+"),
 
     val proxyAppListMode: Int = ProxyAppListModeGlobal,
     val proxyAppListSelectedApps: List<String> = emptyList(),
