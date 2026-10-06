@@ -5,19 +5,15 @@ package features.proxy.server.list
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
@@ -34,7 +30,6 @@ import engine.proxy.latency.ProxyServerLatencyTestMode
 import features.proxy.server.usecase.ProxyServiceResult
 import features.proxy.server.usecase.restartProxyServiceAfterSelection
 import features.proxy.server.usecase.runProxyServerLatencyTest
-import features.subscription.DefaultSubscriptionGroupId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -73,27 +68,12 @@ fun ProxyServerListPage(
     val serviceRestartMutex = remember { Mutex() }
 
     var searchValue by rememberSaveable { mutableStateOf("") }
-    // Derive the initial selectedGroupId from the persisted selectedProxyServerId
-    // so the tab starts on the correct group after process death. rememberSaveable
-    // cannot survive process kill, so we compute the initial value from proxyListState
-    // (synchronously loaded from persistent storage) instead of defaulting to
-    // DefaultSubscriptionGroupId.
-    val initialSelectedGroupId = remember {
-        proxyListState.proxyServers
-            .firstOrNull { it.id == proxyListState.selectedProxyServerId }
-            ?.groupId
-            ?: DefaultSubscriptionGroupId
-    }
-    var selectedGroupId by rememberSaveable { mutableIntStateOf(initialSelectedGroupId) }
     var serviceOperationInProgress by rememberSaveable { mutableStateOf(false) }
     var pendingProxyServerDeletion by remember { mutableStateOf<ProxyServerState?>(null) }
     val servers = proxyListState.proxyServers
     var selectedServerId by rememberSaveable { mutableIntStateOf(proxyListState.selectedProxyServerId) }
     val selectedServer = servers.firstOrNull { server -> server.id == selectedServerId }
     val proxyRunning = proxyListState.proxyRunning
-    val allGroupName = stringResource(R.string.proxy_server_list_all)
-    val defaultGroupName = stringResource(R.string.subscription_default_group)
-    val unknownGroupName = stringResource(R.string.common_unknown_group)
     val messages = proxyServerListMessages()
     val columns = proxyListState.proxyServerListLayout.resolvedProxyServerListColumns()
 
@@ -239,55 +219,9 @@ fun ProxyServerListPage(
         messages = messages,
         updateAppState = updateAppState,
         tipNotifier = tipNotifier,
-        onSelectedGroupIdChange = { selectedGroupId = it },
     )
 
-    val groupState = proxyServerListGroups(
-        state = proxyListState,
-        selectedGroupId = selectedGroupId,
-        searchValue = searchValue,
-        allGroupName = allGroupName,
-        defaultGroupName = defaultGroupName,
-    )
     val itemTextFormatter = rememberProxyServerListItemTextFormatter()
-    val groupTabIds = groupState.groupTabs.map { group -> group.id }
-    val groupPagerState = key(groupTabIds) {
-        rememberPagerState(
-            initialPage = groupState.selectedTabIndex,
-            pageCount = { groupTabIds.size.coerceAtLeast(1) },
-        )
-    }
-    val groupPagerOffsetFraction by remember(groupPagerState) {
-        derivedStateOf { groupPagerState.currentPageOffsetFraction }
-    }
-
-    LaunchedEffect(groupTabIds) {
-        val lastIndex = groupTabIds.lastIndex
-        if (lastIndex >= 0 && groupPagerState.currentPage > lastIndex) {
-            groupPagerState.scrollToPage(lastIndex)
-        }
-    }
-
-    LaunchedEffect(groupState.selectedTabIndex, groupTabIds) {
-        if (
-            groupTabIds.isNotEmpty() &&
-            !groupPagerState.isScrollInProgress &&
-            groupPagerState.currentPage != groupState.selectedTabIndex
-        ) {
-            groupPagerState.animateScrollToPage(groupState.selectedTabIndex)
-        }
-    }
-
-    LaunchedEffect(groupPagerState, groupTabIds) {
-        snapshotFlow { groupPagerState.targetPage }
-            .collect { page ->
-                groupState.groupTabs.getOrNull(page)?.let { group ->
-                    if (selectedGroupId != group.id) {
-                        selectedGroupId = group.id
-                    }
-                }
-            }
-    }
 
     Scaffold(
         topBar = {
@@ -296,9 +230,6 @@ fun ProxyServerListPage(
                 scrollBehavior = topAppBarScrollBehavior,
                 searchValue = searchValue,
                 onSearchValueChange = { searchValue = it },
-                groupState = groupState,
-                groupPagerPage = groupPagerState.currentPage,
-                groupPagerOffsetFraction = groupPagerOffsetFraction,
                 selectedServer = selectedServer,
                 proxyListState = proxyListState,
                 stateStore = stateStore,
@@ -316,7 +247,6 @@ fun ProxyServerListPage(
                 resultKey = ProxyServerEditResultKey,
                 serviceOperationInProgress = serviceOperationInProgress,
                 runProxyServiceOperation = ::runProxyServiceOperation,
-                onSelectedGroupIdChange = { selectedGroupId = it },
                 onTestProxyServerLatency = ::testProxyServerLatency,
             )
         },
@@ -335,14 +265,11 @@ fun ProxyServerListPage(
 
         Box {
             ProxyServerListPager(
-                groupPagerState = groupPagerState,
-                groupState = groupState,
                 searchValue = searchValue,
                 servers = servers,
                 selectedServerId = selectedServerId,
                 columns = columns,
                 sort = proxyListState.proxyServerListSort,
-                unknownGroupName = unknownGroupName,
                 itemTextFormatter = itemTextFormatter,
                 topAppBarScrollBehavior = topAppBarScrollBehavior,
                 listPadding = listPadding,

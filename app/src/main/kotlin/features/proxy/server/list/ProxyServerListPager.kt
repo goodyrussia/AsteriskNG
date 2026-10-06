@@ -20,8 +20,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,14 +65,11 @@ import ui.layout.pageScrollModifiers
 
 @Composable
 internal fun ProxyServerListPager(
-    groupPagerState: PagerState,
-    groupState: ProxyServerListGroups,
     searchValue: String,
     servers: List<ProxyServerState>,
     selectedServerId: Int,
     columns: Int,
     sort: Int,
-    unknownGroupName: String,
     itemTextFormatter: ProxyServerListItemTextFormatter,
     topAppBarScrollBehavior: ScrollBehavior,
     listPadding: PaddingValues,
@@ -102,68 +97,46 @@ internal fun ProxyServerListPager(
         )
     }
 
-    HorizontalPager(
-        state = groupPagerState,
-        modifier = Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.Top,
-    ) {
-        val pageGroupId = groupState.groupTabs.getOrNull(it)?.id ?: groupState.selectedTabId
-        val pageIsAllGroupsSelected = pageGroupId == AllProxyGroupId
-        val keyword = searchValue.trim()
-        val pageServers = servers.filterPageServers(
-            pageGroupId = pageGroupId,
-            pageIsAllGroupsSelected = pageIsAllGroupsSelected,
-            visibleGroupIds = groupState.visibleGroupIds,
-            keyword = keyword,
-        ).sortedForProxyServerList(sort)
-        val reorderEnabled = columns == 1 && sort == ProxyServerListSortDefault
+    val listServers = servers.filteredForProxyServerList(searchValue).sortedForProxyServerList(sort)
+    val reorderEnabled = columns == 1 && sort == ProxyServerListSortDefault
 
-        Box(Modifier.fillMaxSize()) {
-            ProxyServerLazyGrid(
-                pageServers = pageServers,
-                selectedServerId = selectedServerId,
-                columns = columns,
-                reorderEnabled = reorderEnabled,
-                pageIsAllGroupsSelected = pageIsAllGroupsSelected,
-                pageGroupId = pageGroupId,
-                unknownGroupName = unknownGroupName,
-                itemTextFormatter = itemTextFormatter,
-                groupState = groupState,
-                topAppBarScrollBehavior = topAppBarScrollBehavior,
-                listPadding = listPadding,
-                dragScrollThresholdBottomPadding = dragScrollThresholdBottomPadding,
-                contentPadding = contentPadding,
-                stateStore = stateStore,
-                updateAppState = updateAppState,
-                navigator = navigator,
-                clipboard = clipboard,
-                context = context,
-                tipNotifier = tipNotifier,
-                scope = scope,
-                messages = messages,
-                resultKey = resultKey,
-                onSelectedServerIdChange = onSelectedServerIdChange,
-                onDeleteServer = onDeleteServer,
-                onShowQrCode = { title, text ->
-                    qrCodeDialogState = ProxyServerQrCodeDialogState(title, text)
-                },
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+    Box(Modifier.fillMaxSize()) {
+        ProxyServerLazyGrid(
+            servers = listServers,
+            selectedServerId = selectedServerId,
+            columns = columns,
+            reorderEnabled = reorderEnabled,
+            itemTextFormatter = itemTextFormatter,
+            topAppBarScrollBehavior = topAppBarScrollBehavior,
+            listPadding = listPadding,
+            dragScrollThresholdBottomPadding = dragScrollThresholdBottomPadding,
+            contentPadding = contentPadding,
+            stateStore = stateStore,
+            updateAppState = updateAppState,
+            navigator = navigator,
+            clipboard = clipboard,
+            context = context,
+            tipNotifier = tipNotifier,
+            scope = scope,
+            messages = messages,
+            resultKey = resultKey,
+            onSelectedServerIdChange = onSelectedServerIdChange,
+            onDeleteServer = onDeleteServer,
+            onShowQrCode = { title, text ->
+                qrCodeDialogState = ProxyServerQrCodeDialogState(title, text)
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
 @Composable
 private fun ProxyServerLazyGrid(
-    pageServers: List<ProxyServerState>,
+    servers: List<ProxyServerState>,
     selectedServerId: Int,
     columns: Int,
     reorderEnabled: Boolean,
-    pageIsAllGroupsSelected: Boolean,
-    pageGroupId: Int,
-    unknownGroupName: String,
     itemTextFormatter: ProxyServerListItemTextFormatter,
-    groupState: ProxyServerListGroups,
     topAppBarScrollBehavior: ScrollBehavior,
     listPadding: PaddingValues,
     dragScrollThresholdBottomPadding: Dp,
@@ -192,7 +165,7 @@ private fun ProxyServerLazyGrid(
         end = listPadding.calculateEndPadding(layoutDirection) + gridHorizontalExtra,
         bottom = listPadding.calculateBottomPadding(),
     )
-    val preview = rememberReorderPreview(pageServers, ProxyServerState::id, enabled = reorderEnabled) { ids ->
+    val preview = rememberReorderPreview(servers, ProxyServerState::id, enabled = reorderEnabled) { ids ->
         updateAppState { state ->
             state.copy(proxyServers = state.proxyServers.reorderByIds(ids, ProxyServerState::id, allowSubset = true))
         }
@@ -200,7 +173,7 @@ private fun ProxyServerLazyGrid(
     }
     val reorderableLazyGridState = rememberAsteriskReorderableLazyGridState(
         lazyGridState = gridState,
-        itemCount = pageServers.size,
+        itemCount = servers.size,
         scrollThresholdPadding = rememberReorderableScrollThresholdPadding(
             bottom = dragScrollThresholdBottomPadding,
         ),
@@ -218,7 +191,7 @@ private fun ProxyServerLazyGrid(
             verticalArrangement = Arrangement.spacedBy(gridItemSpacing),
             horizontalArrangement = Arrangement.spacedBy(gridItemSpacing),
         ) {
-            if (pageServers.isEmpty()) {
+            if (servers.isEmpty()) {
                 item(
                     key = "proxy_empty",
                     span = { GridItemSpan(maxLineSpan) },
@@ -246,11 +219,7 @@ private fun ProxyServerLazyGrid(
                         ProxyServerListItem(
                             server = server,
                             selectedServerId = selectedServerId,
-                            pageIsAllGroupsSelected = pageIsAllGroupsSelected,
-                            pageGroupId = pageGroupId,
-                            unknownGroupName = unknownGroupName,
                             itemTextFormatter = itemTextFormatter,
-                            groupState = groupState,
                             stateStore = stateStore,
                             updateAppState = updateAppState,
                             navigator = navigator,
@@ -267,7 +236,7 @@ private fun ProxyServerLazyGrid(
                             isDragging = isDragging && reorderEnabled,
                             dragModifier = Modifier.longPressReorderDragHandle(
                                 scope = this,
-                                enabled = reorderEnabled && pageServers.size > 1,
+                                enabled = reorderEnabled && servers.size > 1,
                                 state = reorderableLazyGridState,
                                 onDragStarted = preview.onDragStarted,
                                 onDragStopped = preview.onDragStopped,
@@ -290,11 +259,7 @@ private fun ProxyServerLazyGrid(
 private fun ProxyServerListItem(
     server: ProxyServerState,
     selectedServerId: Int,
-    pageIsAllGroupsSelected: Boolean,
-    pageGroupId: Int,
-    unknownGroupName: String,
     itemTextFormatter: ProxyServerListItemTextFormatter,
-    groupState: ProxyServerListGroups,
     stateStore: AndroidAppStateStore,
     updateAppState: ((AppState) -> AppState) -> Unit,
     navigator: Navigator,
@@ -333,11 +298,6 @@ private fun ProxyServerListItem(
         displayText = displayText,
         selected = selectedServerId == server.id,
         modifier = modifier,
-        groupName = if (pageIsAllGroupsSelected) {
-            groupState.groupNames[server.groupId] ?: unknownGroupName
-        } else {
-            null
-        },
         compact = compact,
         isDragging = isDragging,
         dragModifier = dragModifier,
@@ -397,7 +357,6 @@ private fun ProxyServerListItem(
                     ps = server.server,
                     serverId = server.id,
                     groupId = server.groupId,
-                    returnGroupId = pageGroupId,
                     resultKey = resultKey,
                 ),
                 requestKey = resultKey,
@@ -413,24 +372,5 @@ private data class ProxyServerQrCodeDialogState(
     val title: String,
     val text: String,
 )
-
-private fun List<ProxyServerState>.filterPageServers(
-    pageGroupId: Int,
-    pageIsAllGroupsSelected: Boolean,
-    visibleGroupIds: Set<Int>,
-    keyword: String,
-): List<ProxyServerState> {
-    return filter { server ->
-        val groupMatches = if (pageIsAllGroupsSelected) {
-            server.groupId in visibleGroupIds
-        } else {
-            server.groupId == pageGroupId
-        }
-        groupMatches && (
-            keyword.isEmpty() ||
-                server.server.getInfo().remarks.contains(keyword, ignoreCase = true)
-            )
-    }
-}
 
 private val ProxyServerListGridSpacing = 12.dp

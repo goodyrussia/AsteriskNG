@@ -3,7 +3,6 @@
 
 package features.proxy.server.list
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,9 +64,6 @@ internal fun ProxyServerListTopBar(
     scrollBehavior: ScrollBehavior,
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
-    groupState: ProxyServerListGroups,
-    groupPagerPage: Int,
-    groupPagerOffsetFraction: Float,
     selectedServer: ProxyServerState?,
     proxyListState: ProxyServerListState,
     stateStore: AndroidAppStateStore,
@@ -85,7 +81,6 @@ internal fun ProxyServerListTopBar(
     resultKey: String,
     serviceOperationInProgress: Boolean,
     runProxyServiceOperation: (suspend () -> Unit) -> Unit,
-    onSelectedGroupIdChange: (Int) -> Unit,
     onTestProxyServerLatency: (List<ProxyServerState>, ProxyServerLatencyTestMode, String, Boolean) -> Unit,
 ) {
     var pendingDeletionAction by remember { mutableStateOf<ProxyServerListToolAction?>(null) }
@@ -93,7 +88,7 @@ internal fun ProxyServerListTopBar(
     fun executeToolAction(action: ProxyServerListToolAction) {
         handleProxyServerListToolAction(
             action = action,
-            groupState = groupState,
+            searchValue = searchValue,
             selectedServer = selectedServer,
             proxyListState = proxyListState,
             stateStore = stateStore,
@@ -127,7 +122,6 @@ internal fun ProxyServerListTopBar(
             ProxyServerListAddMenu { action ->
                 handleProxyServerListAddAction(
                     action = action,
-                    groupState = groupState,
                     proxyListState = proxyListState,
                     stateStore = stateStore,
                     updateAppState = updateAppState,
@@ -149,25 +143,13 @@ internal fun ProxyServerListTopBar(
             ) { action -> requestToolAction(action) }
         },
         bottomContent = {
-            Column {
-                ProxyServerListSearchBar(
-                    searchValue = searchValue,
-                    onSearchValueChange = onSearchValueChange,
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .padding(bottom = 12.dp),
-                )
-                if (groupState.showGroupTabs) {
-                    ProxyServerListGroupTabs(
-                        groups = groupState.groupTabs,
-                        selectedGroupId = groupState.selectedTabId,
-                        pagerPage = groupPagerPage,
-                        pagerOffsetFraction = groupPagerOffsetFraction,
-                        onGroupSelected = onSelectedGroupIdChange,
-                        modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                }
-            }
+            ProxyServerListSearchBar(
+                searchValue = searchValue,
+                onSearchValueChange = onSearchValueChange,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
+            )
         },
     )
 
@@ -204,7 +186,6 @@ private val ProxyServerListToolAction.deletionConfirmationTitleResId: Int
 
 private fun handleProxyServerListAddAction(
     action: ProxyServerListAddAction,
-    groupState: ProxyServerListGroups,
     proxyListState: ProxyServerListState,
     stateStore: AndroidAppStateStore,
     updateAppState: ((AppState) -> AppState) -> Unit,
@@ -228,7 +209,6 @@ private fun handleProxyServerListAddAction(
                         importProxyServersInBackground(
                             text = scanText,
                             source = ProxyServerImportSource.QrCode,
-                            groupState = groupState,
                             stateStore = stateStore,
                             subscriptionFetcher = subscriptionFetcher,
                             updateAppState = updateAppState,
@@ -247,7 +227,6 @@ private fun handleProxyServerListAddAction(
                 importProxyServersInBackground(
                     text = text,
                     source = ProxyServerImportSource.Clipboard,
-                    groupState = groupState,
                     stateStore = stateStore,
                     subscriptionFetcher = subscriptionFetcher,
                     updateAppState = updateAppState,
@@ -266,7 +245,6 @@ private fun handleProxyServerListAddAction(
                             importProxyServersInBackground(
                                 text = it,
                                 source = ProxyServerImportSource.File,
-                                groupState = groupState,
                                 stateStore = stateStore,
                                 subscriptionFetcher = subscriptionFetcher,
                                 updateAppState = updateAppState,
@@ -286,12 +264,7 @@ private fun handleProxyServerListAddAction(
                 route = Route.ProxyServerEditor(
                     ps = createProxyServer(action),
                     serverId = serverId,
-                    groupId = if (groupState.isAllGroupsSelected) {
-                        DefaultSubscriptionGroupId
-                    } else {
-                        groupState.selectedGroup.id
-                    },
-                    returnGroupId = groupState.selectedTabId,
+                    groupId = DefaultSubscriptionGroupId,
                     resultKey = resultKey,
                 ),
                 requestKey = resultKey,
@@ -303,7 +276,6 @@ private fun handleProxyServerListAddAction(
 private fun importProxyServersInBackground(
     text: String,
     source: ProxyServerImportSource,
-    groupState: ProxyServerListGroups,
     stateStore: AndroidAppStateStore,
     subscriptionFetcher: AndroidSubscriptionFetcher,
     updateAppState: ((AppState) -> AppState) -> Unit,
@@ -327,7 +299,6 @@ private fun importProxyServersInBackground(
             importProxyServers(
                 text = text,
                 source = source,
-                groupState = groupState,
                 subscriptionFetcher = subscriptionFetcher,
                 updateAppState = updateAppState,
                 tipNotifier = tipNotifier,
@@ -368,17 +339,11 @@ private suspend fun installSubscriptionFromText(
 private suspend fun importProxyServers(
     text: String,
     source: ProxyServerImportSource,
-    groupState: ProxyServerListGroups,
     subscriptionFetcher: AndroidSubscriptionFetcher,
     updateAppState: ((AppState) -> AppState) -> Unit,
     tipNotifier: AndroidToastTipNotifier,
     messages: ProxyServerListMessages,
 ) {
-    val targetGroupId = if (groupState.isAllGroupsSelected) {
-        DefaultSubscriptionGroupId
-    } else {
-        groupState.selectedGroup.id
-    }
     val importResult = importProxyServersFromText(
         text = text,
         source = source,
@@ -391,7 +356,9 @@ private suspend fun importProxyServers(
         },
     )
     if (importResult.servers.isNotEmpty()) {
-        updateAppState { state -> state.withImportedProxyServers(importResult, targetGroupId) }
+        updateAppState { state ->
+            state.withImportedProxyServers(importResult, DefaultSubscriptionGroupId)
+        }
     }
     tipNotifier.show(
         messages.importResultTemplate.formatTemplate(
@@ -402,7 +369,7 @@ private suspend fun importProxyServers(
 
 private fun handleProxyServerListToolAction(
     action: ProxyServerListToolAction,
-    groupState: ProxyServerListGroups,
+    searchValue: String,
     selectedServer: ProxyServerState?,
     proxyListState: ProxyServerListState,
     stateStore: AndroidAppStateStore,
@@ -418,6 +385,7 @@ private fun handleProxyServerListToolAction(
     runProxyServiceOperation: (suspend () -> Unit) -> Unit,
     onTestProxyServerLatency: (List<ProxyServerState>, ProxyServerLatencyTestMode, String, Boolean) -> Unit,
 ) {
+    val currentFilteredServers = proxyListState.proxyServers.filteredForProxyServerList(searchValue)
     when (action) {
         ProxyServerListToolAction.RestartService -> {
             restartSelectedProxyService(
@@ -434,7 +402,7 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.TestLatency -> {
             onTestProxyServerLatency(
-                groupState.currentFilteredServers,
+                currentFilteredServers,
                 ProxyServerLatencyTestMode.TcpConnect,
                 messages.latencyDoneTemplate,
                 false,
@@ -443,7 +411,7 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.TestRealConnection -> {
             onTestProxyServerLatency(
-                groupState.currentFilteredServers,
+                currentFilteredServers,
                 ProxyServerLatencyTestMode.RealConnection,
                 messages.realConnectionDoneTemplate,
                 false,
@@ -476,7 +444,6 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.UpdateSubscriptions -> {
             updateSubscriptionGroups(
-                proxyListState = proxyListState,
                 stateStore = stateStore,
                 updateAppState = updateAppState,
                 subscriptionFetcher = subscriptionFetcher,
@@ -487,8 +454,8 @@ private fun handleProxyServerListToolAction(
         }
 
         ProxyServerListToolAction.CopyAllUrls -> {
-            copyCurrentGroupUrls(
-                servers = groupState.currentGroupServers,
+            copyAllServerUrls(
+                servers = proxyListState.proxyServers,
                 clipboard = clipboard,
                 tipNotifier = tipNotifier,
                 scope = scope,
@@ -498,7 +465,7 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.DeleteDuplicateServers -> {
             deleteDuplicateServers(
-                servers = groupState.currentGroupServers,
+                servers = proxyListState.proxyServers,
                 updateAppState = updateAppState,
                 tipNotifier = tipNotifier,
                 scope = scope,
@@ -508,7 +475,7 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.DeleteInvalidServers -> {
             deleteInvalidServers(
-                servers = groupState.currentGroupServers,
+                servers = proxyListState.proxyServers,
                 stateStore = stateStore,
                 updateAppState = updateAppState,
                 proxyServiceUseCase = proxyServiceUseCase,
@@ -522,11 +489,7 @@ private fun handleProxyServerListToolAction(
 
         ProxyServerListToolAction.DeleteAllServers -> {
             deleteAllServers(
-                servers = if (groupState.isAllGroupsSelected) {
-                    proxyListState.proxyServers
-                } else {
-                    groupState.currentGroupServers
-                },
+                servers = proxyListState.proxyServers,
                 stateStore = stateStore,
                 updateAppState = updateAppState,
                 proxyServiceUseCase = proxyServiceUseCase,
@@ -581,7 +544,6 @@ private fun restartSelectedProxyService(
 }
 
 private fun updateSubscriptionGroups(
-    proxyListState: ProxyServerListState,
     stateStore: AndroidAppStateStore,
     updateAppState: ((AppState) -> AppState) -> Unit,
     subscriptionFetcher: AndroidSubscriptionFetcher,
@@ -589,7 +551,7 @@ private fun updateSubscriptionGroups(
     backgroundScope: CoroutineScope,
     messages: ProxyServerListMessages,
 ) {
-    val subscriptionGroups = proxyListState.subscriptionGroups.updatableSubscriptionGroups()
+    val subscriptionGroups = stateStore.state.value.subscriptionGroups.updatableSubscriptionGroups()
     backgroundScope.launch {
         if (subscriptionGroups.isEmpty()) {
             tipNotifier.show(messages.noSubscriptionUpdates)
@@ -618,7 +580,7 @@ private fun updateSubscriptionGroups(
     }
 }
 
-private fun copyCurrentGroupUrls(
+private fun copyAllServerUrls(
     servers: List<ProxyServerState>,
     clipboard: Clipboard,
     tipNotifier: AndroidToastTipNotifier,

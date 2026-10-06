@@ -23,7 +23,6 @@
     <string name="common_restore">Restore</string>
     <string name="common_save">Save</string>
     <string name="common_share">Share</string>
-    <string name="common_unknown_group">Unknown group</string>
     <string name="common_unsupported">Unsupported</string>
     <string name="common_update">Update</string>
     <string name="deletion_confirmation_summary">This action cannot be undone.</string>
@@ -52,7 +51,6 @@
     <string name="proxy_server_list_add_vless">Add VLESS</string>
     <string name="proxy_server_list_add_vmess">Add VMess</string>
     <string name="proxy_server_list_add_wireguard">Add Wireguard</string>
-    <string name="proxy_server_list_all">All</string>
     <string name="proxy_server_list_all_deleted">Deleted {count} proxy servers</string>
     <string name="proxy_server_list_copy_all_urls">Copy all server URLs</string>
     <string name="proxy_server_list_delete_all">Delete all proxy servers</string>

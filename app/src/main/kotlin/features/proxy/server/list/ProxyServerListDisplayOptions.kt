@@ -17,6 +17,17 @@ internal fun Int.resolvedProxyServerListColumns(): Int {
     }
 }
 
+internal fun List<ProxyServerState>.filteredForProxyServerList(
+    searchValue: String,
+): List<ProxyServerState> {
+    val keyword = searchValue.trim()
+    return if (keyword.isEmpty()) {
+        this
+    } else {
+        filter { server -> server.server.getInfo().remarks.contains(keyword, ignoreCase = true) }
+    }
+}
+
 internal fun List<ProxyServerState>.sortedForProxyServerList(
     sort: Int,
 ): List<ProxyServerState> {

@@ -14,8 +14,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 data class ProxyServerListState(
-    val subscriptionGroups: List<SubscriptionGroupState>,
-    val enableAllProxyGroup: Boolean,
     val enableDeletionConfirmation: Boolean,
     val proxyServers: List<ProxyServerState>,
     val nextProxyServerId: Int,
@@ -63,8 +61,6 @@ fun AndroidAppStateStore.collectProxyServerLatency(
 
 private fun AppState.toProxyServerListState(): ProxyServerListState {
     return ProxyServerListState(
-        subscriptionGroups = subscriptionGroups,
-        enableAllProxyGroup = enableAllProxyGroup,
         enableDeletionConfirmation = enableDeletionConfirmation,
         proxyServers = proxyServers,
         nextProxyServerId = nextProxyServerId,
