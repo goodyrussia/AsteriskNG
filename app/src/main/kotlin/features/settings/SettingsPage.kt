@@ -36,9 +36,7 @@ import engine.proxy.withResolvedDynamicLocalProxyPort
 import features.proxy.server.usecase.ProxyServiceResult
 import features.settings.sheets.externalInterfacesSummary
 import features.settings.sheets.fragmentSettingsSummary
-import features.settings.sheets.ignoredInterfacesSummary
 import features.settings.sheets.muxSettingsSummary
-import features.settings.sheets.privateAddressCidrsSummary
 import features.settings.sheets.tunSettingsSummary
 import features.settings.usecase.RootBootScriptResult
 import features.settings.usecase.RootEbpfProbeResult
@@ -133,8 +131,6 @@ private fun SettingsContent(
         listenAllInterfaces = appState.localProxyListenAllInterfaces,
     )
     val externalInterfacesSummary = externalInterfacesSummary(appState.externalInterfaces)
-    val ignoredInterfacesSummary = ignoredInterfacesSummary(appState.ignoredInterfaces)
-    val privateAddressCidrsSummary = privateAddressCidrsSummary(appState.privateAddressCidrs)
     val tunSettingsSummary = tunSettingsSummary(
         mtu = appState.tunMtu,
         vpnDns = appState.tunVpnDns,
@@ -263,8 +259,6 @@ private fun SettingsContent(
                     enableRootEbpfDirectCidrBypass = appState.enableRootEbpfDirectCidrBypass,
                     enableRootIpv6Disabler = appState.enableRootIpv6Disabler,
                     externalInterfacesSummary = externalInterfacesSummary,
-                    ignoredInterfacesSummary = ignoredInterfacesSummary,
-                    privateAddressCidrsSummary = privateAddressCidrsSummary,
                     onOpenLocalProxySettings = { sheetState.openLocalProxySettings(appState) },
                     onEnableTrafficStatsNotificationChange = { enabled ->
                         updateAppState { state -> state.copy(enableTrafficStatsNotification = enabled) }
@@ -351,8 +345,6 @@ private fun SettingsContent(
                         updateAppState { state -> state.copy(enableRootIpv6Disabler = enabled) }
                     },
                     onOpenExternalInterfaces = { sheetState.openExternalInterfaces(appState) },
-                    onOpenIgnoredInterfaces = { sheetState.openIgnoredInterfaces(appState) },
-                    onOpenPrivateAddresses = { sheetState.openPrivateAddresses(appState) },
                 )
             }
             item(key = "settings_backup_restore") {

@@ -8,8 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import app.AppState
 import features.settings.sheets.sanitizeExternalInterfaces
-import features.settings.sheets.sanitizeIgnoredInterfaceSelectors
-import features.settings.sheets.sanitizePrivateAddressCidrs
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -33,12 +31,6 @@ internal class SettingsSheetState(
 
     var showExternalInterfaces by mutableStateOf(false)
     var externalInterfacesDraft by mutableStateOf(emptyList<String>())
-
-    var showIgnoredInterfaces by mutableStateOf(false)
-    var ignoredInterfacesDraft by mutableStateOf(emptyList<String>())
-
-    var showPrivateAddresses by mutableStateOf(false)
-    var privateAddressCidrsDraft by mutableStateOf(emptyList<String>())
 
     fun openLocalProxySettings(appState: AppState) {
         localProxySettingsDraft = appState.toLocalProxySettingsDraft()
@@ -72,24 +64,6 @@ internal class SettingsSheetState(
             updateAppState { state -> state.copy(externalInterfaces = sanitizedInterfaces) }
         }
         showExternalInterfaces = true
-    }
-
-    fun openIgnoredInterfaces(appState: AppState) {
-        ignoredInterfacesDraft = appState.ignoredInterfaces.sanitizeIgnoredInterfaceSelectors()
-        showIgnoredInterfaces = true
-    }
-
-    fun closeIgnoredInterfaces() {
-        showIgnoredInterfaces = false
-    }
-
-    fun openPrivateAddresses(appState: AppState) {
-        val sanitizedCidrs = appState.privateAddressCidrs.sanitizePrivateAddressCidrs()
-        privateAddressCidrsDraft = sanitizedCidrs
-        if (sanitizedCidrs != appState.privateAddressCidrs) {
-            updateAppState { state -> state.copy(privateAddressCidrs = sanitizedCidrs) }
-        }
-        showPrivateAddresses = true
     }
 }
 

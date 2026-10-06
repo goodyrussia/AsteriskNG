@@ -384,31 +384,10 @@
 
     <!-- Tethering -->
     <string name="settings_external_interfaces">Tethering sharing</string>
-    <string name="settings_external_interfaces_bluetooth">Bluetooth tethering</string>
-    <string name="settings_external_interfaces_ethernet">Ethernet tethering</string>
     <string name="settings_external_interfaces_none">Not enabled</string>
     <string name="settings_external_interfaces_selected">Enabled: {interfaces}</string>
     <string name="settings_external_interfaces_summary">Select which tethering types accept external inbound traffic</string>
-    <string name="settings_external_interfaces_usb">USB tethering</string>
     <string name="settings_external_interfaces_wifi">Wi-Fi hotspot sharing</string>
-
-    <!-- Interface exclusions -->
-    <string name="settings_ignored_interfaces">Ignored interfaces</string>
-    <string name="settings_ignored_interfaces_empty">No ignored interfaces configured</string>
-    <string name="settings_ignored_interfaces_input">Interface selectors</string>
-    <string name="settings_ignored_interfaces_invalid">Use 1–15 letters, digits, _, . or -. A single + is allowed only at the end.</string>
-    <string name="settings_ignored_interfaces_none">Not selected</string>
-    <string name="settings_ignored_interfaces_selected">Selected: {interfaces}</string>
-    <string name="settings_ignored_interfaces_summary">Enter one interface name per item. Add + at the end to match a prefix, for example wlan+.</string>
-
-    <!-- Private addresses -->
-    <string name="settings_private_addresses">Private addresses</string>
-    <string name="settings_private_addresses_empty">No CIDR ranges added</string>
-    <string name="settings_private_addresses_input">CIDR range</string>
-    <string name="settings_private_addresses_invalid">Invalid CIDR</string>
-    <string name="settings_private_addresses_none">Not configured</string>
-    <string name="settings_private_addresses_selected">{count} entries</string>
-    <string name="settings_private_addresses_summary">Private addresses do not enter the proxy core. Add them below if needed</string>
 
     <!-- IPv6 -->
     <string name="settings_ipv6_prefer">IPv6 preferred</string>

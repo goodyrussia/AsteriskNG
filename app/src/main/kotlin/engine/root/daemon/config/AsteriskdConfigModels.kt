@@ -62,10 +62,8 @@ internal data class AsteriskdNetworkConfig(
     val enableLocalDns: Boolean,
     val enableFakeDns: Boolean,
     val fakeDnsIpv4Pool: String?,
-    val ignoredInterfaces: List<String>,
     val virtualInterfaces: List<String>,
     val hotspotInterfacePrefixes: List<String>,
-    val proxyPrivateCidrs: List<String>,
     val bypassPrivateCidrs: List<String>,
     val appPolicy: AsteriskdAppPolicy,
 )

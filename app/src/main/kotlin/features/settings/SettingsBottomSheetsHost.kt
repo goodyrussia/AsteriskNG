@@ -8,15 +8,11 @@ import app.AppState
 import features.settings.sheets.DnsSettingsBottomSheet
 import features.settings.sheets.ExternalInterfacesBottomSheet
 import features.settings.sheets.FragmentSettingsBottomSheet
-import features.settings.sheets.IgnoredInterfacesBottomSheet
 import features.settings.sheets.LocalProxySettingsBottomSheet
 import features.settings.sheets.MuxSettingsBottomSheet
-import features.settings.sheets.PrivateAddressBottomSheet
 import features.settings.sheets.TunSettingsBottomSheet
 import features.settings.sheets.sanitizeExternalInterfaces
-import features.settings.sheets.sanitizeIgnoredInterfaceSelectors
 import features.settings.sheets.sanitizeMuxUdp443Index
-import features.settings.sheets.sanitizePrivateAddressCidrs
 import app.modes.RunModeBpf2Socks
 import app.modes.RunModeTun2Socks
 import app.modes.RunModeVpnService
@@ -260,30 +256,6 @@ internal fun SettingsBottomSheetsHost(
         onSave = { interfaces ->
             updateAppState { state -> state.copy(externalInterfaces = interfaces.sanitizeExternalInterfaces()) }
             sheetState.showExternalInterfaces = false
-        },
-    )
-    IgnoredInterfacesBottomSheet(
-        show = sheetState.showIgnoredInterfaces,
-        selectedInterfaces = sheetState.ignoredInterfacesDraft,
-        onSelectedInterfacesChange = {
-            sheetState.ignoredInterfacesDraft = it.sanitizeIgnoredInterfaceSelectors()
-        },
-        onDismissRequest = { sheetState.closeIgnoredInterfaces() },
-        onSave = { interfaces ->
-            updateAppState { state ->
-                state.copy(ignoredInterfaces = interfaces.sanitizeIgnoredInterfaceSelectors())
-            }
-            sheetState.closeIgnoredInterfaces()
-        },
-    )
-    PrivateAddressBottomSheet(
-        show = sheetState.showPrivateAddresses,
-        selectedCidrs = sheetState.privateAddressCidrsDraft,
-        onSelectedCidrsChange = { sheetState.privateAddressCidrsDraft = it.sanitizePrivateAddressCidrs() },
-        onDismissRequest = { sheetState.showPrivateAddresses = false },
-        onSave = { cidrs ->
-            updateAppState { state -> state.copy(privateAddressCidrs = cidrs.sanitizePrivateAddressCidrs()) }
-            sheetState.showPrivateAddresses = false
         },
     )
 }

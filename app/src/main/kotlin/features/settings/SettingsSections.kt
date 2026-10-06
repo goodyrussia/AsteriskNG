@@ -179,8 +179,6 @@ internal fun SettingsProxyModeSections(
     enableRootEbpfDirectCidrBypass: Boolean,
     enableRootIpv6Disabler: Boolean,
     externalInterfacesSummary: String,
-    ignoredInterfacesSummary: String,
-    privateAddressCidrsSummary: String,
     onOpenLocalProxySettings: () -> Unit,
     onEnableTrafficStatsNotificationChange: (Boolean) -> Unit,
     onEnableVpnAppendHttpProxyChange: (Boolean) -> Unit,
@@ -191,8 +189,6 @@ internal fun SettingsProxyModeSections(
     onEnableRootEbpfDirectCidrBypassChange: (Boolean) -> Unit,
     onEnableRootIpv6DisablerChange: (Boolean) -> Unit,
     onOpenExternalInterfaces: () -> Unit,
-    onOpenIgnoredInterfaces: () -> Unit,
-    onOpenPrivateAddresses: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = runMode == RunModeVpnService,
@@ -326,16 +322,6 @@ internal fun SettingsProxyModeSections(
                         title = stringResource(R.string.settings_external_interfaces),
                         summary = externalInterfacesSummary,
                         onClick = onOpenExternalInterfaces,
-                    )
-                    ArrowPreference(
-                        title = stringResource(R.string.settings_ignored_interfaces),
-                        summary = ignoredInterfacesSummary,
-                        onClick = onOpenIgnoredInterfaces,
-                    )
-                    ArrowPreference(
-                        title = stringResource(R.string.settings_private_addresses),
-                        summary = privateAddressCidrsSummary,
-                        onClick = onOpenPrivateAddresses,
                     )
                 }
             }

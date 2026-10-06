@@ -197,8 +197,6 @@ internal class AppSettingsPreferences(
                 defaults.socks5ProxyPort,
             ) ?: defaults.socks5ProxyPort,
             externalInterfaces = preferences.getStringList(KeyExternalInterfaces, defaults.externalInterfaces),
-            ignoredInterfaces = preferences.getStringList(KeyIgnoredInterfaces, defaults.ignoredInterfaces),
-            privateAddressCidrs = preferences.getStringList(KeyPrivateAddressCidrs, defaults.privateAddressCidrs),
             proxyAppListMode = preferences.getInt(KeyProxyAppListMode, defaults.proxyAppListMode),
         )
     }
@@ -271,8 +269,6 @@ internal class AppSettingsPreferences(
             .putString(KeyBpf2SocksBridgePort, state.bpf2SocksBridgePort)
             .putString(KeySocks5ProxyPort, state.socks5ProxyPort)
             .putStringList(KeyExternalInterfaces, state.externalInterfaces)
-            .putStringList(KeyIgnoredInterfaces, state.ignoredInterfaces)
-            .putStringList(KeyPrivateAddressCidrs, state.privateAddressCidrs)
             .putInt(KeyProxyAppListMode, state.proxyAppListMode)
     }
 
@@ -367,8 +363,6 @@ private const val KeyEnableRootIpv6Disabler = "enable_root_ipv6_disabler"
 private const val KeyBpf2SocksBridgePort = "bpf2socks_bridge_port"
 private const val KeySocks5ProxyPort = "socks5_proxy_port"
 private const val KeyExternalInterfaces = "external_interfaces"
-private const val KeyIgnoredInterfaces = "ignored_interfaces"
-private const val KeyPrivateAddressCidrs = "private_address_cidrs"
 private const val KeyProxyAppListMode = "proxy_app_list_mode"
 
 private val SubscriptionHwidLock = Any()

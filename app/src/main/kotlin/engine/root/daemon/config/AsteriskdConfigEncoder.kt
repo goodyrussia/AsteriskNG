@@ -43,15 +43,17 @@ private fun AsteriskdCoreConfig.toJsonObject(): JsonObject = buildJsonObject {
 }
 
 private fun AsteriskdNetworkConfig.toJsonObject(): JsonObject = buildJsonObject {
+    // `ignoredInterfaces` and `proxyPrivateCidrs` are kept because the daemon validates `network`
+    // against a fixed 11-key schema; the features were removed, so these keys are always empty.
     put("enableIpv6", enableIpv6)
     put("disableSystemIpv6", disableSystemIpv6)
     put("enableLocalDns", enableLocalDns)
     put("enableFakeDns", enableFakeDns)
     put("fakeDnsIpv4Pool", fakeDnsIpv4Pool?.let(::JsonPrimitive) ?: JsonNull)
-    put("ignoredInterfaces", ignoredInterfaces.toJsonArray())
+    put("ignoredInterfaces", emptyList<String>().toJsonArray())
     put("virtualInterfaces", virtualInterfaces.toJsonArray())
     put("hotspotInterfacePrefixes", hotspotInterfacePrefixes.toJsonArray())
-    put("proxyPrivateCidrs", proxyPrivateCidrs.toJsonArray())
+    put("proxyPrivateCidrs", emptyList<String>().toJsonArray())
     put("bypassPrivateCidrs", bypassPrivateCidrs.toJsonArray())
     put("appPolicy", appPolicy.toJsonObject())
 }

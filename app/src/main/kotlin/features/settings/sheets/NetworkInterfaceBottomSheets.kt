@@ -24,9 +24,6 @@ private data class ExternalInterfaceGroup(
 
 private val ExternalInterfaceGroups = listOf(
     ExternalInterfaceGroup("wifi", listOf("wlan+", "ap+", "softap+")),
-    ExternalInterfaceGroup("usb", listOf("rndis+", "usb+", "ncm+")),
-    ExternalInterfaceGroup("bluetooth", listOf("bnep+", "bt-pan+")),
-    ExternalInterfaceGroup("ethernet", listOf("eth+")),
 )
 
 @Composable
@@ -47,15 +44,6 @@ internal fun List<String>.sanitizeExternalInterfaces(): List<String> {
     return ExternalInterfaceGroups.flatMap { group ->
         if (group.prefixes.any { it in selectedPrefixes }) group.prefixes else emptyList()
     }
-}
-
-@Composable
-internal fun ignoredInterfacesSummary(interfaces: List<String>): String {
-    if (interfaces.isEmpty()) {
-        return stringResource(R.string.settings_ignored_interfaces_none)
-    }
-    return stringResource(R.string.settings_ignored_interfaces_selected)
-        .formatTemplate("interfaces" to interfaces.joinToString())
 }
 
 @Composable
@@ -109,9 +97,6 @@ internal fun ExternalInterfacesBottomSheet(
 private fun externalInterfaceGroupTitle(group: ExternalInterfaceGroup): String {
     return when (group.key) {
         "wifi" -> stringResource(R.string.settings_external_interfaces_wifi)
-        "usb" -> stringResource(R.string.settings_external_interfaces_usb)
-        "bluetooth" -> stringResource(R.string.settings_external_interfaces_bluetooth)
-        "ethernet" -> stringResource(R.string.settings_external_interfaces_ethernet)
         else -> group.key
     }
 }

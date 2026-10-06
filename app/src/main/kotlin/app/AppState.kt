@@ -103,8 +103,6 @@ data class AppState(
     val socks5ProxyPort: String = RootModeEngine.DefaultTun2SocksProxyPort.toString(),
 
     val externalInterfaces: List<String> = emptyList(),
-    val ignoredInterfaces: List<String> = emptyList(),
-    val privateAddressCidrs: List<String> = emptyList(),
 
     val proxyAppListMode: Int = ProxyAppListModeGlobal,
     val proxyAppListSelectedApps: List<String> = emptyList(),

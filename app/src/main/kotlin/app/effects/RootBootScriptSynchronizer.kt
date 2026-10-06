@@ -101,8 +101,6 @@ private data class RootBootScriptSignature(
     val enableRootEbpfDirectCidrBypass: Boolean,
     val socks5ProxyPort: String,
     val externalInterfaces: List<String>,
-    val ignoredInterfaces: List<String>,
-    val privateAddressCidrs: List<String>,
     val proxyAppListMode: Int,
     val proxyAppListSelectedApps: List<String>,
 )
@@ -163,8 +161,6 @@ private fun AppState.toRootBootScriptRefresh(): RootBootScriptRefresh {
             enableRootEbpfDirectCidrBypass = enableRootEbpfDirectCidrBypass,
             socks5ProxyPort = socks5ProxyPort,
             externalInterfaces = externalInterfaces,
-            ignoredInterfaces = ignoredInterfaces,
-            privateAddressCidrs = privateAddressCidrs,
             proxyAppListMode = proxyAppListMode,
             proxyAppListSelectedApps = proxyAppListSelectedApps,
         ),

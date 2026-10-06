@@ -91,8 +91,6 @@ internal data class AppBackupSettings(
     val bpf2SocksBridgePort: String = BackupDefaults.bpf2SocksBridgePort,
     val socks5ProxyPort: String = BackupDefaults.socks5ProxyPort,
     val externalInterfaces: List<String> = BackupDefaults.externalInterfaces,
-    val ignoredInterfaces: List<String> = BackupDefaults.ignoredInterfaces,
-    val privateAddressCidrs: List<String> = BackupDefaults.privateAddressCidrs,
     val proxyAppListMode: Int = BackupDefaults.proxyAppListMode,
 )
 

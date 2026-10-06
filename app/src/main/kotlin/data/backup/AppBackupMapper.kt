@@ -104,8 +104,6 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
         bpf2SocksBridgePort = bpf2SocksBridgePort,
         socks5ProxyPort = socks5ProxyPort,
         externalInterfaces = externalInterfaces,
-        ignoredInterfaces = ignoredInterfaces,
-        privateAddressCidrs = privateAddressCidrs,
         proxyAppListMode = proxyAppListMode,
     )
 }
@@ -261,8 +259,6 @@ private fun AppBackupData.toAppState(): AppState {
         bpf2SocksBridgePort = settings.bpf2SocksBridgePort,
         socks5ProxyPort = settings.socks5ProxyPort,
         externalInterfaces = settings.externalInterfaces,
-        ignoredInterfaces = settings.ignoredInterfaces,
-        privateAddressCidrs = settings.privateAddressCidrs,
         proxyAppListMode = settings.proxyAppListMode,
         proxyAppListSelectedApps = proxyAppListSelectedApps,
     )
