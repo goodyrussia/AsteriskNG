@@ -38,7 +38,7 @@ data class AppState(
     val enableDeletionConfirmation: Boolean = true,
 
     val runMode: Int = RunModeVpnService,
-    val enableResolveProxyServerDomain: Boolean = false,
+    val enableResolveProxyServerDomain: Boolean = true,
 
     val enableVpnLocalDns: Boolean = true,
     val localProxyPort: String = VpnDefaults.LOCAL_PROXY_PORT.toString(),
@@ -78,7 +78,7 @@ data class AppState(
     val customResourceFiles: List<CustomResourceFileState> = emptyList(),
     val nextCustomResourceFileId: Int = 1,
     val enableSniffing: Boolean = true,
-    val enableSniffingRouteOnly: Boolean = true,
+    val enableSniffingRouteOnly: Boolean = false,
 
     val enableMux: Boolean = false,
     val muxConcurrency: String = DefaultMuxConcurrency,
@@ -98,7 +98,7 @@ data class AppState(
     val proxyDns: List<String> = VpnDefaults.PROXY_DNS_SERVERS,
     val directDns: List<String> = VpnDefaults.DIRECT_DNS_SERVERS,
     val directDnsDomains: List<String> = DefaultDirectDnsDomains,
-    val enableDirectDnsForProxyServerDomains: Boolean = true,
+    val enableDirectDnsForProxyServerDomains: Boolean = false,
     val dnsHosts: List<String> = emptyList(),
 
     val transparentProxyPort: String = RootModeEngine.DefaultTproxyPort.toString(),
