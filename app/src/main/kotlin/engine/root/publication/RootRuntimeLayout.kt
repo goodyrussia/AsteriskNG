@@ -59,6 +59,16 @@ internal fun Context.prepareRootPublicationDirectories(): RootRuntimeLayout {
     ) {
         "Unsafe ROOT log directory: ${logDirectory.absolutePath}"
     }
+    val assetsDirectory = File(dataDirectory, "assets")
+    require(assetsDirectory.exists() || assetsDirectory.mkdirs()) { "Failed to create ${assetsDirectory.absolutePath}" }
+    require(
+        assetsDirectory.isDirectory &&
+            assetsDirectory.absoluteFile.parentFile == dataDirectory.absoluteFile &&
+            assetsDirectory.canonicalFile.parentFile == dataDirectory.canonicalFile &&
+            assetsDirectory.canonicalFile.name == "assets",
+    ) {
+        "Unsafe ROOT assets directory: ${assetsDirectory.absolutePath}"
+    }
     return layout
 }
 

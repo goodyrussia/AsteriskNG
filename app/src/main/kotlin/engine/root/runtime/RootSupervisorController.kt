@@ -27,6 +27,7 @@ import engine.root.publication.prepareRootPublicationDirectories
 import engine.root.publication.rootRuntimeLayout
 import features.logs.AndroidAppLogger
 import features.logs.clearServiceLogRepositories
+import java.io.File
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.NonCancellable
@@ -167,6 +168,7 @@ internal class RootSupervisorController(
             return snapshot
         } catch (error: Exception) {
             withContext(NonCancellable) { RootFailureWatcher.stop() }
+            captureStartFailureDiagnostic()
             val outcome = if (error is kotlinx.coroutines.CancellationException) "cancelled" else "failed"
             runCatching { AndroidAppLogger.warn(LogTag, "root_start stage=$stage result=$outcome type=${error.javaClass.simpleName}") }
             throw error
@@ -268,6 +270,25 @@ internal class RootSupervisorController(
         return IllegalStateException(message)
     }
 
+    private fun captureStartFailureDiagnostic() {
+        runCatching {
+            val directory = File(runtimeLayout.dataDir)
+            val entries = directory.listFiles().orEmpty()
+                .sortedBy { entry -> entry.name }
+                .joinToString(",") { entry -> "${entry.name}|${entry.isDirectory}|${entry.length()}" }
+            val daemonConfigFile = File(runtimeLayout.asteriskdConfigPath)
+            val daemonConfigLength = daemonConfigFile.length()
+            val daemonConfig = if (daemonConfigFile.isFile && daemonConfigLength <= MaxDiagnosticConfigBytes) {
+                daemonConfigFile.readText(Charsets.UTF_8).replace("\n", "\\n")
+            } else {
+                ""
+            }
+            val message = "root_start diagnostic: dir=${runtimeLayout.dataDir} entries=[$entries] " +
+                "daemonConfigLength=$daemonConfigLength daemonConfig=$daemonConfig"
+            AndroidAppLogger.error(LogTag, DiagnosticRedaction.redact(message))
+        }
+    }
+
     private fun preparePublication() {
         appContext.prepareRootPublicationDirectories()
     }
@@ -317,3 +338,4 @@ internal fun sanitizeLauncherStderr(stderr: String): String {
 }
 
 private const val StartTimeoutMilliseconds = 15_000L
+private const val MaxDiagnosticConfigBytes = 16_384

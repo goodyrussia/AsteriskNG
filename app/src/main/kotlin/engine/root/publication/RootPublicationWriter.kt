@@ -29,5 +29,8 @@ internal object RootPublicationWriter {
             "Failed to set ROOT configuration execute permissions"
         }
         file.outputStream().use { it.write(content) }
+        check(file.readBytes().contentEquals(content)) {
+            "Failed to verify ROOT configuration write: ${file.absolutePath}"
+        }
     }
 }
