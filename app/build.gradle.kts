@@ -59,7 +59,7 @@ android {
             isEnable = true
             reset()
             include(*ProjectConfig.SUPPORTED_ANDROID_ABIS.toTypedArray())
-            isUniversalApk = true
+            isUniversalApk = false
         }
     }
 

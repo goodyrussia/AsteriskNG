@@ -16,6 +16,7 @@ import engine.root.mode.RootModeDefinition
 import engine.root.mode.DefaultTproxyPort as ModeDefaultTproxyPort
 import engine.root.mode.DefaultTun2SocksProxyPort as ModeDefaultTun2SocksProxyPort
 import engine.root.publication.rootRuntimeLayout
+import engine.root.runtime.RootDialFailureMonitor
 import engine.root.runtime.RootFailureAnalyzer
 import engine.root.runtime.RootFailureReport
 import engine.root.runtime.RootFailureWatcher
@@ -23,6 +24,7 @@ import engine.root.runtime.RootRuntimeBusyException
 import engine.root.runtime.RootRuntimeConflictException
 import engine.root.runtime.RootSupervisorController
 import engine.root.runtime.toStableProxyEngineStatus
+import features.proxy.server.model.serverHost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
@@ -60,6 +62,7 @@ internal class RootModeEngine(
         val restored = buildLocalProxyOptions(request)
         val confirmed = controller.preflightStart(definition.daemonMode, explicitRestart = false) ?: return null
         LocalProxyRuntime.update(restored)
+        RootDialFailureMonitor.start(context, runMode, request.selectedServer.server.serverHost())
         return controller.proxyStatus(confirmed, runMode, definition.daemonMode)
     }
 
@@ -88,10 +91,12 @@ internal class RootModeEngine(
                 controller.start(config.root, config.asteriskdConfig)
             }
             controller.requireRunning(snapshot, definition.daemonMode)
+            RootDialFailureMonitor.start(context, runMode, request.selectedServer.server.serverHost())
             LocalProxyRuntime.update(config.localProxyOptions)
             controller.proxyStatus(snapshot, runMode, definition.daemonMode)
         }.onFailure {
             LocalProxyRuntime.clear()
+            RootDialFailureMonitor.stop()
         }.getOrElse { error ->
             if (error is CancellationException) throw error
             if (error is RootRuntimeConflictException || error is RootRuntimeBusyException) throw error
@@ -125,12 +130,14 @@ internal class RootModeEngine(
             .localProxyOptions
 
     override suspend fun stop(): ProxyEngineStatus {
+        RootDialFailureMonitor.stop()
         controller.stopOwn()
         LocalProxyRuntime.clear()
         return status()
     }
 
     suspend fun shutdown(): ProxyEngineStatus {
+        RootDialFailureMonitor.stop()
         controller.shutdownOwn()
         LocalProxyRuntime.clear()
         return status()

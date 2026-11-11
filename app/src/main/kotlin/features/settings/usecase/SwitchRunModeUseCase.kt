@@ -8,7 +8,6 @@ import app.AppState
 import app.modes.RunModeBpf2Socks
 import app.modes.RunModeTun2Socks
 import app.modes.RunModeTproxy
-import app.modes.RunModeVpnService
 import app.modes.isRootRunMode
 import engine.proxy.AndroidProxyEngine
 import engine.root.runtime.RootFailureWatcher
@@ -42,7 +41,7 @@ internal class SwitchRunModeUseCase(
             RunModeTproxy -> RunModeTproxy
             RunModeTun2Socks -> RunModeTun2Socks
             RunModeBpf2Socks -> RunModeBpf2Socks
-            else -> RunModeVpnService
+            else -> RunModeTun2Socks
         }
         if (currentState.runMode == normalizedTargetMode) {
             return SwitchRunModeResult.Success(

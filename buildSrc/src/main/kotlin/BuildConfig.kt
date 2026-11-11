@@ -11,18 +11,18 @@ import org.gradle.api.tasks.TaskAction
 object ProjectConfig {
     const val JVM_VERSION = 26
     const val PROJECT_NAME = "AsteriskNG"
-    const val VERSION_NAME = "1.4.26"
+    const val VERSION_NAME = "1.4.27"
     const val PACKAGE_NAME = "org.asterisk.zcc.ang"
     const val ASTERISKD_VERSION = "v2.3.0"
     const val BPF2SOCKS_VERSION = "v1.2.2"
     const val BPF_MATCHER_VERSION = "v1.0.2"
     const val ENHANCE_VERSION = "v1.0.8"
-    const val ANDROID_LIB_XRAY_LITE_VERSION = "v26.11.9"
+    const val ANDROID_LIB_XRAY_LITE_VERSION = "v26.11.9-p1"
     const val HEV_SOCKS5_TUNNEL_VERSION = "2.19.3"
     const val TARGET_SDK = 37
     const val TARGET_SDK_MINOR = 2
     const val MIN_SDK = 26
-    val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+    val SUPPORTED_ANDROID_ABIS = listOf("arm64-v8a")
 }
 
 fun org.gradle.api.Project.getGitVersionCode(): Int {

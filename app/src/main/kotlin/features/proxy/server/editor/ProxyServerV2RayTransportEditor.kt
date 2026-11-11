@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import app.R
 import features.proxy.server.model.V2RayParameters
+import features.proxy.server.model.isTruthyFlag
 import features.proxy.server.model.V2RayTransportGrpc
 import features.proxy.server.model.V2RayTransportHttpUpgrade
 import features.proxy.server.model.V2RayTransportMkcp
@@ -34,6 +36,7 @@ import features.proxy.server.model.v2RayTransportOptionIndex
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 
 internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
@@ -56,6 +59,9 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
             mutableIntStateOf(
                 if (securityOptions.indexOf(params.security) > -1) securityOptions.indexOf(params.security) else 0
             )
+        }
+        val allowInsecure = remember {
+            mutableStateOf(params.allowInsecure.isTruthyFlag())
         }
         val selectedTransportType = typeOptions.getOrElse(type.intValue) { typeOptions.first() }.value
 
@@ -303,6 +309,17 @@ internal fun LazyListScope.v2rayServerTransport(params: V2RayParameters) {
                 ProxyEditorTextField("EchConfigList", params.ech ?: "") { params.ech = it }
                 ProxyEditorTextField(stringResource(R.string.proxy_editor_certificate_fingerprint), params.pcs ?: "") { params.pcs = it }
                 ProxyEditorTextField("VerifyPeerCertByName", params.vcn ?: "") { params.vcn = it }
+                SwitchPreference(
+                    title = "Allow insecure TLS (skip certificate verification)",
+                    checked = allowInsecure.value,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    onCheckedChange = { isChecked ->
+                        allowInsecure.value = isChecked
+                        params.allowInsecure = if (isChecked) "1" else ""
+                    },
+                )
             }
         }
         //reality
