@@ -14,7 +14,7 @@ import features.settings.servicecontrol.ServiceControlWifiRule
 import app.CustomResourceFileState
 import app.ProxyServerState
 import app.SubscriptionGroupState
-import app.modes.RunModeTun2Socks
+import app.modes.RunModeVpnService
 import data.PersistedProxyServer
 import data.decodeProxyServer
 import data.toPersistedProxyServer
@@ -271,7 +271,7 @@ private fun AppBackupData.toAppState(): AppState {
         ),
         enableAllProxyGroup = settings.enableAllProxyGroup,
         enableDeletionConfirmation = settings.enableDeletionConfirmation,
-        runMode = RunModeTun2Socks,
+        runMode = RunModeVpnService,
         enableAppListEnhancement = false,
         enableResolveProxyServerDomain = settings.enableResolveProxyServerDomain,
         enableVpnLocalDns = settings.enableVpnLocalDns,

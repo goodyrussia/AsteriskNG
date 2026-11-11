@@ -27,7 +27,6 @@ data class Hysteria2(
     var obfsPassword: String = "",
     var sni: String = "",
     var pinSHA256: String = "",
-    var allowInsecure: Boolean = false,
     //v2rayNg
     var mport: String = "",
     var mportHopInt: String = "",
@@ -58,7 +57,6 @@ data class Hysteria2(
                 putJsonObject("tlsSettings") {
                     putIfNotBlank("serverName", sni)
                     putIfNotBlank("pinnedPeerCertSha256", pinSHA256)
-                    if (allowInsecure) put("allowInsecure", true)
                 }
                 val finalMask = toXrayFinalMask()
                 if (finalMask.isNotEmpty()) {
@@ -81,7 +79,9 @@ data class Hysteria2(
         this.obfs = url.parameters["obfs"] ?: ""
         this.obfsPassword = url.parameters["obfs-password"] ?: ""
         this.sni = url.parameters["sni"] ?: ""
-        this.allowInsecure = url.parameters["insecure"].isEnabledFlag()
+        if (url.parameters["insecure"].isEnabledFlag()) {
+            throw IllegalArgumentException("Hysteria2 insecure is not supported")
+        }
         this.pinSHA256 = url.parameters["pinSHA256"] ?: ""
         //v2rayNg
         // Keep empty mport values authoritative too, matching existing links.
@@ -113,9 +113,6 @@ data class Hysteria2(
             if (this@Hysteria2.pinSHA256.isNotBlank()) {
                 parameters.append("pinSHA256", this@Hysteria2.pinSHA256)
             }
-            if (this@Hysteria2.allowInsecure) {
-                parameters.append("insecure", "1")
-            }
 
             if (this@Hysteria2.mport.isNotBlank()) {
                 parameters.append("mport", this@Hysteria2.mport)
@@ -144,7 +141,6 @@ data class Hysteria2(
             obfsPassword = other.obfsPassword
             sni = other.sni
             pinSHA256 = other.pinSHA256
-            allowInsecure = other.allowInsecure
             mport = other.mport
             mportHopInt = other.mportHopInt
             up = other.up

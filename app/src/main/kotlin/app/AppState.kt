@@ -10,7 +10,7 @@ import app.modes.LanguageModeSystem
 import app.modes.ProxyAppListModeGlobal
 import app.modes.ProxyServerListLayoutSingle
 import app.modes.ProxyServerListSortDefault
-import app.modes.RunModeTun2Socks
+import app.modes.RunModeVpnService
 import app.modes.supportsAppListEnhancement
 import app.modes.isRootRunMode
 import engine.root.RootModeEngine
@@ -44,7 +44,7 @@ data class AppState(
     val enableAllProxyGroup: Boolean = false,
     val enableDeletionConfirmation: Boolean = true,
 
-    val runMode: Int = RunModeTun2Socks,
+    val runMode: Int = RunModeVpnService,
     val enableResolveProxyServerDomain: Boolean = false,
 
     val enableVpnLocalDns: Boolean = true,
@@ -93,7 +93,7 @@ data class AppState(
     val enableSniffing: Boolean = true,
     val enableSniffingRouteOnly: Boolean = true,
 
-    val enableMux: Boolean = true,
+    val enableMux: Boolean = false,
     val muxConcurrency: String = DefaultMuxConcurrency,
     val muxXudpConcurrency: String = DefaultMuxXudpConcurrency,
     val muxXudpProxyUdp443: Int = DefaultMuxUdp443Mode,

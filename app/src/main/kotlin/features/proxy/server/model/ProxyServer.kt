@@ -195,7 +195,6 @@ data class V2RayParameters(
     var ech: String? = null,
     var pcs: String? = null,
     var vcn: String? = null,
-    var allowInsecure: String? = null,
     var pbk: String? = null,
     var sid: String? = null,
     var pqv: String? = null,
@@ -261,7 +260,6 @@ data class V2RayParameters(
                 this.ech = url.parameters["ech"]
                 this.pcs = url.parameters["pcs"]
                 this.vcn = url.parameters["vcn"]
-                this.allowInsecure = url.parameters["allowInsecure"] ?: url.parameters["insecure"]
             }
 
             "reality" -> {
@@ -329,7 +327,6 @@ data class V2RayParameters(
                     appendIfNotBlank("ech", this@V2RayParameters.ech)
                     appendIfNotBlank("pcs", this@V2RayParameters.pcs)
                     appendIfNotBlank("vcn", this@V2RayParameters.vcn)
-                    appendIfNotBlank("allowInsecure", this@V2RayParameters.allowInsecure)
                 }
 
                 "reality" -> {

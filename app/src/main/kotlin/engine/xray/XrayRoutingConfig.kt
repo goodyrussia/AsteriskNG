@@ -7,10 +7,6 @@ import utils.putTrimmedIfNotBlank
 import utils.toJsonStringArray
 import app.AppState
 import app.effectiveLocalDnsEnabled
-import engine.network.isIpv4Address
-import engine.network.isIpv6Address
-import features.proxy.server.model.normalizedServerHost
-import features.proxy.server.model.serverHost
 import features.routing.model.RouteRule
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -19,7 +15,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import utils.toDistinctCsvValues
 import utils.toTrimmedNonEmptyDistinctList
-import java.net.InetAddress
 
 internal data class XrayRoutingPlan(
     val domainStrategy: String,
@@ -34,8 +29,6 @@ internal fun AppState.buildXrayRoutingPlan(
     routeProxyDns: Boolean,
     routeDirectDns: Boolean,
     dnsHijackInboundTags: List<String>,
-    proxyDirectIps: List<String> = emptyList(),
-    proxyDirectDomains: List<String> = emptyList(),
 ): XrayRoutingPlan {
     val domainStrategy = routeDomainStrategy.toXrayRoutingDomainStrategy()
     val defaultTarget = defaultRouteTarget(routeTargets)
@@ -47,8 +40,6 @@ internal fun AppState.buildXrayRoutingPlan(
             routeDirectDns = routeDirectDns,
             dnsHijackInboundTags = dnsHijackInboundTags,
             defaultTarget = defaultTarget,
-            proxyDirectIps = proxyDirectIps,
-            proxyDirectDomains = proxyDirectDomains,
         ),
         balancers = balancers,
         primaryOutboundTag = when (defaultTarget?.kind) {
@@ -75,17 +66,8 @@ private fun AppState.routingRules(
     routeDirectDns: Boolean,
     dnsHijackInboundTags: List<String>,
     defaultTarget: XrayRouteTarget?,
-    proxyDirectIps: List<String>,
-    proxyDirectDomains: List<String>,
 ): JsonArray {
     return buildJsonArray {
-        // The core's own dial to the proxy server must never re-enter the tunnel.
-        // If a dial packet ever reaches the local SOCKS/TUN inbound (e.g. the
-        // native gid bypass missed it), routing it back to the proxy outbound
-        // would loop forever and surface as "i/o timeout". Force it direct.
-        routeTargets[XrayTags.DIRECT]?.let { target ->
-            buildProxyServerDirectRule(target.tag, proxyDirectIps, proxyDirectDomains)?.let(::add)
-        }
         defaultTarget
             ?.takeIf { target -> target.kind == XrayRouteTargetKind.Balancer }
             ?.let { target -> add(buildDefaultBalancerRoute(target)) }
@@ -129,49 +111,6 @@ internal fun buildXrayDnsHijackRule(inboundTags: List<String>): JsonObject? {
         put("port", "53")
         put("outboundTag", XrayTags.DNS_OUT)
     }
-}
-
-private fun buildProxyServerDirectRule(
-    directTag: String,
-    ips: List<String>,
-    domains: List<String>,
-): JsonObject? {
-    val cleanIps = ips.toTrimmedNonEmptyDistinctList()
-    val cleanDomains = domains.toTrimmedNonEmptyDistinctList()
-    if (cleanIps.isEmpty() && cleanDomains.isEmpty()) return null
-    return buildJsonObject {
-        put("type", "field")
-        if (cleanIps.isNotEmpty()) put("ip", cleanIps.toJsonStringArray())
-        if (cleanDomains.isNotEmpty()) {
-            put("domain", cleanDomains.map { "domain:$it" }.toJsonStringArray())
-        }
-        put("outboundTag", directTag)
-    }
-}
-
-internal fun Iterable<XrayProxyOutboundServer>.proxyServerDirectRoutes(): Pair<List<String>, List<String>> {
-    val ips = mutableListOf<String>()
-    val domains = mutableListOf<String>()
-    for (outbound in this) {
-        val host = outbound.server.serverHost().normalizedServerHost()
-        if (host.isBlank() || host.equals("localhost", ignoreCase = true)) continue
-        if (isIpv4Address(host) || isIpv6Address(host)) {
-            ips.add(host)
-            continue
-        }
-        domains.add(host)
-        ips.addAll(host.resolveIpAddresses())
-    }
-    return ips.distinct() to domains.distinct()
-}
-
-private fun String.resolveIpAddresses(): List<String> {
-    return runCatching {
-        InetAddress.getAllByName(this)
-            .mapNotNull { address -> address.hostAddress?.substringBefore('%') }
-            .filter(String::isNotBlank)
-            .distinct()
-    }.getOrDefault(emptyList())
 }
 
 private fun buildDnsUpstreamRoute(
