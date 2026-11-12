@@ -51,6 +51,9 @@ internal fun JsonObjectBuilder.putJsonArrayIfNotBlank(name: String, value: Strin
     }
 }
 
+internal fun String?.isTruthyFlag(): Boolean =
+    this?.trim()?.lowercase() in setOf("1", "true", "yes")
+
 internal fun V2RayParameters.toXrayStreamSettings(): JsonObject {
     val network = type.toXrayNetwork()
     return buildJsonObject {
@@ -65,6 +68,7 @@ internal fun V2RayParameters.toXrayStreamSettings(): JsonObject {
                     putIfNotBlank("echConfigList", ech)
                     putIfNotBlank("pinnedPeerCertSha256", pcs)
                     putIfNotBlank("verifyPeerCertByName", vcn)
+                    if (allowInsecure.isTruthyFlag()) put("allowInsecure", true)
                 }
             }
 
