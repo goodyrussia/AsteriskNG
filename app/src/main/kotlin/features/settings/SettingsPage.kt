@@ -32,8 +32,6 @@ import app.LocalUpdateAppState
 import app.ProjectInfo
 import app.R
 import app.collectAppState
-import app.modes.ColorModeThemeDark
-import app.modes.ColorModeThemeSystem
 import app.modes.RunModeVpnService
 import app.modes.isRootRunMode
 import app.navigation.Route
@@ -59,7 +57,6 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.VerticalScrollBar
 import top.yukonga.miuix.kmp.basic.rememberScrollBarAdapter
 import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
-import ui.KeyColors
 import ui.layout.AdaptiveTopAppBar
 import ui.layout.pageContentPaddingWithCutout
 import ui.layout.pageListPadding
@@ -125,39 +122,12 @@ private fun SettingsContent(
     )
     val listPadding = pageListPadding(contentPadding)
 
-    val isThemeColorMode = appState.colorMode in ColorModeThemeSystem..ColorModeThemeDark
-    val colorModeOptions = listOf(
-        stringResource(R.string.option_follow_system),
-        stringResource(R.string.option_light),
-        stringResource(R.string.option_dark),
-        stringResource(R.string.option_theme_system),
-        stringResource(R.string.option_theme_light),
-        stringResource(R.string.option_theme_dark),
-    )
-    val languageOptions = listOf(
-        stringResource(R.string.option_follow_system),
-        stringResource(R.string.option_english),
-        stringResource(R.string.option_simplified_chinese),
-        stringResource(R.string.option_russian),
-        stringResource(R.string.option_vietnamese),
-    )
     val runModeOptions = listOf(
         stringResource(R.string.settings_run_mode_vpn_service),
         stringResource(R.string.settings_run_mode_tproxy),
         stringResource(R.string.settings_run_mode_tun2socks),
         stringResource(R.string.settings_run_mode_bpf2socks),
     )
-    val keyColorOptions = listOf(
-        stringResource(R.string.theme_color_default),
-        stringResource(R.string.theme_color_blue),
-        stringResource(R.string.theme_color_green),
-        stringResource(R.string.theme_color_violet),
-        stringResource(R.string.theme_color_yellow),
-        stringResource(R.string.theme_color_orange),
-        stringResource(R.string.theme_color_sakura),
-        stringResource(R.string.theme_color_cyan),
-        stringResource(R.string.theme_color_coffee),
-    ).take(KeyColors.size + 1)
     val rootRequiredMessage = stringResource(R.string.settings_root_required)
     val vpnPermissionDeniedMessage = stringResource(R.string.error_vpn_permission_denied)
     val rootBootScriptFailedMessage = stringResource(R.string.settings_root_boot_script_failed)
@@ -204,26 +174,11 @@ private fun SettingsContent(
             ),
             contentPadding = listPadding,
         ) {
-            item(key = "settings_theme") {
-                SettingsThemeSection(
-                    colorModeOptions = colorModeOptions,
-                    colorMode = appState.colorMode,
-                    keyColorOptions = keyColorOptions,
-                    seedIndex = appState.seedIndex,
-                    languageOptions = languageOptions,
-                    languageMode = appState.languageMode,
-                    isThemeColorMode = isThemeColorMode,
-                    onColorModeChange = { index -> updateAppState { state -> state.copy(colorMode = index) } },
-                    onSeedIndexChange = { index -> updateAppState { state -> state.copy(seedIndex = index) } },
-                    onLanguageModeChange = { index -> updateAppState { state -> state.copy(languageMode = index) } },
-                )
-            }
             item(key = "settings_general") {
                 SettingsSubscriptionsSection(
                     enableAllProxyGroup = appState.enableAllProxyGroup,
                     enableDeletionConfirmation = appState.enableDeletionConfirmation,
                     onOpenGroupManagement = { navigator.push(Route.SubscriptionGroupList) },
-                    onOpenResourceManagement = { navigator.push(Route.ResourceManagement) },
                     onEnableAllProxyGroupChange = { enabled ->
                         updateAppState { state -> state.copy(enableAllProxyGroup = enabled) }
                     },
@@ -436,16 +391,6 @@ private fun SettingsContent(
                     onOpenServiceControl = { sheetState.openServiceControl(appState) },
                     onOpenIgnoredInterfaces = { sheetState.openIgnoredInterfaces(appState) },
                     onOpenPrivateAddresses = { sheetState.openPrivateAddresses(appState) },
-                )
-            }
-            item(key = "settings_privacy") {
-                SettingsPrivacySection(
-                    hideRecentTasks = appState.hideRecentTasks,
-                    onHideRecentTasksChange = { hidden -> updateAppState { it.copy(hideRecentTasks = hidden) } },
-                    allowScreenshots = appState.allowScreenshots,
-                    onAllowScreenshotsChange = { allowed -> updateAppState { it.copy(allowScreenshots = allowed) } },
-                    hideLauncherIcon = appState.hideLauncherIcon,
-                    onHideLauncherIconChange = { hidden -> updateAppState { it.copy(hideLauncherIcon = hidden) } },
                 )
             }
             item(key = "settings_backup_restore") {

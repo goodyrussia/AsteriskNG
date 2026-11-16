@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.effects.ProxyStatusSynchronizer
-import app.effects.ResourceFileSynchronizer
 import app.effects.EnhancementModuleUpgradeChecker
 import features.enhancement.AndroidEnhancementModuleBackend
 import features.enhancement.EnhancementModuleCoordinator
@@ -193,10 +192,6 @@ fun App(
         stateStore = stateStore,
         proxyEngine = proxyEngine,
         updateAppState = updateAppState,
-    )
-    ResourceFileSynchronizer(
-        resourceFileUseCase = resourceFileUseCase,
-        stateStore = stateStore,
     )
     RootBootScriptSynchronizer(
         stateStore = stateStore,

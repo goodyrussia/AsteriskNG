@@ -13,7 +13,6 @@ import engine.proxy.withResolvedDynamicLocalProxyPort
 import engine.stats.ProxyTrafficStatsRuntimeStore
 import features.logs.AndroidAppLogger
 import features.proxy.server.model.ProxyServer
-import features.routing.model.RouteRule
 import features.settings.usecase.RootBootScriptResult
 import features.settings.usecase.RootBootScriptUseCase
 import kotlinx.coroutines.flow.combine
@@ -75,9 +74,6 @@ private data class RootBootScriptSignature(
     val selectedProxyServerId: Int,
     val proxyServers: List<RootBootScriptProxyServerState>,
     val enableResolveProxyServerDomain: Boolean,
-    val routeDomainStrategy: Int,
-    val defaultRouteOutboundTag: String,
-    val routeRules: List<RouteRule>,
     val coreLogLevel: Int,
     val enableAccessLog: Boolean,
     val enableSniffing: Boolean,
@@ -141,9 +137,6 @@ private fun AppState.toRootBootScriptRefresh(statsApiPort: Int?): RootBootScript
                 )
             },
             enableResolveProxyServerDomain = enableResolveProxyServerDomain,
-            routeDomainStrategy = routeDomainStrategy,
-            defaultRouteOutboundTag = defaultRouteOutboundTag,
-            routeRules = routeRules,
             coreLogLevel = coreLogLevel,
             enableAccessLog = enableAccessLog,
             enableSniffing = enableSniffing,

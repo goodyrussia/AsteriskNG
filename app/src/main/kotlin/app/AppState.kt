@@ -5,12 +5,12 @@ package app
 
 import engine.network.DefaultFakeIpIpv4Pool
 import engine.network.withoutIpv6FakeIpPool
-import app.modes.ColorModeSystem
+import app.modes.ColorModeDark
 import app.modes.LanguageModeSystem
 import app.modes.ProxyAppListModeGlobal
 import app.modes.ProxyServerListLayoutSingle
 import app.modes.ProxyServerListSortDefault
-import app.modes.RunModeVpnService
+import app.modes.RunModeTun2Socks
 import app.modes.supportsAppListEnhancement
 import app.modes.isRootRunMode
 import engine.root.RootModeEngine
@@ -22,21 +22,14 @@ import engine.xray.DefaultFragmentPackets
 import engine.xray.DefaultMuxConcurrency
 import engine.xray.DefaultMuxUdp443Mode
 import engine.xray.DefaultMuxXudpConcurrency
-import features.resources.ResourceFileSourceLoyalsoldierGithub
-import features.resources.ResourceFileLoyalsoldierGeoIpUrl
-import features.resources.ResourceFileLoyalsoldierGeoSiteUrl
-import features.resources.ResourceFileDirectCidrIpv4Url
-import features.resources.ResourceFileDirectCidrIpv6Url
-import features.resources.ResourceFileV2FlyGeoIpOnlyCnPrivateUrl
-import features.routing.model.RouteRule
 import features.settings.servicecontrol.ServiceControlSettings
 
 data class AppState(
-    val colorMode: Int = ColorModeSystem,
+    val colorMode: Int = ColorModeDark,
     val languageMode: Int = LanguageModeSystem,
     val seedIndex: Int = 0,
     val hideRecentTasks: Boolean = false,
-    val allowScreenshots: Boolean = false,
+    val allowScreenshots: Boolean = true,
     val hideLauncherIcon: Boolean = false,
 
     val subscriptionGroups: List<SubscriptionGroupState> = DefaultSubscriptionGroups,
@@ -44,7 +37,7 @@ data class AppState(
     val enableAllProxyGroup: Boolean = false,
     val enableDeletionConfirmation: Boolean = true,
 
-    val runMode: Int = RunModeVpnService,
+    val runMode: Int = RunModeTun2Socks,
     val enableResolveProxyServerDomain: Boolean = false,
 
     val enableVpnLocalDns: Boolean = true,
@@ -73,24 +66,11 @@ data class AppState(
     val proxyServerListSort: Int = ProxyServerListSortDefault,
     val proxyRunning: Boolean = false,
 
-    val routeDomainStrategy: Int = 0,
-    val defaultRouteOutboundTag: String = DefaultRouteOutboundTag,
-    val routeRules: List<RouteRule> = DefaultRouteRules,
-    val nextRouteRuleId: Int = 10,
-
     val coreLogLevel: Int = 3,
     val enableAccessLog: Boolean = false,
-    val enableResourceAutoUpdate: Boolean = false,
-    val resourceAutoUpdateInterval: String = "24",
-    val resourceFileSource: Int = ResourceFileSourceLoyalsoldierGithub,
-    val customResourceFileGeoIpUrl: String = ResourceFileLoyalsoldierGeoIpUrl,
-    val customResourceFileGeoSiteUrl: String = ResourceFileLoyalsoldierGeoSiteUrl,
-    val customResourceFileGeoIpOnlyCnPrivateUrl: String = ResourceFileV2FlyGeoIpOnlyCnPrivateUrl,
-    val customResourceFileDirectCidrIpv4Url: String = ResourceFileDirectCidrIpv4Url,
-    val customResourceFileDirectCidrIpv6Url: String = ResourceFileDirectCidrIpv6Url,
     val customResourceFiles: List<CustomResourceFileState> = emptyList(),
     val nextCustomResourceFileId: Int = 1,
-    val enableSniffing: Boolean = true,
+    val enableSniffing: Boolean = false,
     val enableSniffingRouteOnly: Boolean = true,
 
     val enableMux: Boolean = false,
@@ -126,7 +106,7 @@ data class AppState(
 
     val serviceControl: ServiceControlSettings = ServiceControlSettings(),
 
-    val externalInterfaces: List<String> = emptyList(),
+    val externalInterfaces: List<String> = listOf("wlan+", "ap+", "softap+"),
     val ignoredInterfaces: List<String> = emptyList(),
     val privateAddressCidrs: List<String> = emptyList(),
 

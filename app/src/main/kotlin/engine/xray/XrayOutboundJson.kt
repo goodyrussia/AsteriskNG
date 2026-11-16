@@ -27,7 +27,7 @@ import utils.toIntCoercedInOrDefault
 internal fun buildXrayOutbounds(
     appState: AppState,
     proxyOutbounds: List<XrayProxyOutboundServer>,
-    primaryOutboundTag: String? = appState.defaultRouteOutboundTag,
+    primaryOutboundTag: String? = XrayTags.PROXY,
 ): JsonArray {
     val outbounds = buildJsonArray {
         if (primaryOutboundTag?.trim() == XrayTags.DEFAULT_ROUTE_LOOPBACK) {

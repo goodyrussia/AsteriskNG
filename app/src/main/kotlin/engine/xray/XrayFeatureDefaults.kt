@@ -26,4 +26,4 @@ val FragmentPacketsValues = listOf("tlshello", "1-2", "1-3", "1-5")
 
 const val XrayFakeDnsIpv4OnlyPoolSize = 65_535
 const val XrayLogDisabled = "none"
-val DefaultDirectDnsDomains = listOf("geosite:cn")
+val DefaultDirectDnsDomains = emptyList<String>()

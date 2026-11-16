@@ -14,12 +14,11 @@ import features.settings.servicecontrol.ServiceControlWifiRule
 import app.CustomResourceFileState
 import app.ProxyServerState
 import app.SubscriptionGroupState
-import app.modes.RunModeVpnService
+import app.modes.RunModeTun2Socks
 import data.PersistedProxyServer
 import data.decodeProxyServer
 import data.toPersistedProxyServer
 import features.proxy.server.model.ChainProxy
-import features.routing.model.RouteRule
 import features.subscription.DefaultSubscriptionGroupId
 
 internal fun AppState.toAppBackupFile(
@@ -37,7 +36,6 @@ internal fun AppState.toAppBackupFile(
             settings = toBackupSettings(),
             subscriptionGroups = subscriptionGroups.map(SubscriptionGroupState::toBackup),
             proxyServers = proxyServers.map(ProxyServerState::toBackup),
-            routeRules = routeRules.map(RouteRule::toBackup),
             proxyAppListSelectedApps = proxyAppListSelectedApps,
         ),
     )
@@ -55,12 +53,7 @@ internal fun AppBackupFile.toRestorePreview(): AppBackupRestorePreview {
 
 private fun AppState.toBackupSettings(): AppBackupSettings {
     return AppBackupSettings(
-        colorMode = colorMode,
-        languageMode = languageMode,
         seedIndex = seedIndex,
-        hideRecentTasks = hideRecentTasks,
-        allowScreenshots = allowScreenshots,
-        hideLauncherIcon = hideLauncherIcon,
         enableAllProxyGroup = enableAllProxyGroup,
         enableDeletionConfirmation = enableDeletionConfirmation,
         enableResolveProxyServerDomain = enableResolveProxyServerDomain,
@@ -80,18 +73,8 @@ private fun AppState.toBackupSettings(): AppBackupSettings {
         selectedProxyServerId = selectedProxyServerId,
         proxyServerListLayout = proxyServerListLayout,
         proxyServerListSort = proxyServerListSort,
-        routeDomainStrategy = routeDomainStrategy,
-        defaultRouteOutboundTag = defaultRouteOutboundTag,
         coreLogLevel = coreLogLevel,
         enableAccessLog = enableAccessLog,
-        enableResourceAutoUpdate = enableResourceAutoUpdate,
-        resourceAutoUpdateInterval = resourceAutoUpdateInterval,
-        resourceFileSource = resourceFileSource,
-        customResourceFileGeoIpUrl = customResourceFileGeoIpUrl,
-        customResourceFileGeoSiteUrl = customResourceFileGeoSiteUrl,
-        customResourceFileGeoIpOnlyCnPrivateUrl = customResourceFileGeoIpOnlyCnPrivateUrl,
-        customResourceFileDirectCidrIpv4Url = customResourceFileDirectCidrIpv4Url,
-        customResourceFileDirectCidrIpv6Url = customResourceFileDirectCidrIpv6Url,
         customResourceFiles = customResourceFiles.map(CustomResourceFileState::toBackup),
         enableSniffing = enableSniffing,
         enableSniffingRouteOnly = enableSniffingRouteOnly,
@@ -212,21 +195,6 @@ private fun ProxyServerState.toBackup(): AppBackupProxyServer {
     )
 }
 
-private fun RouteRule.toBackup(): AppBackupRouteRule {
-    return AppBackupRouteRule(
-        id = id,
-        remarks = remarks,
-        outboundTag = outboundTag,
-        domain = domain,
-        ip = ip,
-        process = process,
-        port = port,
-        protocol = protocol,
-        network = network,
-        enabled = enabled,
-    )
-}
-
 private fun CustomResourceFileState.toBackup(): AppBackupCustomResourceFile {
     return AppBackupCustomResourceFile(
         id = id,
@@ -255,15 +223,9 @@ private fun AppBackupData.toAppState(): AppState {
         ?: restoredProxyServers.firstOrNull()?.id
         ?: defaults.selectedProxyServerId
     val restoredCustomResourceFiles = settings.customResourceFiles.map(AppBackupCustomResourceFile::toState)
-    val restoredRouteRules = routeRules.map(AppBackupRouteRule::toState)
 
     return defaults.copy(
-        colorMode = settings.colorMode,
-        languageMode = settings.languageMode,
         seedIndex = settings.seedIndex,
-        hideRecentTasks = settings.hideRecentTasks,
-        allowScreenshots = settings.allowScreenshots,
-        hideLauncherIcon = settings.hideLauncherIcon,
         subscriptionGroups = restoredSubscriptionGroups,
         nextSubscriptionGroupId = nextId(
             defaultValue = defaults.nextSubscriptionGroupId,
@@ -271,7 +233,7 @@ private fun AppBackupData.toAppState(): AppState {
         ),
         enableAllProxyGroup = settings.enableAllProxyGroup,
         enableDeletionConfirmation = settings.enableDeletionConfirmation,
-        runMode = RunModeVpnService,
+        runMode = RunModeTun2Socks,
         enableAppListEnhancement = false,
         enableResolveProxyServerDomain = settings.enableResolveProxyServerDomain,
         enableVpnLocalDns = settings.enableVpnLocalDns,
@@ -296,23 +258,8 @@ private fun AppBackupData.toAppState(): AppState {
         proxyServerListLayout = settings.proxyServerListLayout,
         proxyServerListSort = settings.proxyServerListSort,
         proxyRunning = false,
-        routeDomainStrategy = settings.routeDomainStrategy,
-        defaultRouteOutboundTag = settings.defaultRouteOutboundTag,
-        routeRules = restoredRouteRules,
-        nextRouteRuleId = nextId(
-            defaultValue = defaults.nextRouteRuleId,
-            ids = restoredRouteRules.map { rule -> rule.id },
-        ),
         coreLogLevel = settings.coreLogLevel,
         enableAccessLog = settings.enableAccessLog,
-        enableResourceAutoUpdate = settings.enableResourceAutoUpdate,
-        resourceAutoUpdateInterval = settings.resourceAutoUpdateInterval,
-        resourceFileSource = settings.resourceFileSource,
-        customResourceFileGeoIpUrl = settings.customResourceFileGeoIpUrl,
-        customResourceFileGeoSiteUrl = settings.customResourceFileGeoSiteUrl,
-        customResourceFileGeoIpOnlyCnPrivateUrl = settings.customResourceFileGeoIpOnlyCnPrivateUrl,
-        customResourceFileDirectCidrIpv4Url = settings.customResourceFileDirectCidrIpv4Url,
-        customResourceFileDirectCidrIpv6Url = settings.customResourceFileDirectCidrIpv6Url,
         customResourceFiles = restoredCustomResourceFiles,
         nextCustomResourceFileId = nextId(
             defaultValue = defaults.nextCustomResourceFileId,
@@ -382,21 +329,6 @@ private fun AppBackupProxyServer.toState(
             payload = payload,
         ).decodeProxyServer(),
         groupId = groupId.takeIf { it in validGroupIds } ?: fallbackGroupId,
-    )
-}
-
-private fun AppBackupRouteRule.toState(): RouteRule {
-    return RouteRule(
-        id = id,
-        remarks = remarks,
-        outboundTag = outboundTag,
-        domain = domain,
-        ip = ip,
-        process = process,
-        port = port,
-        protocol = protocol,
-        network = network,
-        enabled = enabled,
     )
 }
 

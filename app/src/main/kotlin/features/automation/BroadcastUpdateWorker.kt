@@ -16,7 +16,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import app.AsteriskApplication
 import app.R
-import app.resourceFileUpdateSource
 import features.logs.AndroidAppLogger
 import features.resources.ResourceFileUpdateRequest
 import features.resources.ResourceFileUpdateResult
@@ -83,7 +82,6 @@ internal class BroadcastUpdateWorker(
                 BroadcastUpdateKind.Resource -> {
                     val state = application.stateStore.state.value
                     val all = ResourceFileUpdateRequest.All(
-                        source = state.resourceFileUpdateSource(),
                         options = state.resourceFileUpdateOptions(),
                         customResourceFiles = state.customResourceFiles,
                     )
@@ -91,14 +89,10 @@ internal class BroadcastUpdateWorker(
                         currentCoroutineContext().ensureActive()
                         val key = target.toString()
                         if (checkpoint.completed(key)) continue
-                        val request = when (target) {
-                            is ResourceFileUpdateTarget.BuiltIn -> ResourceFileUpdateRequest.BuiltIn(
-                                target.kind, all.source, all.options, all.customResourceFiles,
-                            )
-                            is ResourceFileUpdateTarget.Custom -> ResourceFileUpdateRequest.Custom(
-                                all.customResourceFiles.first { it.id == target.id }, all.options, all.customResourceFiles,
-                            )
-                        }
+                        val customTarget = target as ResourceFileUpdateTarget.Custom
+                        val request = ResourceFileUpdateRequest.Custom(
+                            all.customResourceFiles.first { it.id == customTarget.id }, all.options, all.customResourceFiles,
+                        )
                         val result = if (foreground) {
                             application.resourceFileUpdateCoordinator.enqueueAndAwait(request)
                         } else {

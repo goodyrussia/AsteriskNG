@@ -673,7 +673,7 @@
     <string name="settings_backup_restore">Backup and restore</string>
     <string name="settings_backup_user_data">Back up user data</string>
     <string name="settings_backup_user_data_summary">Export current user data to a backup file</string>
-    <string name="settings_restore_backup_counts">{groups} groups, {servers} proxy servers, {rules} routing rules</string>
+    <string name="settings_restore_backup_counts">{groups} groups, {servers} proxy servers</string>
     <string name="settings_restore_backup_created_at">Created: {time}</string>
     <string name="settings_restore_backup_version">Backup version {version}, app {appVersion}</string>
     <string name="settings_restore_completed">User data restored</string>

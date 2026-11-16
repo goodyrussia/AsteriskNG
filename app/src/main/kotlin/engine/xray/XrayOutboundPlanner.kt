@@ -8,7 +8,6 @@ import app.ProxyServerState
 import app.effectiveLocalDnsEnabled
 import app.proxyServerOutboundTag
 import features.proxy.server.model.strategyGroupMembers
-import features.routing.model.RouteRule
 import features.proxy.server.model.ChainProxy
 import features.proxy.server.model.Custom
 import features.proxy.server.model.StrategyGroup
@@ -35,9 +34,6 @@ private class XrayOutboundPlanner(
 
     fun build(selectedServer: ProxyServerState): XrayOutboundPlan {
         addRouteTarget(XrayTags.PROXY, selectedServer)
-        appState.routeTargetServers().forEach { server ->
-            addRouteTarget(server.proxyServerOutboundTag(), server)
-        }
         addFixedRouteTargets()
         return XrayOutboundPlan(
             proxyOutbounds = proxyOutbounds,
@@ -134,16 +130,6 @@ private class XrayOutboundPlanner(
         }
         routeTargets[tag] = XrayRouteTarget(tag, XrayRouteTargetKind.Outbound)
     }
-}
-
-private fun AppState.routeTargetServers(): List<ProxyServerState> {
-    val routeOutboundTags = (routeRules
-        .filter(RouteRule::enabled)
-        .map { rule -> rule.outboundTag } + defaultRouteOutboundTag)
-        .map { tag -> tag.trim() }
-        .filter { tag -> tag.isNotEmpty() && tag !in XrayTags.FIXED_OUTBOUND_TAGS }
-        .toSet()
-    return proxyServers.filter { server -> server.proxyServerOutboundTag() in routeOutboundTags }
 }
 
 private fun AppState.chainProxyMembers(chainProxy: ChainProxy): List<ProxyServerState> {

@@ -8,7 +8,6 @@ import android.net.Uri
 import app.CustomResourceFileState
 import app.ResourceFileKind
 import app.ResourceFilesStatus
-import app.ResourceFileUpdateSource
 import features.resources.runtime.AndroidResourceFileRepository
 import system.AndroidRootShellGateway
 import system.RootShellGateway
@@ -31,25 +30,11 @@ class ResourceFileUseCase(
 
     suspend fun hasCustomXrayCore(): Boolean = repository.hasCustomXrayCore()
 
-    suspend fun synchronizeBundledFilesAfterPackageUpdate(resourceFileSource: Int) {
-        repository.synchronizeBundledFilesAfterPackageUpdate(resourceFileSource)
-    }
-
     suspend fun update(
-        source: ResourceFileUpdateSource,
         options: ResourceFileUpdateOptions = ResourceFileUpdateOptions(),
         customResourceFiles: List<CustomResourceFileState> = emptyList(),
     ): ResourceFilesStatus {
-        return repository.update(source, options, customResourceFiles)
-    }
-
-    suspend fun update(
-        kind: ResourceFileKind,
-        source: ResourceFileUpdateSource,
-        options: ResourceFileUpdateOptions = ResourceFileUpdateOptions(),
-        customResourceFiles: List<CustomResourceFileState> = emptyList(),
-    ): ResourceFilesStatus {
-        return repository.update(kind, source, options, customResourceFiles)
+        return repository.update(options, customResourceFiles)
     }
 
     suspend fun updateCustom(

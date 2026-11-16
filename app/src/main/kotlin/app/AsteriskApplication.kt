@@ -3,8 +3,6 @@
 
 package app
 
-import features.resources.runtime.ResourceAutoUpdateScheduler
-import features.resources.resourceAutoUpdateIntervalMillis
 import features.resources.ResourceFileUseCase
 import features.resources.ResourceFileUpdateCoordinator
 import features.resources.ResourceFileUpdateRequest
@@ -79,19 +77,12 @@ class AsteriskApplication : Application(), SingletonImageLoader.Factory {
             scope = appScope,
             execute = { request ->
                 when (request) {
-                    is ResourceFileUpdateRequest.BuiltIn -> resourceFileUseCase.update(
-                        kind = request.kind,
-                        source = request.source,
-                        options = request.options,
-                        customResourceFiles = request.customResourceFiles,
-                    )
                     is ResourceFileUpdateRequest.Custom -> resourceFileUseCase.updateCustom(
                         customFile = request.file,
                         options = request.options,
                         customResourceFiles = request.customResourceFiles,
                     )
                     is ResourceFileUpdateRequest.All -> resourceFileUseCase.update(
-                        source = request.source,
                         options = request.options,
                         customResourceFiles = request.customResourceFiles,
                     )
@@ -222,13 +213,6 @@ class AsteriskApplication : Application(), SingletonImageLoader.Factory {
             }
         }
         refreshQuickSettingsTileOnProxyStateChange()
-        appScope.launch {
-            val scheduler = ResourceAutoUpdateScheduler(applicationContext)
-            stateStore.state
-                .map { state -> resourceAutoUpdateIntervalMillis(state.enableResourceAutoUpdate, state.resourceAutoUpdateInterval) }
-                .distinctUntilChanged()
-                .collect(scheduler::reconcile)
-        }
         AppSettingsPreferences(applicationContext).getOrCreateSubscriptionHwid()
         AndroidLogcatRepository.initialize(applicationContext)
         AndroidCoreLogRepository.initialize(applicationContext)

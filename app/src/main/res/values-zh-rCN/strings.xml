@@ -673,7 +673,7 @@
     <string name="settings_backup_restore">备份与还原</string>
     <string name="settings_backup_user_data">备份用户数据</string>
     <string name="settings_backup_user_data_summary">导出当前用户数据到备份文件</string>
-    <string name="settings_restore_backup_counts">{groups} 个分组，{servers} 个代理节点，{rules} 条路由规则</string>
+    <string name="settings_restore_backup_counts">{groups} 个分组，{servers} 个代理节点</string>
     <string name="settings_restore_backup_created_at">创建时间：{time}</string>
     <string name="settings_restore_backup_version">备份版本 {version}，应用版本 {appVersion}</string>
     <string name="settings_restore_completed">用户数据已还原</string>

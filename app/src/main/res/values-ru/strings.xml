@@ -674,7 +674,7 @@
     <string name="settings_backup_restore">Резервное копирование и восстановление</string>
     <string name="settings_backup_user_data">Создать резервную копию</string>
     <string name="settings_backup_user_data_summary">Экспортировать текущие данные пользователя в файл бэкапа</string>
-    <string name="settings_restore_backup_counts">Групп: {groups}, прокси-серверов: {servers}, правил маршрутов: {rules}</string>
+    <string name="settings_restore_backup_counts">Групп: {groups}, прокси-серверов: {servers}</string>
     <string name="settings_restore_backup_created_at">Создано: {time}</string>
     <string name="settings_restore_backup_version">Версия бэкапа: {version}, приложение: {appVersion}</string>
     <string name="settings_restore_completed">Данные пользователя успешно восстановлены</string>

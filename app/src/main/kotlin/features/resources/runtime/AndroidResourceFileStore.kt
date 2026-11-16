@@ -15,11 +15,9 @@ import app.ResourceFileStatus
 import app.ResourceFilesStatus
 import features.resources.isSupportedCustomResourceName
 import features.resources.isSupportedResourceName
-import features.resources.ResourceFileSourceLoyalsoldierGithub
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.zip.ZipInputStream
-import system.getPackageInfoCompat
 
 internal class AndroidResourceFileStore(
     context: Context,
@@ -35,11 +33,6 @@ internal class AndroidResourceFileStore(
 
     fun currentStatus(customResourceFiles: List<CustomResourceFileState> = emptyList()): ResourceFilesStatus {
         return ResourceFilesStatus(
-            geoIp = file(ResourceFileKind.GeoIp).toStatus(ResourceFileKind.GeoIp),
-            geoSite = file(ResourceFileKind.GeoSite).toStatus(ResourceFileKind.GeoSite),
-            geoIpOnlyCnPrivate = file(ResourceFileKind.GeoIpOnlyCnPrivate).toStatus(ResourceFileKind.GeoIpOnlyCnPrivate),
-            directCidrIpv4 = file(ResourceFileKind.DirectCidrIpv4).toStatus(ResourceFileKind.DirectCidrIpv4),
-            directCidrIpv6 = file(ResourceFileKind.DirectCidrIpv6).toStatus(ResourceFileKind.DirectCidrIpv6),
             xrayCore = effectiveXrayCoreFile().let { target ->
                 target.toStatus(ResourceFileKind.XrayCore).copy(
                     isBundledCore = target != file(ResourceFileKind.XrayCore),
@@ -88,55 +81,6 @@ internal class AndroidResourceFileStore(
         }
     }
 
-    fun synchronizeBundledFilesAfterPackageUpdate(resourceFileSource: Int = ResourceFileSourceLoyalsoldierGithub) {
-        ensureBundledFiles(
-            resourceFileSource = resourceFileSource,
-            restoreAfterPackageUpdate = true,
-        )
-    }
-
-    fun ensureBundledFiles(
-        resourceFileSource: Int = ResourceFileSourceLoyalsoldierGithub,
-        restoreAfterPackageUpdate: Boolean = false,
-    ) {
-        val bundledUpdatedAtMillis = appContext.packageUpdatedAtMillis()
-        ResourceFileKind.entries.forEach { kind ->
-            if (kind == ResourceFileKind.XrayCore) return@forEach
-            val target = file(kind)
-            if (
-                !target.shouldRestoreBundled(
-                    kind = kind,
-                    resourceFileSource = resourceFileSource,
-                    bundledUpdatedAtMillis = bundledUpdatedAtMillis,
-                    restoreAfterPackageUpdate = restoreAfterPackageUpdate,
-                )
-            ) {
-                return@forEach
-            }
-            if (!kind.hasBundledAsset()) return@forEach
-            runCatching { restoreBundled(kind) }
-                .onFailure { error ->
-                    AndroidResourceFileLogger.warn(
-                        "Failed to restore bundled resource file: ${kind.fileName}",
-                        error,
-                    )
-                }
-        }
-    }
-
-    fun restoreBundled(kind: ResourceFileKind) {
-        require(kind != ResourceFileKind.XrayCore) { "Xray core must be restored through the locked publisher" }
-        restoreBundledAsset(kind, kind.bundledAssetPathOrNull() ?: error("Bundled ${kind.fileName} is unavailable"))
-    }
-
-    private fun restoreBundledAsset(kind: ResourceFileKind, assetPath: String) {
-        appContext.assets.open(assetPath).use { input ->
-            dataDir.mkdirs()
-            writeAtomically(file(kind)) { output -> input.copyTo(output) }
-        }
-        kind.applyPermissions(file(kind))
-    }
-
     fun hasCustomXrayCore(): Boolean {
         return file(ResourceFileKind.XrayCore).coreBinaryOwnerUidOrNull() != null
     }
@@ -153,18 +97,6 @@ internal class AndroidResourceFileStore(
 
     fun replaceXrayCoreCandidate(candidate: File) {
         publishCoreBinaryCandidate(candidate, file(ResourceFileKind.XrayCore), replaceExisting = true)
-    }
-
-    fun replace(kind: ResourceFileKind, uri: Uri) {
-        require(kind != ResourceFileKind.XrayCore) { "Xray core must be replaced through the locked publisher" }
-        dataDir.mkdirs()
-        val replaceTempFile = assetDirectory.createCandidate("replace-")
-        appContext.contentResolver.openInputStream(uri)?.use { input ->
-            replaceTempFile.outputStream().use { output -> input.copyTo(output) }
-        } ?: throw FileNotFoundException(uri.toString())
-
-        replaceFile(replaceTempFile, file(kind))
-        kind.applyPermissions(file(kind))
     }
 
     fun stageXrayCoreCandidate(uri: Uri): File {
@@ -257,11 +189,8 @@ internal class AndroidResourceFileStore(
         }
     }
 
-    fun preparePaths(restoreBundledFiles: Boolean = true): XrayResourceFilePaths {
+    fun preparePaths(): XrayResourceFilePaths {
         dataDir.mkdirs()
-        if (restoreBundledFiles) {
-            ensureBundledFiles()
-        }
         return currentPaths()
     }
 
@@ -274,44 +203,8 @@ internal class AndroidResourceFileStore(
             bpf2socksPath = File(appContext.applicationInfo.nativeLibraryDir, Bpf2SocksLibraryName).absolutePath,
             xrayCorePath = file(ResourceFileKind.XrayCore).absolutePath,
             hevSocks5TunnelPath = File(appContext.applicationInfo.nativeLibraryDir, HevSocks5TunnelLibraryName).absolutePath,
-            directCidrIpv4Path = file(ResourceFileKind.DirectCidrIpv4).absolutePath,
-            directCidrIpv6Path = file(ResourceFileKind.DirectCidrIpv6).absolutePath,
         )
     }
-}
-
-private fun File.shouldRestoreBundled(
-    kind: ResourceFileKind,
-    resourceFileSource: Int,
-    bundledUpdatedAtMillis: Long,
-    restoreAfterPackageUpdate: Boolean,
-): Boolean {
-    return shouldRestoreBundledResourceFile(
-        kind = kind,
-        resourceFileSource = resourceFileSource,
-        targetExists = exists(),
-        targetLength = takeIf { exists() }?.length() ?: 0L,
-        targetLastModifiedMillis = takeIf { exists() }?.lastModified() ?: 0L,
-        bundledUpdatedAtMillis = bundledUpdatedAtMillis,
-        restoreAfterPackageUpdate = restoreAfterPackageUpdate,
-    )
-}
-
-internal fun shouldRestoreBundledResourceFile(
-    kind: ResourceFileKind,
-    resourceFileSource: Int,
-    targetExists: Boolean,
-    targetLength: Long,
-    targetLastModifiedMillis: Long,
-    bundledUpdatedAtMillis: Long,
-    restoreAfterPackageUpdate: Boolean,
-): Boolean {
-    if (!targetExists || (kind != ResourceFileKind.XrayCore && targetLength <= 0)) return true
-    if (!restoreAfterPackageUpdate) return false
-    if (kind != ResourceFileKind.XrayCore && resourceFileSource != ResourceFileSourceLoyalsoldierGithub) {
-        return false
-    }
-    return bundledUpdatedAtMillis > 0 && targetLastModifiedMillis < bundledUpdatedAtMillis
 }
 
 internal data class XrayResourceFilePaths(
@@ -322,8 +215,6 @@ internal data class XrayResourceFilePaths(
     val bpf2socksPath: String,
     val xrayCorePath: String,
     val hevSocks5TunnelPath: String,
-    val directCidrIpv4Path: String,
-    val directCidrIpv6Path: String,
 )
 
 internal fun Context.synchronizeResourceAssets(state: AppState): AppState {
@@ -341,10 +232,8 @@ internal fun Context.xrayResourceFilesDir(): File {
     return File(filesDir, "xray")
 }
 
-internal fun Context.prepareXrayResourceFilePaths(
-    restoreBundledFiles: Boolean = true,
-): XrayResourceFilePaths {
-    return AndroidResourceFileStore(this).preparePaths(restoreBundledFiles = restoreBundledFiles)
+internal fun Context.prepareXrayResourceFilePaths(): XrayResourceFilePaths {
+    return AndroidResourceFileStore(this).preparePaths()
 }
 
 internal fun Context.xrayResourceFilePaths(): XrayResourceFilePaths {
@@ -357,33 +246,11 @@ internal fun Context.xrayRootResourceFilePaths(): XrayResourceFilePaths {
     return store.currentPaths().copy(xrayCorePath = store.effectiveXrayCoreFile().absolutePath)
 }
 
-private fun ResourceFileKind.hasBundledAsset(): Boolean {
-    return this == ResourceFileKind.XrayCore || bundledAssetPathOrNull() != null
-}
-
-private fun ResourceFileKind.bundledAssetPathOrNull(): String? {
-    return when (this) {
-        ResourceFileKind.GeoIp -> fileName
-        ResourceFileKind.GeoSite -> fileName
-        ResourceFileKind.GeoIpOnlyCnPrivate -> fileName
-        ResourceFileKind.DirectCidrIpv4 -> "$XrayBundledResourceFilesDir/$fileName"
-        ResourceFileKind.DirectCidrIpv6 -> "$XrayBundledResourceFilesDir/$fileName"
-        ResourceFileKind.XrayCore -> error("Xray-core is restored from native libraries")
-    }
-}
-
-private fun Context.packageUpdatedAtMillis(): Long {
-    return runCatching {
-        packageManager.getPackageInfoCompat(packageName).lastUpdateTime
-    }.getOrDefault(0L)
-}
-
 private const val AsteriskdLibraryName = "libasteriskd.so"
 private const val BpfMatcherLibraryName = "libbpf-matcher.so"
 private const val Bpf2SocksLibraryName = "libbpf2socks.so"
 private const val XrayCoreLibraryName = "libxray.so"
 private const val HevSocks5TunnelLibraryName = "libhev-socks5-tunnel-cli.so"
-private const val XrayBundledResourceFilesDir = "xray"
 
 internal fun resourceFileExists(
     kind: ResourceFileKind?,

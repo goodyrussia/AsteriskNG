@@ -28,18 +28,12 @@ internal data class AppBackupData(
     val settings: AppBackupSettings = AppBackupSettings(),
     val subscriptionGroups: List<AppBackupSubscriptionGroup> = emptyList(),
     val proxyServers: List<AppBackupProxyServer> = emptyList(),
-    val routeRules: List<AppBackupRouteRule> = emptyList(),
     val proxyAppListSelectedApps: List<String> = emptyList(),
 )
 
 @Serializable
 internal data class AppBackupSettings(
-    val colorMode: Int = BackupDefaults.colorMode,
-    val languageMode: Int = BackupDefaults.languageMode,
     val seedIndex: Int = BackupDefaults.seedIndex,
-    val hideRecentTasks: Boolean = BackupDefaults.hideRecentTasks,
-    val allowScreenshots: Boolean = BackupDefaults.allowScreenshots,
-    val hideLauncherIcon: Boolean = BackupDefaults.hideLauncherIcon,
     val enableAllProxyGroup: Boolean = BackupDefaults.enableAllProxyGroup,
     val enableDeletionConfirmation: Boolean = BackupDefaults.enableDeletionConfirmation,
     val enableResolveProxyServerDomain: Boolean = BackupDefaults.enableResolveProxyServerDomain,
@@ -59,18 +53,8 @@ internal data class AppBackupSettings(
     val selectedProxyServerId: Int = BackupDefaults.selectedProxyServerId,
     val proxyServerListLayout: Int = BackupDefaults.proxyServerListLayout,
     val proxyServerListSort: Int = BackupDefaults.proxyServerListSort,
-    val routeDomainStrategy: Int = BackupDefaults.routeDomainStrategy,
-    val defaultRouteOutboundTag: String = BackupDefaults.defaultRouteOutboundTag,
     val coreLogLevel: Int = BackupDefaults.coreLogLevel,
     val enableAccessLog: Boolean = BackupDefaults.enableAccessLog,
-    val enableResourceAutoUpdate: Boolean = BackupDefaults.enableResourceAutoUpdate,
-    val resourceAutoUpdateInterval: String = BackupDefaults.resourceAutoUpdateInterval,
-    val resourceFileSource: Int = BackupDefaults.resourceFileSource,
-    val customResourceFileGeoIpUrl: String = BackupDefaults.customResourceFileGeoIpUrl,
-    val customResourceFileGeoSiteUrl: String = BackupDefaults.customResourceFileGeoSiteUrl,
-    val customResourceFileGeoIpOnlyCnPrivateUrl: String = BackupDefaults.customResourceFileGeoIpOnlyCnPrivateUrl,
-    val customResourceFileDirectCidrIpv4Url: String = BackupDefaults.customResourceFileDirectCidrIpv4Url,
-    val customResourceFileDirectCidrIpv6Url: String = BackupDefaults.customResourceFileDirectCidrIpv6Url,
     val customResourceFiles: List<AppBackupCustomResourceFile> = emptyList(),
     val enableSniffing: Boolean = BackupDefaults.enableSniffing,
     val enableSniffingRouteOnly: Boolean = BackupDefaults.enableSniffingRouteOnly,
@@ -167,20 +151,6 @@ internal data class AppBackupProxyServer(
     val payload: JsonElement = JsonObject(emptyMap()),
 )
 
-@Serializable
-internal data class AppBackupRouteRule(
-    val id: Int = 0,
-    val remarks: String = "",
-    val outboundTag: String = BackupDefaults.defaultRouteOutboundTag,
-    val domain: List<String> = emptyList(),
-    val ip: List<String> = emptyList(),
-    val process: List<String> = emptyList(),
-    val port: String = "",
-    val protocol: String = "",
-    val network: String = "",
-    val enabled: Boolean = true,
-)
-
 internal data class AppBackupRestorePreview(
     val backup: AppBackupFile,
     val restoredState: AppState,
@@ -191,9 +161,6 @@ internal data class AppBackupRestorePreview(
 
     val proxyServerCount: Int
         get() = restoredState.proxyServers.size
-
-    val routeRuleCount: Int
-        get() = restoredState.routeRules.size
 }
 
 internal sealed interface AppBackupWarning {

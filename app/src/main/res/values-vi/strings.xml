@@ -673,7 +673,7 @@
     <string name="settings_backup_restore">Sao lưu và khôi phục</string>
     <string name="settings_backup_user_data">Sao lưu dữ liệu người dùng</string>
     <string name="settings_backup_user_data_summary">Xuất dữ liệu người dùng hiện tại ra tệp sao lưu</string>
-    <string name="settings_restore_backup_counts">{groups} nhóm, {servers} nút proxy, {rules} quy tắc định tuyến</string>
+    <string name="settings_restore_backup_counts">{groups} nhóm, {servers} nút proxy</string>
     <string name="settings_restore_backup_created_at">Thời gian tạo: {time}</string>
     <string name="settings_restore_backup_version">Phiên bản sao lưu {version}, phiên bản ứng dụng {appVersion}</string>
     <string name="settings_restore_completed">Đã khôi phục dữ liệu người dùng</string>

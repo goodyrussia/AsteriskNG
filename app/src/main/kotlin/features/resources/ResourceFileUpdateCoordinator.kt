@@ -4,8 +4,6 @@
 package features.resources
 
 import app.CustomResourceFileState
-import app.ResourceFileKind
-import app.ResourceFileUpdateSource
 import app.ResourceFilesStatus
 import features.resources.runtime.AndroidResourceFileDownloadCancelledException
 import kotlinx.coroutines.CancellationException
@@ -26,32 +24,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-private val UpdateableResourceFileKinds = setOf(
-    ResourceFileKind.GeoIp,
-    ResourceFileKind.GeoSite,
-    ResourceFileKind.GeoIpOnlyCnPrivate,
-    ResourceFileKind.DirectCidrIpv4,
-    ResourceFileKind.DirectCidrIpv6,
-)
-
 internal sealed interface ResourceFileUpdateTarget {
-    data class BuiltIn(val kind: ResourceFileKind) : ResourceFileUpdateTarget
-
     data class Custom(val id: Int) : ResourceFileUpdateTarget
 }
 
 internal sealed interface ResourceFileUpdateRequest {
     val targets: Set<ResourceFileUpdateTarget>
-
-    class BuiltIn(
-        val kind: ResourceFileKind,
-        val source: ResourceFileUpdateSource,
-        val options: ResourceFileUpdateOptions,
-        customResourceFiles: List<CustomResourceFileState>,
-    ) : ResourceFileUpdateRequest {
-        val customResourceFiles = customResourceFiles.toList()
-        override val targets = setOf(ResourceFileUpdateTarget.BuiltIn(kind))
-    }
 
     class Custom(
         val file: CustomResourceFileState,
@@ -63,15 +41,11 @@ internal sealed interface ResourceFileUpdateRequest {
     }
 
     class All(
-        val source: ResourceFileUpdateSource,
         val options: ResourceFileUpdateOptions,
         customResourceFiles: List<CustomResourceFileState>,
     ) : ResourceFileUpdateRequest {
         val customResourceFiles = customResourceFiles.toList()
         override val targets: Set<ResourceFileUpdateTarget> = buildSet {
-            UpdateableResourceFileKinds.forEach { kind ->
-                add(ResourceFileUpdateTarget.BuiltIn(kind))
-            }
             this@All.customResourceFiles.forEach { customFile ->
                 if (customFile.url.isNotBlank()) {
                     add(ResourceFileUpdateTarget.Custom(customFile.id))

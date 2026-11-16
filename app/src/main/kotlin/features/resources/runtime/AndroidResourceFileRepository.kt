@@ -8,7 +8,6 @@ import android.net.Uri
 import app.CustomResourceFileState
 import app.R
 import app.ResourceFileKind
-import app.ResourceFileUpdateSource
 import app.ResourceFilesStatus
 import app.modes.isRootRunMode
 import engine.network.isPort
@@ -61,12 +60,6 @@ internal class AndroidResourceFileRepository(
         )
     }
 
-    suspend fun synchronizeBundledFilesAfterPackageUpdate(resourceFileSource: Int) {
-        withContext(Dispatchers.IO) {
-            store.synchronizeBundledFilesAfterPackageUpdate(resourceFileSource)
-        }
-    }
-
     suspend fun deleteCustom(
         customFile: CustomResourceFileState,
         customResourceFiles: List<CustomResourceFileState>,
@@ -85,27 +78,11 @@ internal class AndroidResourceFileRepository(
     }
 
     suspend fun update(
-        source: ResourceFileUpdateSource,
         options: ResourceFileUpdateOptions,
         customResourceFiles: List<CustomResourceFileState> = emptyList(),
     ): ResourceFilesStatus = withContext(Dispatchers.IO) {
         updateTargets(
-            downloads = UpdateableResourceFileKinds.map { kind ->
-                kind.toDownloadTarget(source)
-            } + customResourceFiles.mapNotNull { customFile -> customFile.toDownloadTargetOrNull() },
-            options = options,
-            customResourceFiles = customResourceFiles,
-        )
-    }
-
-    suspend fun update(
-        kind: ResourceFileKind,
-        source: ResourceFileUpdateSource,
-        options: ResourceFileUpdateOptions,
-        customResourceFiles: List<CustomResourceFileState> = emptyList(),
-    ): ResourceFilesStatus = withContext(Dispatchers.IO) {
-        updateTargets(
-            downloads = listOf(kind.toDownloadTarget(source)),
+            downloads = customResourceFiles.mapNotNull { customFile -> customFile.toDownloadTargetOrNull() },
             options = options,
             customResourceFiles = customResourceFiles,
         )
@@ -197,23 +174,6 @@ internal class AndroidResourceFileRepository(
         )
     }
 
-    private fun ResourceFileKind.toDownloadTarget(source: ResourceFileUpdateSource): ResourceFileDownloadTarget {
-        val updateUrl = when (this) {
-            ResourceFileKind.GeoIp -> source.geoIpUrl
-            ResourceFileKind.GeoSite -> source.geoSiteUrl
-            ResourceFileKind.GeoIpOnlyCnPrivate -> source.geoIpOnlyCnPrivateUrl
-            ResourceFileKind.DirectCidrIpv4 -> source.directCidrIpv4Url
-            ResourceFileKind.DirectCidrIpv6 -> source.directCidrIpv6Url
-            ResourceFileKind.XrayCore -> error("${ResourceFileKind.XrayCore.displayName} cannot be updated from URL")
-        }
-        return ResourceFileDownloadTarget(
-            displayName = displayName,
-            url = updateUrl,
-            targetFile = store.file(this),
-            applyPermissions = { store.applyPermissions(this) },
-        )
-    }
-
     suspend fun replaceCustom(
         customFile: CustomResourceFileState,
         uri: Uri,
@@ -228,11 +188,8 @@ internal class AndroidResourceFileRepository(
         uri: Uri,
         customResourceFiles: List<CustomResourceFileState> = emptyList(),
     ): ResourceFilesStatus = withContext(Dispatchers.IO) {
-        if (kind == ResourceFileKind.XrayCore) {
-            installOrPublishCoreCandidate { store.stageXrayCoreCandidate(uri) }
-        } else {
-            store.replace(kind, uri)
-        }
+        require(kind == ResourceFileKind.XrayCore) { "Only the Xray core can be replaced" }
+        installOrPublishCoreCandidate { store.stageXrayCoreCandidate(uri) }
         store.currentStatus(customResourceFiles)
     }
 
@@ -240,11 +197,8 @@ internal class AndroidResourceFileRepository(
         kind: ResourceFileKind,
         customResourceFiles: List<CustomResourceFileState> = emptyList(),
     ): ResourceFilesStatus = withContext(Dispatchers.IO) {
-        if (kind == ResourceFileKind.XrayCore) {
-            removeCustomXrayCore()
-        } else {
-            store.restoreBundled(kind)
-        }
+        require(kind == ResourceFileKind.XrayCore) { "Only the Xray core can be restored" }
+        removeCustomXrayCore()
         store.currentStatus(customResourceFiles)
     }
 
@@ -317,14 +271,6 @@ private data class ResourceFileDownloadTarget(
     val url: String,
     val targetFile: java.io.File,
     val applyPermissions: () -> Unit = {},
-)
-
-private val UpdateableResourceFileKinds = listOf(
-    ResourceFileKind.GeoIp,
-    ResourceFileKind.GeoSite,
-    ResourceFileKind.GeoIpOnlyCnPrivate,
-    ResourceFileKind.DirectCidrIpv4,
-    ResourceFileKind.DirectCidrIpv6,
 )
 
 private class ResourceFileDownloadFailedException(
